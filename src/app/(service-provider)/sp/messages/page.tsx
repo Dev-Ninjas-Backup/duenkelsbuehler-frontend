@@ -172,6 +172,7 @@ export default function MessagesPage() {
             type="file"
             accept="image/*"
             className="hidden"
+            aria-label="Upload image"
             onChange={handleImageUpload}
           />
           <button
