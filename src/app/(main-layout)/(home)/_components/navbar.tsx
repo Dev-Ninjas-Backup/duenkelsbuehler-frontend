@@ -82,7 +82,7 @@ export function Navbar() {
           >
             <Link href="/" className="flex flex-col items-center">
               <Image
-                src="/images/logo/Logo.png"
+                src="/images/logo/logo.png"
                 alt="AristoPay Logo"
                 width={48}
                 height={48}
@@ -136,7 +136,10 @@ export function Navbar() {
             >
               <Link href="/login">Log In</Link>
             </Button>
-            <Button className="font-work-sans rounded-full px-8 py-2.5 h-auto hover:scale-105 transition-transform" asChild>
+            <Button
+              className="font-work-sans rounded-full px-8 py-2.5 h-auto hover:scale-105 transition-transform"
+              asChild
+            >
               <Link href="/sign-up">Sign Up</Link>
             </Button>
           </motion.div>
@@ -185,13 +188,17 @@ export function Navbar() {
                     className="font-work-sans w-full rounded-full h-12"
                     asChild
                   >
-                    <Link href="/login" onClick={() => setOpen(false)}>Log In</Link>
+                    <Link href="/login" onClick={() => setOpen(false)}>
+                      Log In
+                    </Link>
                   </Button>
                   <Button
                     className="font-work-sans w-full rounded-full h-12"
                     asChild
                   >
-                    <Link href="/sign-up" onClick={() => setOpen(false)}>Sign Up</Link>
+                    <Link href="/sign-up" onClick={() => setOpen(false)}>
+                      Sign Up
+                    </Link>
                   </Button>
                 </div>
               </div>
