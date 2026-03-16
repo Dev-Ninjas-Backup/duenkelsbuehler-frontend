@@ -1,9 +1,15 @@
-import React from 'react'
+import { Navbar, HeroSection, AboutSection, BlogSection, Footer } from "./_components"
 
-const HomePage = () => {
+export default function HomePage() {
   return (
-    <div>this is  HomePage</div>
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-1">
+        <HeroSection />
+        <AboutSection />
+        <BlogSection />
+      </main>
+      <Footer />
+    </div>
   )
 }
-
-export default HomePage

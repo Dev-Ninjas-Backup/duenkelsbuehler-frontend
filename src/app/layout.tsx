@@ -1,20 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Rozha_One, Work_Sans } from "next/font/google";
 import "./globals.css";
+import { QueryProvider } from "@/providers/query-provider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const workSans = Work_Sans({
   subsets: ["latin"],
+  variable: "--font-work-sans",
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const rozhaOne = Rozha_One({
   subsets: ["latin"],
+  variable: "--font-rozha",
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
-  title: "Duenkelsbuehler",
-  description: "Duenkelsbuehler",
+  title: "AristoPay - Transparent Marketplace for Securing Deals",
+  description: "AristoPay - Transparent Marketplace for Securing Deals",
 };
 
 export default function RootLayout({
@@ -25,9 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${workSans.variable} ${rozhaOne.variable} font-work-sans antialiased`}
       >
-        {children}
+        <QueryProvider>
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );

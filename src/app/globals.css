@@ -45,6 +45,69 @@
 
 :root {
   --radius: 0.625rem;
+  
+  /* Success Colors */
+  --success-50: 232 245 233;
+  --success-100: 200 230 201;
+  --success-200: 165 214 167;
+  --success-300: 129 199 132;
+  --success-400: 102 187 106;
+  --success-500: 76 175 80;
+  --success-600: 67 160 71;
+  --success-700: 56 142 60;
+  --success-800: 46 125 50;
+  --success-900: 27 94 32;
+  
+  /* Info Colors */
+  --info-50: 227 242 253;
+  --info-100: 187 222 251;
+  --info-200: 144 202 249;
+  --info-300: 100 181 246;
+  --info-400: 66 165 245;
+  --info-500: 33 150 243;
+  --info-600: 30 136 229;
+  --info-700: 25 118 210;
+  --info-800: 21 101 192;
+  --info-900: 13 71 161;
+  
+  /* Warning Colors */
+  --warning-50: 255 248 225;
+  --warning-100: 255 236 179;
+  --warning-200: 255 224 130;
+  --warning-300: 255 213 79;
+  --warning-400: 255 202 40;
+  --warning-500: 255 193 7;
+  --warning-600: 255 179 0;
+  --warning-700: 255 160 0;
+  --warning-800: 255 143 0;
+  --warning-900: 255 111 0;
+  
+  /* Error Colors */
+  --error-50: 255 235 238;
+  --error-100: 255 205 210;
+  --error-200: 239 154 154;
+  --error-300: 229 115 115;
+  --error-400: 239 83 80;
+  --error-500: 244 67 54;
+  --error-600: 229 57 53;
+  --error-700: 211 47 47;
+  --error-800: 198 40 40;
+  --error-900: 183 28 28;
+  
+  /* Gray Colors */
+  --gray-25: 253 253 253;
+  --gray-50: 250 250 250;
+  --gray-100: 245 245 245;
+  --gray-200: 238 174 171;
+  --gray-300: 213 215 218;
+  --gray-400: 166 167 174;
+  --gray-500: 113 118 128;
+  --gray-600: 83 88 98;
+  --gray-700: 65 70 81;
+  --gray-800: 37 40 55;
+  --gray-900: 24 29 45;
+  --gray-950: 10 13 18;
+
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
   --card: oklch(1 0 0);
@@ -118,5 +181,14 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-work-sans), sans-serif;
   }
+}
+
+.font-rozha {
+  font-family: var(--font-rozha), serif;
+}
+
+.font-work-sans {
+  font-family: var(--font-work-sans), sans-serif;
 }
