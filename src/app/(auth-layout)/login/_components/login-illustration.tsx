@@ -13,7 +13,7 @@ export function LoginIllustration() {
     >
       <motion.div className="relative w-full max-w-lg aspect-square">
         <Image
-          src="/images/user/user_avatar.png"
+          src="/images/logo/logo2.png"
           alt="AristoPay Illustration"
           fill
           className="object-contain"
