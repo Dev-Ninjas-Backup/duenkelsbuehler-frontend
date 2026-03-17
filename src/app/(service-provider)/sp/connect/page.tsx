@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Search, ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Client {
   id: number;
@@ -172,7 +172,7 @@ export default function ConnectPage() {
                   </span>
                   {client.verified && (
                     <span className="flex items-center gap-1 font-work-sans text-xs text-[#16A34A]">
-                      <ShieldCheck size={12} /> Verified
+                      <Image src="/svg/crown.svg" alt="Verified" width={12} height={12} /> Verified
                     </span>
                   )}
                 </div>

@@ -3,15 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Wifi, ShoppingBag, User } from "lucide-react";
+import { Wifi, User } from "lucide-react";
+import Image from "next/image";
 
 const bottomItems = [
   { label: "Connect", href: "/sp/connect", icon: Wifi },
-  { label: "Transact", href: "/sp/transact", icon: ShoppingBag },
+  { label: "Transact", href: "/sp/transact", icon: null },
   { label: "Me", href: "/sp/settings", icon: User },
 ];
 
-export function SPBottomNav() {
+export function SPBottomNav({ onMeClick }: { onMeClick: () => void }) {
   const pathname = usePathname();
 
   return (
@@ -27,18 +28,31 @@ export function SPBottomNav() {
           : pathname === href;
 
         const isTransact = label === "Transact";
+        const isMe = label === "Me";
 
         if (isTransact) {
           return (
             <Link key={href} href={href} className="flex flex-col items-center gap-1 -mt-8">
               <motion.div
                 whileTap={{ scale: 0.92 }}
-                className="w-16 h-16 rounded-full bg-[#181D27] flex items-center justify-center shadow-xl"
+                className="w-16 h-16 rounded-full bg-[#181D27] border-4 border-[#181D27] flex items-center justify-center shadow-xl"
               >
-                <Icon className="h-7 w-7 text-white" />
+                <Image src="/images/logo/inverse_logo.png" alt="Transact" width={44} height={44} className="object-contain" />
               </motion.div>
               <span className="font-work-sans text-xs text-[#414651] mt-1">{label}</span>
             </Link>
+          );
+        }
+
+        if (isMe) {
+          return (
+            <button key={href} onClick={onMeClick} className="flex flex-col items-center gap-1">
+              <motion.div whileTap={{ scale: 0.9 }}>
+                <span className={`font-work-sans text-xs transition-colors ${isActive ? "text-[#181D27] font-semibold" : "text-[#9CA3AF]"}`}>
+                  {label}
+                </span>
+              </motion.div>
+            </button>
           );
         }
 

@@ -14,78 +14,18 @@ interface Blog {
 }
 
 const MOCK: Blog[] = [
-  {
-    id: 1,
-    image: "/images/user/user_avatar.png",
-    title: "Learn How to Trade Safely Online",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
-  {
-    id: 2,
-    image: "/images/user/user_avatar.png",
-    title: "Welcome to Our Knowledge Center",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
-  {
-    id: 3,
-    image: "/images/user/user_avatar.png",
-    title: "Welcome to Our Knowledge Center",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
-  {
-    id: 4,
-    image: "/images/user/user_avatar.png",
-    title: "Learn How to Trade Safely Online",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
-  {
-    id: 5,
-    image: "/images/user/user_avatar.png",
-    title: "Welcome to Our Knowledge Center",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
-  {
-    id: 6,
-    image: "/images/user/user_avatar.png",
-    title: "Welcome to Our Knowledge Center",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
-  {
-    id: 7,
-    image: "/images/user/user_avatar.png",
-    title: "Learn How to Trade Safely Online",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
-  {
-    id: 8,
-    image: "/images/user/user_avatar.png",
-    title: "Welcome to Our Knowledge Center",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
-  {
-    id: 9,
-    image: "/images/user/user_avatar.png",
-    title: "Welcome to Our Knowledge Center",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
-  {
-    id: 10,
-    image: "/images/user/user_avatar.png",
-    title: "Learn How to Trade Safely Online",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
-  {
-    id: 11,
-    image: "/images/user/user_avatar.png",
-    title: "Welcome to Our Knowledge Center",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
-  {
-    id: 12,
-    image: "/images/user/user_avatar.png",
-    title: "Welcome to Our Knowledge Center",
-    uploadDateTime: "19 January 25, 10:00 PM",
-  },
+  { id: 1, image: "/images/blog_cover.png", title: "Learn How to Trade Safely Online", uploadDateTime: "19 January 25, 10:00 PM" },
+  { id: 2, image: "/images/blog_cover.png", title: "Welcome to Our Knowledge Center", uploadDateTime: "19 January 25, 10:00 PM" },
+  { id: 3, image: "/images/blog_cover.png", title: "Welcome to Our Knowledge Center", uploadDateTime: "19 January 25, 10:00 PM" },
+  { id: 4, image: "/images/blog_cover.png", title: "Learn How to Trade Safely Online", uploadDateTime: "19 January 25, 10:00 PM" },
+  { id: 5, image: "/images/blog_cover.png", title: "Welcome to Our Knowledge Center", uploadDateTime: "19 January 25, 10:00 PM" },
+  { id: 6, image: "/images/blog_cover.png", title: "Welcome to Our Knowledge Center", uploadDateTime: "19 January 25, 10:00 PM" },
+  { id: 7, image: "/images/blog_cover.png", title: "Learn How to Trade Safely Online", uploadDateTime: "19 January 25, 10:00 PM" },
+  { id: 8, image: "/images/blog_cover.png", title: "Welcome to Our Knowledge Center", uploadDateTime: "19 January 25, 10:00 PM" },
+  { id: 9, image: "/images/blog_cover.png", title: "Welcome to Our Knowledge Center", uploadDateTime: "19 January 25, 10:00 PM" },
+  { id: 10, image: "/images/blog_cover.png", title: "Learn How to Trade Safely Online", uploadDateTime: "19 January 25, 10:00 PM" },
+  { id: 11, image: "/images/blog_cover.png", title: "Welcome to Our Knowledge Center", uploadDateTime: "19 January 25, 10:00 PM" },
+  { id: 12, image: "/images/blog_cover.png", title: "Welcome to Our Knowledge Center", uploadDateTime: "19 January 25, 10:00 PM" },
 ];
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];

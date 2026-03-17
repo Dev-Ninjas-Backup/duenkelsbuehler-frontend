@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ShieldCheck, ShieldAlert } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 
 const MOCK_SPS = Array.from({ length: 6 }, (_, i) => ({
   id: i + 1,
@@ -87,7 +87,7 @@ export function TrackStep({ onBack }: { onBack: () => void }) {
                   </div>
                   <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow">
                     {sp.verified ? (
-                      <ShieldCheck size={13} className="text-[#16A34A]" />
+                      <Image src="/svg/crown.svg" alt="Verified" width={13} height={13} className="text-[#16A34A]" />
                     ) : (
                       <ShieldAlert size={13} className="text-red-500" />
                     )}

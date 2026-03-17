@@ -53,17 +53,12 @@ export function ContractStep({
 
       {/* Crown + label */}
       <div className="flex flex-col items-center mb-6">
-        <svg viewBox="0 0 48 32" className="w-12 h-8 mb-1">
-          <path d="M4 28 L4 20 L12 8 L24 18 L36 8 L44 20 L44 28 Z" fill="none" stroke="#181D27" strokeWidth="2.5" strokeLinejoin="round" />
-          <circle cx="4" cy="20" r="3" fill="#181D27" />
-          <circle cx="24" cy="18" r="3" fill="#181D27" />
-          <circle cx="44" cy="20" r="3" fill="#181D27" />
-        </svg>
+        <Image src="/svg/black_crown.svg" alt="Crown" width={48} height={32} className="object-contain mb-1" />
         <p className="font-work-sans text-sm text-[#414651]">Optional (recommended):</p>
       </div>
 
       {/* Upload button */}
-      <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+      <input ref={fileRef} type="file" accept=".pdf,.doc,.docx" aria-label="Upload contract file" title="Upload contract file" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
       <motion.button
         whileTap={{ scale: 0.95 }}
         onClick={() => fileRef.current?.click()}

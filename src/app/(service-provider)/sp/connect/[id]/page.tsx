@@ -28,73 +28,6 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-function CrownBadge() {
-  return (
-    <svg viewBox="0 0 40 30" className="w-8 h-6" fill="none">
-      <path
-        d="M20 4 L5 16 L9 24 H31 L35 16 Z"
-        fill="#181D27"
-        strokeLinejoin="round"
-      />
-      <circle cx="20" cy="3" r="2.5" fill="#181D27" />
-      <circle cx="4" cy="16" r="2.5" fill="#181D27" />
-      <circle cx="36" cy="16" r="2.5" fill="#181D27" />
-      <rect x="7" y="24" width="26" height="3.5" rx="1.75" fill="#181D27" />
-    </svg>
-  );
-}
-
-function ContractBadge() {
-  return (
-    <svg viewBox="0 0 36 36" className="w-8 h-8">
-      <rect
-        x="6"
-        y="10"
-        width="18"
-        height="20"
-        rx="2"
-        fill="none"
-        stroke="#9CA3AF"
-        strokeWidth="2"
-      />
-      <line
-        x1="10"
-        y1="17"
-        x2="20"
-        y2="17"
-        stroke="#9CA3AF"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <line
-        x1="10"
-        y1="21"
-        x2="20"
-        y2="21"
-        stroke="#9CA3AF"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <line
-        x1="10"
-        y1="25"
-        x2="16"
-        y2="25"
-        stroke="#9CA3AF"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M22 8 L30 16 L26 20 L18 12 Z"
-        fill="none"
-        stroke="#6B7280"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-      <path d="M18 12 L16 22 L26 20 Z" fill="#6B7280" />
-    </svg>
-  );
-}
 
 export default function ConnectProfilePage({
   params,
@@ -154,8 +87,8 @@ export default function ConnectProfilePage({
 
         {/* Badge icons */}
         <div className="flex items-center gap-3">
-          <CrownBadge />
-          <ContractBadge />
+          <Image src="/svg/black_crown.svg" alt="Crown" width={32} height={24} className="object-contain" />
+          <Image src="/images/logo/logo_white.png" alt="AristoPay" width={32} height={32} className="object-contain" />
         </div>
 
         {/* Action buttons */}

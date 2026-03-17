@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { SearchStep } from "./_components/search-step";
@@ -13,14 +14,7 @@ import { TrackStep } from "./_components/track-step";
 import { SP, SubStep, ProposalData } from "./_components/types";
 
 function CrownSVG() {
-  return (
-    <svg viewBox="0 0 48 32" className="w-14 h-10">
-      <path d="M4 28 L4 20 L12 8 L24 18 L36 8 L44 20 L44 28 Z" fill="none" stroke="#181D27" strokeWidth="2.5" strokeLinejoin="round" />
-      <circle cx="4" cy="20" r="3" fill="#181D27" />
-      <circle cx="24" cy="18" r="3" fill="#181D27" />
-      <circle cx="44" cy="20" r="3" fill="#181D27" />
-    </svg>
-  );
+  return <Image src="/svg/black_crown.svg" alt="Crown" width={56} height={40} className="object-contain" />;
 }
 
 const EMPTY_DATA: ProposalData = {

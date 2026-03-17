@@ -13,7 +13,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         <ClientSidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen((p) => !p)} />
         <main className="flex-1 overflow-y-auto rounded-2xl">{children}</main>
       </div>
-      <ClientBottomNav />
+      <ClientBottomNav onMeClick={() => setSidebarOpen((p) => !p)} />
     </div>
   );
 }

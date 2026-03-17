@@ -1,7 +1,6 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { motion, type Variants } from "framer-motion"
 
@@ -101,8 +100,7 @@ export function BlogSection() {
 function BlogCard({ post, index }: { post: BlogPost; index: number }) {
   return (
     <motion.div variants={cardVariants}>
-      <Link href={`/blog/${post.id}`}>
-        <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer border-0 group py-0! gap-0!">
+      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-default border-0 group py-0! gap-0!">
           {/* Image */}
           <div className="aspect-video relative bg-gray-200 overflow-hidden">
             <Image
@@ -115,7 +113,7 @@ function BlogCard({ post, index }: { post: BlogPost; index: number }) {
           
           {/* Content */}
           <CardContent className="px-6 pt-6 pb-0">
-            <h3 className="font-rozha text-xl sm:text-xl font-normal leading-tight mb-3 group-hover:text-[#16A34A] transition-colors">
+            <h3 className="font-rozha text-xl sm:text-xl font-normal leading-tight mb-3">
               {post.title}
             </h3>
           </CardContent>
@@ -127,7 +125,6 @@ function BlogCard({ post, index }: { post: BlogPost; index: number }) {
             </p>
           </CardFooter>
         </Card>
-      </Link>
     </motion.div>
   )
 }

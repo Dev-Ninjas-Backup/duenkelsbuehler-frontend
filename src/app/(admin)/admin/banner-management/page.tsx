@@ -15,62 +15,62 @@ interface Banner {
 const MOCK: Banner[] = [
   {
     id: 1,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
   {
     id: 2,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
   {
     id: 3,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
   {
     id: 4,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
   {
     id: 5,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
   {
     id: 6,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
   {
     id: 7,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
   {
     id: 8,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
   {
     id: 9,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
   {
     id: 10,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
   {
     id: 11,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
   {
     id: 12,
-    image: "/images/user/user_avatar.png",
+    image: "/images/banner_cover.png",
     uploadDateTime: "12 March 26, 10:00 PM",
   },
 ];
