@@ -9,7 +9,6 @@ export default function AdminLoginPage() {
         <div className="w-full lg:w-auto flex justify-center lg:justify-start">
           <AdminLoginForm />
         </div>
-
         {/* Right - Illustration */}
         <LoginIllustration />
       </div>
