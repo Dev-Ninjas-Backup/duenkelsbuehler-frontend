@@ -25,7 +25,7 @@ export default function ServiceProviderLayout({
       </div>
 
       {/* Bottom Nav */}
-      <SPBottomNav />
+      <SPBottomNav onMeClick={() => setSidebarOpen((prev) => !prev)} />
     </div>
   );
 }

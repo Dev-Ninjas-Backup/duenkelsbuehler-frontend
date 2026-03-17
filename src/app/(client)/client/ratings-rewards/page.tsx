@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Image from "next/image";
 
 interface Review {
@@ -194,29 +194,7 @@ export default function ClientRatingsRewardsPage() {
         {/* Badge 1 — Seal */}
         <div className="flex items-start gap-5">
           <div className="w-20 h-20 shrink-0 flex items-center justify-center">
-            <svg viewBox="0 0 80 80" className="w-20 h-20">
-              <circle cx="40" cy="40" r="36" fill="#D97706" opacity="0.15" />
-              <circle
-                cx="40"
-                cy="40"
-                r="30"
-                fill="none"
-                stroke="#D97706"
-                strokeWidth="3"
-                strokeDasharray="6 3"
-              />
-              <circle cx="40" cy="40" r="22" fill="#D97706" opacity="0.2" />
-              <text
-                x="40"
-                y="45"
-                textAnchor="middle"
-                fontSize="18"
-                fill="#D97706"
-                fontWeight="bold"
-              >
-                S
-              </text>
-            </svg>
+            <Image src="/images/seal.png" alt="Seal" width={80} height={80} className="object-contain" />
           </div>
           <div>
             <h2 className="font-rozha text-2xl text-[#181D27] mb-1">
@@ -231,53 +209,7 @@ export default function ClientRatingsRewardsPage() {
         {/* Badge 2 — Fine Print Club */}
         <div className="flex items-start gap-5">
           <div className="w-20 h-20 shrink-0 flex items-center justify-center">
-            <svg viewBox="0 0 80 80" className="w-20 h-20">
-              <rect
-                x="15"
-                y="30"
-                width="35"
-                height="28"
-                rx="3"
-                fill="none"
-                stroke="#9CA3AF"
-                strokeWidth="2.5"
-              />
-              <line
-                x1="22"
-                y1="40"
-                x2="43"
-                y2="40"
-                stroke="#9CA3AF"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <line
-                x1="22"
-                y1="47"
-                x2="43"
-                y2="47"
-                stroke="#9CA3AF"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <line
-                x1="22"
-                y1="54"
-                x2="35"
-                y2="54"
-                stroke="#9CA3AF"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-              <path
-                d="M48 20 L62 34 L55 41 L41 27 Z"
-                fill="none"
-                stroke="#6B7280"
-                strokeWidth="2"
-                strokeLinejoin="round"
-              />
-              <path d="M41 27 L38 42 L53 39 Z" fill="#6B7280" />
-            </svg>
+            <Image src="/images/hand.png" alt="Fine Print Club" width={80} height={80} className="object-contain" />
           </div>
           <div>
             <h2 className="font-rozha text-2xl text-[#181D27] mb-1">
@@ -340,7 +272,7 @@ export default function ClientRatingsRewardsPage() {
                   </span>
                   {review.verified && (
                     <span className="flex items-center gap-1 font-work-sans text-xs text-[#16A34A]">
-                      <ShieldCheck className="h-3.5 w-3.5" /> Verified
+                      <Image src="/svg/crown.svg" alt="Verified" width={14} height={14} /> Verified
                     </span>
                   )}
                 </div>

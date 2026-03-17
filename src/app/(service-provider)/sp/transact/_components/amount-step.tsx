@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ShieldAlert, ShieldCheck } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 import { Contact } from "./types";
 
 const RANGES = [
@@ -58,7 +58,7 @@ export function AmountStep({ contact, selected, onSelect, onNext }: Props) {
           <p className="font-work-sans text-sm font-bold text-[#181D27]">{contact.name}</p>
           {contact.badge === "gold" ? (
             <span className="flex items-center gap-1 font-work-sans text-xs text-[#16A34A] mt-0.5">
-              <ShieldCheck size={13} /> Verified
+              <Image src="/svg/crown.svg" alt="Verified" width={13} height={13} /> Verified
             </span>
           ) : (
             <span className="flex items-center gap-1 font-work-sans text-xs text-red-500 mt-0.5">

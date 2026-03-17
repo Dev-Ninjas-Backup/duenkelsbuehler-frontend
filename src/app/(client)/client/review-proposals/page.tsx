@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldCheck, ShieldAlert } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 
 interface Proposal {
   id: number;
@@ -146,7 +146,7 @@ function SPCard({ proposal }: { proposal: Proposal }) {
         </p>
         {proposal.verified ? (
           <span className="inline-flex items-center gap-1 font-work-sans text-xs text-[#16A34A]">
-            <ShieldCheck size={11} /> Verified
+            <Image src="/svg/crown.svg" alt="Verified" width={11} height={11} /> Verified
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 font-work-sans text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded-full mt-0.5">
@@ -259,7 +259,7 @@ export default function ReviewProposalsPage() {
                     {/* badge icon */}
                     <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow">
                       {p.verified ? (
-                        <ShieldCheck size={13} className="text-[#16A34A]" />
+                        <Image src="/svg/crown.svg" alt="Verified" width={13} height={13} className="text-[#16A34A]" />
                       ) : (
                         <ShieldAlert size={13} className="text-red-500" />
                       )}

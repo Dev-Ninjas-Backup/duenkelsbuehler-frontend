@@ -16,13 +16,13 @@ interface Badge {
 const MOCK: Badge[] = [
   {
     id: 1,
-    image: "/images/user/user_avatar.png",
+    image: "/images/seal.png",
     title: "The seal is now yours to bear.",
     description: "No more shadows—your name carries weight.",
   },
   {
     id: 2,
-    image: "/images/user/user_avatar.png",
+    image: "/images/hand.png",
     title: "The Fine Print Club",
     description:
       "A contract sent, a standard set. Welcome to The Fine Print Club — where the details are respected.",
@@ -94,7 +94,7 @@ export default function BadgesManagementPage() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <p className="font-work-sans text-base font-bold text-[#181D27] leading-snug">
+                  <p className="font-rozha text-base text-[#181D27] leading-snug">
                     {badge.title}
                   </p>
                   <p className="font-work-sans text-sm text-[#414651] leading-relaxed">

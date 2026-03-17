@@ -121,7 +121,7 @@ export default function DiscoverProfilePage() {
           className="flex items-center gap-3 mt-4 mb-6"
         >
           <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
-            <span className="text-lg">👑</span>
+            <Image src="/svg/crown.svg" alt="Crown" width={20} height={20} className="object-contain" />
           </div>
           <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
             <svg viewBox="0 0 24 24" className="w-5 h-5" fill="#181D27">

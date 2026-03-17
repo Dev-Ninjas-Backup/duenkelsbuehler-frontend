@@ -3,15 +3,16 @@
 import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Compass, ShoppingBag, User } from "lucide-react";
+import { Compass, User } from "lucide-react";
+import Image from "next/image";
 
 const bottomItems = [
   { label: "Discover", href: "/client/discover", icon: Compass },
-  { label: "Transact", href: "/client/transact", icon: ShoppingBag },
+  { label: "Transact", href: "/client/transact", icon: null },
   { label: "Me", href: "/client/settings", icon: User },
 ];
 
-export function ClientBottomNav() {
+export function ClientBottomNav({ onMeClick }: { onMeClick: () => void }) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -24,6 +25,7 @@ export function ClientBottomNav() {
     >
       {bottomItems.map(({ label, href, icon: Icon }) => {
         const isTransact = label === "Transact";
+        const isMe = label === "Me";
         const isActive = pathname.startsWith(href);
 
         if (isTransact) {
@@ -35,13 +37,25 @@ export function ClientBottomNav() {
             >
               <motion.div
                 whileTap={{ scale: 0.92 }}
-                className="w-16 h-16 rounded-full bg-[#181D27] border-4 border-white flex items-center justify-center shadow-xl"
+                className="w-16 h-16 rounded-full bg-[#181D27] border-[6px] border-white flex items-center justify-center shadow-xl"
               >
-                <Icon className="h-7 w-7 text-white" />
+                <Image src="/images/logo/inverse_logo.png" alt="Transact" width={44} height={44} className="object-contain" />
               </motion.div>
               <span className={`font-work-sans text-xs mt-1 transition-colors ${isActive ? "text-[#16A34A]" : "text-white"}`}>
                 {label}
               </span>
+            </button>
+          );
+        }
+
+        if (isMe) {
+          return (
+            <button key={href} onClick={onMeClick} className="flex flex-col items-center gap-1 cursor-pointer">
+              <motion.div whileTap={{ scale: 0.9 }}>
+                <span className={`font-work-sans text-xs transition-colors ${isActive ? "text-[#16A34A]" : "text-white"}`}>
+                  {label}
+                </span>
+              </motion.div>
             </button>
           );
         }

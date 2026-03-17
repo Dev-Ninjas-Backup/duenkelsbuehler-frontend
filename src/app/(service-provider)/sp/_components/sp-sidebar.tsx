@@ -60,24 +60,8 @@ export function SPSidebar({ isOpen, onToggle }: SPSidebarProps) {
                   AristoPay
                 </span>
                 {/* Crown badge */}
-                <div className="mt-3 text-[#16A34A]">
-                  <svg width="32" height="24" viewBox="0 0 32 24" fill="none">
-                    <path
-                      d="M2 20L6 8L12 14L16 4L20 14L26 8L30 20H2Z"
-                      fill="#16A34A"
-                      stroke="#16A34A"
-                      strokeWidth="1.5"
-                      strokeLinejoin="round"
-                    />
-                    <rect
-                      x="2"
-                      y="20"
-                      width="28"
-                      height="3"
-                      rx="1.5"
-                      fill="#16A34A"
-                    />
-                  </svg>
+                <div className="mt-3">
+                  <Image src="/svg/crown.svg" alt="Crown" width={32} height={24} />
                 </div>
                 {/* Avatar */}
                 <div className="mt-4 w-20 h-20 rounded-full overflow-hidden border-2 border-white shadow-md">

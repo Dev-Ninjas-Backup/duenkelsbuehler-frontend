@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { CrownSVG } from "./shared";
 
@@ -43,22 +44,7 @@ export function SuccessModal({ isOpen, onDone }: Props) {
               transition={{ duration: 0.5, delay: 0.2, type: "spring" }}
               className="mb-8"
             >
-              <svg viewBox="0 0 140 160" className="w-36 h-40">
-                <ellipse cx="70" cy="148" rx="10" ry="6" fill="#C97B2A" opacity="0.7" />
-                <rect x="66" y="130" width="8" height="20" rx="4" fill="#C97B2A" opacity="0.7" />
-                <circle cx="70" cy="70" r="58" fill="#D4922A" opacity="0.15" />
-                <circle cx="70" cy="70" r="52" fill="#E8A830" opacity="0.25" />
-                <circle cx="70" cy="70" r="46" fill="none" stroke="#C97B2A" strokeWidth="2.5" strokeDasharray="7 4" />
-                <circle cx="70" cy="70" r="38" fill="#F0B840" opacity="0.35" />
-                <path d="M22 70 Q28 55 36 62 Q30 72 22 70Z" fill="#C97B2A" opacity="0.75" />
-                <path d="M20 78 Q26 63 34 70 Q28 80 20 78Z" fill="#C97B2A" opacity="0.6" />
-                <path d="M24 62 Q30 48 38 55 Q32 65 24 62Z" fill="#C97B2A" opacity="0.65" />
-                <path d="M118 70 Q112 55 104 62 Q110 72 118 70Z" fill="#C97B2A" opacity="0.75" />
-                <path d="M120 78 Q114 63 106 70 Q112 80 120 78Z" fill="#C97B2A" opacity="0.6" />
-                <path d="M116 62 Q110 48 102 55 Q108 65 116 62Z" fill="#C97B2A" opacity="0.65" />
-                <text x="70" y="82" textAnchor="middle" fontSize="36" fill="#7A4A10" fontWeight="bold" fontFamily="serif">S</text>
-                <circle cx="70" cy="70" r="28" fill="none" stroke="#C97B2A" strokeWidth="1.5" opacity="0.5" />
-              </svg>
+              <Image src="/images/seal.png" alt="Seal" width={144} height={160} className="object-contain" />
             </motion.div>
 
             <Button

@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ShieldCheck, ShieldAlert, MoreVertical } from "lucide-react";
+import { ShieldAlert, MoreVertical } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface RecentUser {
@@ -163,7 +163,7 @@ export function RecentUsersTable() {
                 </span>
                 {user.verified ? (
                   <span className="flex items-center gap-1 font-work-sans text-xs text-[#16A34A]">
-                    <ShieldCheck className="h-3.5 w-3.5" /> Verified
+                    <Image src="/svg/crown.svg" alt="Verified" width={14} height={14} /> Verified
                   </span>
                 ) : (
                   <span className="flex items-center gap-1 font-work-sans text-xs text-red-500">

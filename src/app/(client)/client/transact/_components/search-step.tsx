@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Search, ChevronLeft, ChevronRight, ShieldCheck } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { MOCK_SPS } from "./data";
 import { SP } from "./types";
 
@@ -127,7 +127,7 @@ export function SearchStep({ onSelect }: { onSelect: (sp: SP) => void }) {
                   <span className="font-work-sans text-sm font-semibold text-[#181D27]">{sp.name}</span>
                   {sp.verified && (
                     <span className="flex items-center gap-1 font-work-sans text-xs text-[#16A34A]">
-                      <ShieldCheck size={12} /> Verified
+                      <Image src="/svg/crown.svg" alt="Verified" width={12} height={12} /> Verified
                     </span>
                   )}
                 </div>
