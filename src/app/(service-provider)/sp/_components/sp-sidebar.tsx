@@ -5,11 +5,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import { Briefcase, Users, Star, ShieldCheck, Settings } from "lucide-react";
+import { Briefcase, Users, Star, ShieldCheck, Settings, Bookmark } from "lucide-react";
 
 const navItems = [
   { label: "My Services", href: "/sp/my-services", icon: Briefcase },
   { label: "Saved Clients", href: "/sp/saved-clients", icon: Users },
+  { label: "Saved Contracts", href: "/sp/saved-contracts", icon: Bookmark },
   { label: "Rating & Badges", href: "/sp/ratings-rewards", icon: Star },
   { label: "Verify Account", href: "/sp/verify-account", icon: ShieldCheck },
   { label: "Settings", href: "/sp/settings", icon: Settings },

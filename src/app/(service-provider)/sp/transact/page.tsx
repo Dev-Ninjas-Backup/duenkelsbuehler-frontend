@@ -14,11 +14,6 @@ const TABS: { key: Tab; label: string }[] = [
 export default function TransactPage() {
   const [activeTab, setActiveTab] = useState<Tab>("new");
 
-  const handleAddContact = () => {
-    // TODO: open add contact modal
-    console.log("Add contact");
-  };
-
   return (
     <div className="flex flex-col h-full px-2 py-6 lg:px-8">
       {/* Title */}
@@ -68,7 +63,6 @@ export default function TransactPage() {
         >
           {activeTab === "new" && (
             <NewTransactionTab
-              onAddContact={handleAddContact}
               onDone={() => setActiveTab("track")}
             />
           )}

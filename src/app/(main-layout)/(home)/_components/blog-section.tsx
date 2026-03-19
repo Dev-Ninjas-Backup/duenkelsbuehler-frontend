@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { motion, type Variants } from "framer-motion"
 
@@ -88,8 +89,8 @@ export function BlogSection() {
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
         >
-          {blogPosts.map((post, index) => (
-            <BlogCard key={post.id} post={post} index={index} />
+          {blogPosts.map((post) => (
+            <BlogCard key={post.id} post={post} />
           ))}
         </motion.div>
       </div>
@@ -97,10 +98,11 @@ export function BlogSection() {
   )
 }
 
-function BlogCard({ post, index }: { post: BlogPost; index: number }) {
+function BlogCard({ post }: { post: BlogPost }) {
+  const router = useRouter()
   return (
-    <motion.div variants={cardVariants}>
-      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-default border-0 group py-0! gap-0!">
+    <motion.div variants={cardVariants} onClick={() => router.push(`/blog/${post.id}`)} className="cursor-pointer">
+      <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 border-0 group py-0! gap-0!">
           {/* Image */}
           <div className="aspect-video relative bg-gray-200 overflow-hidden">
             <Image

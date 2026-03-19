@@ -40,12 +40,6 @@ export function FinePrintModal({ isOpen, onNext, onSkip }: Props) {
             </div>
 
             <div className="flex items-center gap-3 w-full justify-center mt-2">
-              <button
-                onClick={onSkip}
-                className="font-work-sans text-sm text-[#414651] underline underline-offset-2 hover:text-[#181D27] transition-colors"
-              >
-                Skip
-              </button>
               <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={onNext}

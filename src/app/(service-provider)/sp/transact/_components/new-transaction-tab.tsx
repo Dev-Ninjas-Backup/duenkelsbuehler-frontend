@@ -13,7 +13,10 @@ import { FinalDetailsStep } from "./final-details-step";
 import { ReadyStep } from "./ready-step";
 import { KaChingModal } from "./kaching-modal";
 import { DealMakerModal } from "./deal-maker-modal";
+import { RatingModal } from "./rating-modal";
 import { MOCK_CONTACTS } from "./data";
+import { useSavedContracts } from "@/store/saved-contracts";
+import { AddContactModal } from "./add-contact-modal";
 
 const STEP_ORDER: SubStep[] = ["contacts", "amount", "payment-method", "contract", "invoice", "final-details", "ready"];
 
@@ -42,16 +45,20 @@ const EMPTY_DATA: TransactionData = {
 };
 
 interface Props {
-  onAddContact: () => void;
   onDone: () => void;
 }
 
-export function NewTransactionTab({ onAddContact, onDone }: Props) {
+export function NewTransactionTab({ onDone }: Props) {
   const [subStep, setSubStep]     = useState<SubStep>("contacts");
   const [direction, setDirection] = useState(1);
   const [data, setData]           = useState<TransactionData>(EMPTY_DATA);
   const [showKaChing, setShowKaChing]     = useState(false);
   const [showDealMaker, setShowDealMaker] = useState(false);
+  const [showRating, setShowRating]       = useState(false);
+  const [showAddModal, setShowAddModal]   = useState(false);
+  const [contacts, setContacts]           = useState(MOCK_CONTACTS);
+
+  const { saveContract } = useSavedContracts();
 
   const goTo = (next: SubStep, dir: number) => {
     setDirection(dir);
@@ -78,7 +85,7 @@ export function NewTransactionTab({ onAddContact, onDone }: Props) {
   };
 
   const handleSubmit = () => setShowKaChing(true);
-  const handleFinalize = () => { setShowKaChing(false); setShowDealMaker(true); };
+  const handleFinalize = () => { setShowKaChing(false); setShowRating(true); };
 
   const showBack = subStep !== "contacts";
 
@@ -115,7 +122,7 @@ export function NewTransactionTab({ onAddContact, onDone }: Props) {
             <div>
               <p className="font-rozha text-2xl text-[#181D27] text-center mb-6">Choose a Contact</p>
               <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-                {MOCK_CONTACTS.map((contact) => (
+                {contacts.map((contact) => (
                   <motion.div key={contact.id} variants={cardVariants}>
                     <ContactCard contact={contact} onClick={handleSelectContact} />
                   </motion.div>
@@ -123,7 +130,7 @@ export function NewTransactionTab({ onAddContact, onDone }: Props) {
                 <motion.button
                   variants={cardVariants}
                   whileTap={{ scale: 0.97 }}
-                  onClick={onAddContact}
+                  onClick={() => setShowAddModal(true)}
                   className="bg-[#F5F5F5] rounded-2xl p-5 flex items-center justify-center min-h-[160px] hover:bg-gray-100 transition-colors"
                 >
                   <motion.div whileHover={{ scale: 1.1 }} className="w-14 h-14 rounded-full bg-[#6B7280] flex items-center justify-center text-white shadow-md">
@@ -162,7 +169,17 @@ export function NewTransactionTab({ onAddContact, onDone }: Props) {
               docuSign={data.docuSign}
               onFileChange={(f) => set("contractFile", f)}
               onDocuSignChange={(v) => set("docuSign", v)}
-              onNext={goNext}
+              onNext={(shouldSave) => {
+                if (shouldSave && data.contractFile) {
+                  saveContract({
+                    file: data.contractFile,
+                    clientName: data.contact?.name ?? "",
+                    amount: data.amountRange ?? "",
+                    invoiceTitle: data.invoiceTitle || "Untitled Invoice",
+                  });
+                }
+                goNext();
+              }}
               onSkip={goNext}
             />
           )}
@@ -201,7 +218,19 @@ export function NewTransactionTab({ onAddContact, onDone }: Props) {
       </AnimatePresence>
 
       {/* Modals */}
+      <AddContactModal
+        isOpen={showAddModal}
+        existingIds={contacts.map((c) => c.id)}
+        onAdd={(contact) => setContacts((prev) => [...prev, contact])}
+        onClose={() => setShowAddModal(false)}
+      />
       <KaChingModal isOpen={showKaChing} onFinalize={handleFinalize} />
+      <RatingModal
+        isOpen={showRating}
+        name={data.contact?.name ?? ""}
+        onSubmit={() => { setShowRating(false); setShowDealMaker(true); }}
+        onSkip={() => { setShowRating(false); setShowDealMaker(true); }}
+      />
       <DealMakerModal isOpen={showDealMaker} onClose={onDone} />
     </div>
   );
