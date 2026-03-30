@@ -2,16 +2,66 @@
 
 import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { X, CloudUpload } from "lucide-react";
+import { X, CloudUpload, ChevronDown } from "lucide-react";
+
+const TRIGGER_OPTIONS = [
+  "Left a rating",
+  "Completed a transaction",
+  "Attached a contract",
+  "Subscribed to AristoAccess+",
+  "Verified account",
+  "Sent a proposal",
+];
+
+function TriggerSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((p) => !p)}
+        className="w-full flex items-center justify-between border border-gray-200 rounded-xl px-4 py-3 font-work-sans text-sm text-[#181D27] bg-white hover:border-[#181D27] transition-colors"
+      >
+        <span className={value ? "text-[#181D27]" : "text-gray-400"}>{value || "Select trigger..."}</span>
+        <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.ul
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-20 top-full mt-1 w-full bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden"
+          >
+            {TRIGGER_OPTIONS.map((opt) => (
+              <li key={opt} role="none">
+                <button
+                  type="button"
+                  onClick={() => { onChange(opt); setOpen(false); }}
+                  className={`w-full text-left px-4 py-2.5 font-work-sans text-sm transition-colors hover:bg-gray-50 ${value === opt ? "text-[#16A34A] font-semibold" : "text-[#181D27]"}`}
+                >
+                  {opt}
+                </button>
+              </li>
+            ))}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  initialData?: { title: string; description: string; trigger: string };
 }
 
-export function AddBadgeModal({ isOpen, onClose }: Props) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+export function AddBadgeModal({ isOpen, onClose, initialData }: Props) {
+  const [title, setTitle] = useState(initialData?.title ?? "");
+  const [description, setDescription] = useState(initialData?.description ?? "");
+  const [trigger, setTrigger] = useState(initialData?.trigger ?? "");
   const [file, setFile] = useState<File | null>(null);
   const [dragging, setDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -26,11 +76,13 @@ export function AddBadgeModal({ isOpen, onClose }: Props) {
   const handleClose = () => {
     setTitle("");
     setDescription("");
+    setTrigger("");
     setFile(null);
     onClose();
   };
 
-  const canSubmit = title.trim() && description.trim() && file;
+  const isEdit = !!initialData;
+  const canSubmit = title.trim() && description.trim() && trigger && (isEdit || file);
 
   return (
     <AnimatePresence>
@@ -52,9 +104,10 @@ export function AddBadgeModal({ isOpen, onClose }: Props) {
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
-              <h3 className="font-rozha text-2xl text-[#181D27]">Add New Badge</h3>
+              <h3 className="font-rozha text-2xl text-[#181D27]">{isEdit ? "Edit Badge" : "Add New Badge"}</h3>
               <button
                 onClick={handleClose}
+                aria-label="Close modal"
                 className="text-gray-400 hover:text-[#181D27] transition-colors"
               >
                 <X size={20} />
@@ -89,6 +142,14 @@ export function AddBadgeModal({ isOpen, onClose }: Props) {
               />
             </div>
 
+            {/* Trigger */}
+            <div className="flex flex-col gap-1.5">
+              <label className="font-work-sans text-sm font-medium text-[#181D27]">
+                Unlock Condition <span className="text-red-500">*</span>
+              </label>
+              <TriggerSelect value={trigger} onChange={setTrigger} />
+            </div>
+
             {/* Drop zone */}
             <div
               onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
@@ -117,6 +178,7 @@ export function AddBadgeModal({ isOpen, onClose }: Props) {
                 ref={inputRef}
                 type="file"
                 accept="image/jpeg,image/png"
+                aria-label="Upload badge image"
                 className="hidden"
                 onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
               />
@@ -136,7 +198,7 @@ export function AddBadgeModal({ isOpen, onClose }: Props) {
               onClick={handleClose}
               className="w-full py-4 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 disabled:opacity-50 transition-colors"
             >
-              Create Badge
+              {isEdit ? "Save Changes" : "Create Badge"}
             </motion.button>
           </motion.div>
         </motion.div>
