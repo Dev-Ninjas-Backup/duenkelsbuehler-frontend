@@ -12,8 +12,9 @@ export default function ServiceProviderLayout({
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="flex h-screen p-4 gap-4 pb-30 relative">
+    <div className="h-dvh w-full overflow-hidden bg-[#F8F9FA]">
+      {/* Outer wrapper to contain everything neatly above the nav */}
+      <div className="flex h-full p-4 md:p-6 lg:p-10 gap-4 lg:gap-8 pb-[130px] lg:pb-[100px] relative max-w-[1600px] mx-auto">
         {/* Sidebar */}
         <SPSidebar
           isOpen={sidebarOpen}
@@ -21,7 +22,9 @@ export default function ServiceProviderLayout({
         />
 
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto rounded-2xl">{children}</main>
+        <main className="flex-1 bg-white rounded-32px overflow-hidden flex flex-col relative z-10">
+          {children}
+        </main>
       </div>
 
       {/* Bottom Nav */}

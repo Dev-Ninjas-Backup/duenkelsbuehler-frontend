@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useModalSound } from "@/hooks/use-modal-sound";
@@ -10,22 +12,28 @@ interface Props {
 
 export function FinePrintModal({ isOpen, onNext, onSkip }: Props) {
   useModalSound(isOpen);
-  return (
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ duration: 0.28, ease: "easeOut" }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center text-center gap-4"
+            className="relative z-10 w-full max-w-md bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center text-center gap-4 mx-4"
           >
             <Image src="/svg/black_crown.svg" alt="Crown" width={64} height={48} className="object-contain" />
             <p className="font-work-sans font-bold text-base text-[#181D27]">
@@ -51,8 +59,11 @@ export function FinePrintModal({ isOpen, onNext, onSkip }: Props) {
               </motion.button>
             </div>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );
+
+  if (!mounted) return null;
+  return createPortal(modalContent, document.body);
 }

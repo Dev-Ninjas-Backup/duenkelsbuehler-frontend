@@ -30,9 +30,7 @@ export default function RootLayout({
       <body
         className={`${workSans.variable} ${rozhaOne.variable} font-work-sans antialiased`}
       >
-        <QueryProvider>
-          {children}
-        </QueryProvider>
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );

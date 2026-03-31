@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ const industries = ["Accounting", "Engineering", "Legal", "Media", "Finance", "T
 
 const addServiceSchema = z.object({
   industry: z.string().min(1, "Please select an industry"),
-  description: z.string().min(250, "Description must be at least 250 characters"),
+  description: z.string().min(10, "Description is too short"),
   location: z.string().min(1, "Location is required"),
 });
 
@@ -22,10 +23,16 @@ interface AddServiceModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (data: AddServiceForm) => void;
+  initialData?: AddServiceForm;
 }
 
-export function AddServiceModal({ open, onClose, onSubmit }: AddServiceModalProps) {
+export function AddServiceModal({ open, onClose, onSubmit, initialData }: AddServiceModalProps) {
   const [industryOpen, setIndustryOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     register,
@@ -39,31 +46,40 @@ export function AddServiceModal({ open, onClose, onSubmit }: AddServiceModalProp
     defaultValues: { industry: "", description: "", location: "" },
   });
 
+  // Reset form when modal opens or initialData changes
+  useEffect(() => {
+    if (open) {
+      if (initialData) {
+        reset(initialData);
+      } else {
+        reset({ industry: "", description: "", location: "" });
+      }
+    }
+  }, [open, initialData, reset]);
+
   const selectedIndustry = watch("industry");
 
   const handleClose = () => {
-    reset();
     setIndustryOpen(false);
     onClose();
   };
 
   const handleFormSubmit = (data: AddServiceForm) => {
     onSubmit(data);
-    reset();
     setIndustryOpen(false);
   };
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {open && (
-        <>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
           />
 
           {/* Modal Box */}
@@ -71,10 +87,12 @@ export function AddServiceModal({ open, onClose, onSubmit }: AddServiceModalProp
             initial={{ opacity: 0, scale: 0.92, y: 24 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 24 }}
-            transition={{ duration: 0.3, ease: "easeOut" as const }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-lg bg-white rounded-2xl p-8 shadow-2xl"
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="relative z-10 w-full max-w-lg bg-white rounded-[24px] p-8 shadow-2xl mx-4"
           >
-            <h2 className="font-rozha text-3xl text-[#181D27] mb-1">Add Service</h2>
+            <h2 className="font-rozha text-3xl text-[#181D27] mb-1">
+              {initialData ? "Edit Service" : "Add Service"}
+            </h2>
             <div className="h-px bg-gray-200 mb-6" />
 
             <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
@@ -136,7 +154,7 @@ export function AddServiceModal({ open, onClose, onSubmit }: AddServiceModalProp
                 </label>
                 <textarea
                   {...register("description")}
-                  placeholder="Describe Your Services (250 characters min)."
+                  placeholder="Describe Your Services (10 characters min)."
                   rows={5}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 font-work-sans text-sm text-[#414651] placeholder:text-gray-400 resize-none focus:outline-none focus:border-gray-400 transition-colors"
                 />
@@ -163,14 +181,17 @@ export function AddServiceModal({ open, onClose, onSubmit }: AddServiceModalProp
               {/* Submit */}
               <Button
                 type="submit"
-                className="w-full h-12 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base"
+                className="w-full h-12 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base mt-2"
               >
-                Submit
+                {initialData ? "Save Changes" : "Submit"}
               </Button>
             </form>
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   );
+
+  if (!mounted) return null;
+  return createPortal(modalContent, document.body);
 }

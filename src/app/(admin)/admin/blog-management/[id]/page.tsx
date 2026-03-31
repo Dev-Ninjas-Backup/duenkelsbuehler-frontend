@@ -34,7 +34,7 @@ export default function BlogDetailPage({ params }: { params: Promise<{ id: strin
   const blog = MOCK_BLOGS[Number(id)] ?? DEFAULT_BLOG;
 
   return (
-    <div className="flex flex-col gap-6 max-w-3xl">
+    <div className="flex flex-col gap-6 max-w-3xl mx-auto w-full">
       <div className="flex items-center gap-4">
         <motion.button
           initial={{ opacity: 0, x: -10 }}
