@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronDown, ShieldAlert } from "lucide-react";
 import Image from "next/image";
@@ -16,6 +17,11 @@ interface Props {
 
 export function AddContactModal({ isOpen, existingIds, onAdd, onClose }: Props) {
   const [selectedId, setSelectedId] = useState<number | "">("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const available = ALL_CONTACTS.filter((c) => !existingIds.includes(c.id));
   const selected = ALL_CONTACTS.find((c) => c.id === selectedId) ?? null;
@@ -27,14 +33,14 @@ export function AddContactModal({ isOpen, existingIds, onAdd, onClose }: Props) 
     onClose();
   };
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4"
           onClick={onClose}
         >
           <motion.div
@@ -131,4 +137,7 @@ export function AddContactModal({ isOpen, existingIds, onAdd, onClose }: Props) 
       )}
     </AnimatePresence>
   );
+
+  if (!mounted) return null;
+  return createPortal(modalContent, document.body);
 }

@@ -44,7 +44,7 @@ export function AddBlogModal({ isOpen, onClose }: Props) {
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl w-full max-w-lg mx-4 p-8 flex flex-col gap-6"
+            className="bg-white rounded-2xl w-full max-w-2xl mx-auto p-8 flex flex-col gap-6"
           >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">

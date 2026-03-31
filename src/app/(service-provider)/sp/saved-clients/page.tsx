@@ -4,11 +4,10 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Bookmark,
-  MessageCircle,
   ChevronLeft,
   ChevronRight,
-  ShieldAlert,
 } from "lucide-react";
+import { AiFillWarning, AiFillMessage } from "react-icons/ai";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -161,7 +160,7 @@ export default function SavedClientsPage() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="font-rozha text-4xl lg:text-5xl text-[#181D27] text-center mb-8"
+        className="font-rozha text-[36px] lg:text-[40px] text-[#181D27] text-center mt-3 mb-6 shrink-0"
       >
         Saved Clients
       </motion.h1>
@@ -171,7 +170,7 @@ export default function SavedClientsPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.1 }}
-        className="grid grid-cols-[40px_1fr_100px] bg-[#181D27] text-white rounded-xl px-6 py-4 mb-3"
+        className="hidden lg:grid grid-cols-[40px_1fr_100px] bg-[#181D27] text-white rounded-[16px] px-6 py-3.5 mb-3"
       >
         <span className="font-work-sans text-sm font-medium">Sl</span>
         <span className="font-work-sans text-sm font-medium">Name</span>
@@ -181,26 +180,53 @@ export default function SavedClientsPage() {
       </motion.div>
 
       {/* Table Rows */}
-      <motion.div
-        key={currentPage}
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col gap-3 flex-1"
-      >
+      <div className="flex-1 overflow-y-auto pr-2 pb-4">
+        <motion.div
+          key={currentPage}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col gap-4"
+        >
         {paginated.map((client, index) => (
           <motion.div
             key={client.id}
             variants={rowVariants}
-            className="grid grid-cols-[40px_1fr_100px] bg-[#F9F9F9] rounded-xl px-6 py-4 items-center"
+            className="flex flex-col lg:grid lg:grid-cols-[40px_1fr_100px] bg-[#F9F9F9] lg:bg-[#F9F9F9] rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 items-start lg:items-center border border-gray-100/80 hover:bg-[#EFEFEF] transition-colors gap-3 lg:gap-0"
           >
-            {/* Sl */}
-            <span className="font-work-sans text-sm text-[#414651]">
+            {/* Desktop Sl */}
+            <span className="hidden lg:block font-work-sans text-sm text-[#414651]">
               {(currentPage - 1) * pageSize + index + 1}
             </span>
 
+            {/* Mobile Header with ID & Actions */}
+            <div className="flex w-full items-center justify-between lg:hidden mb-1 border-b border-gray-200 pb-3">
+              <span className="font-work-sans text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">
+                Client #{(currentPage - 1) * pageSize + index + 1}
+              </span>
+              <div className="flex items-center gap-2">
+                <motion.button
+                  whileTap={{ scale: 0.85 }}
+                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                  aria-label="Save client"
+                >
+                  <Bookmark className="h-[14px] w-[14px] fill-[#181D27]" />
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.85 }}
+                  onClick={() =>
+                    router.push(`/sp/messages?clientId=${client.id}`)
+                  }
+                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                  aria-label="Message client"
+                >
+                  <AiFillMessage className="h-[14px] w-[14px]" />
+                </motion.button>
+              </div>
+            </div>
+
             {/* Name + Info */}
-            <div className="flex items-center gap-4">
+            <div className="flex w-full items-center gap-4 lg:w-auto">
               <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-200">
                 <Image
                   src={client.avatar}
@@ -211,56 +237,59 @@ export default function SavedClientsPage() {
                 />
               </div>
               <div>
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="font-work-sans text-sm font-semibold text-[#181D27]">
+                <div className="flex items-center gap-2 mb-1.5 mt-0.5">
+                  <span className="font-work-sans text-[15px] font-bold text-[#181D27]">
                     {client.name}
                   </span>
                   {client.verified ? (
-                    <span className="flex items-center gap-1 font-work-sans text-xs text-[#16A34A]">
+                    <span className="flex items-center gap-1 font-work-sans text-[11px] font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
                       <Image src="/svg/crown.svg" alt="Verified" width={14} height={14} />
                       Verified
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 font-work-sans text-xs text-red-500">
-                      <ShieldAlert className="h-3.5 w-3.5" />
+                    <span className="flex items-center gap-1 font-work-sans text-[11px] font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded-full">
+                      <AiFillWarning className="h-3 w-3" />
                       Unverified
                     </span>
                   )}
                 </div>
-                <p className="font-work-sans text-xs text-[#414651]">
+                <p className="font-work-sans text-[13px] text-[#535862]">
                   {client.description}
                 </p>
               </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center justify-center gap-3">
+            {/* Desktop Actions */}
+            <div className="hidden lg:flex items-center justify-center gap-3">
               <motion.button
                 whileTap={{ scale: 0.85 }}
-                className="text-[#181D27] hover:text-[#414651] transition-colors"
+                className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                aria-label="Save client"
               >
-                <Bookmark className="h-4 w-4 fill-[#181D27]" />
+                <Bookmark className="h-[14px] w-[14px] fill-[#181D27]" />
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.85 }}
                 onClick={() =>
                   router.push(`/sp/messages?clientId=${client.id}`)
                 }
-                className="text-[#181D27] hover:text-[#414651] transition-colors"
+                className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                aria-label="Message client"
               >
-                <MessageCircle className="h-4 w-4 fill-[#181D27]" />
+                <AiFillMessage className="h-[14px] w-[14px]" />
               </motion.button>
             </div>
           </motion.div>
         ))}
-      </motion.div>
+        </motion.div>
+      </div>
 
       {/* Pagination */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
-        className="flex items-center justify-between mt-6"
+        className="flex flex-col sm:flex-row items-center sm:justify-between mt-4 mb-2 shrink-0 gap-4 sm:gap-0"
       >
         {/* Show entries */}
         <div className="flex items-center gap-2">
