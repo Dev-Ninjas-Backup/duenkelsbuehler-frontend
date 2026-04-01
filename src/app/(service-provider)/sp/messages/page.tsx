@@ -285,7 +285,6 @@ function MessagesContent() {
   );
 }
 
-/* ── Message Bubble Component ── */
 function MessageBubble({
   msg,
   contact,
@@ -311,27 +310,17 @@ function MessageBubble({
       initial={isInitial ? "hidden" : "hidden"}
       animate="visible"
       exit="exit"
-      className={`flex items-end gap-2.5 ${isMe ? "flex-row-reverse" : "flex-row"}`}
+      className={`relative flex w-fit min-w-[140px] max-w-[85%] md:max-w-[450px] ${
+        isMe ? "ml-auto justify-end pr-5" : "mr-auto justify-start pl-5"
+      }`}
     >
-      {/* Avatar */}
-      <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 shrink-0 mb-1">
-        <Image
-          src={isMe ? MY_AVATAR : contact.avatar}
-          alt="avatar"
-          width={40}
-          height={40}
-          className="object-cover w-full h-full"
-        />
-      </div>
-
-      {/* Bubble */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.2 }}
-        className={`max-w-xs lg:max-w-sm rounded-2xl px-4 py-3 bg-[#2E7D32] shadow-sm ${isMe ? "rounded-br-sm" : "rounded-bl-sm"}`}
+        className="relative w-full rounded-[14px] px-5 py-3.5 bg-gradient-to-br from-[#16A34A] to-[#10B981] shadow-sm z-0"
       >
-        <p className="font-work-sans text-xs font-bold mb-1 text-white">
+        <p className="font-work-sans text-xs font-extrabold mb-1 text-[#181D27]/90">
           {isMe ? "You" : contact.name}
         </p>
         {msg.image ? (
@@ -343,11 +332,26 @@ function MessageBubble({
             className="rounded-lg object-cover"
           />
         ) : (
-          <p className="font-work-sans text-sm text-white leading-relaxed">
+          <p className="font-work-sans text-[14px] text-white leading-relaxed font-medium">
             {msg.text}
           </p>
         )}
       </motion.div>
+
+      {/* Overlapping Avatar */}
+      <div
+        className={`absolute top-1/2 -translate-y-1/2 w-[38px] h-[38px] rounded-full overflow-hidden border-2 border-[#F9FAFB] shadow-sm shrink-0 z-10 ${
+          isMe ? "right-0" : "left-0"
+        }`}
+      >
+        <Image
+          src={isMe ? MY_AVATAR : contact.avatar}
+          alt="avatar"
+          width={38}
+          height={38}
+          className="object-cover w-full h-full"
+        />
+      </div>
     </motion.div>
   );
 }

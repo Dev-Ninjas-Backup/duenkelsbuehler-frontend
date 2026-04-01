@@ -22,7 +22,7 @@ export default function ServiceProviderLayout({
         />
 
         {/* Main Content */}
-        <main className="flex-1 bg-white rounded-32px overflow-hidden flex flex-col relative z-10">
+        <main className="flex-1 bg-white rounded-[32px] overflow-hidden flex flex-col relative z-10">
           {children}
         </main>
       </div>

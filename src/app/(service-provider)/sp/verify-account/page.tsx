@@ -89,7 +89,7 @@ export default function VerifyAccountPage() {
 
       <SuccessModal
         isOpen={step === "success"}
-        onDone={() => router.push("/sp/my-services")}
+        onDone={() => router.push("/sp/transact")}
       />
     </div>
   );

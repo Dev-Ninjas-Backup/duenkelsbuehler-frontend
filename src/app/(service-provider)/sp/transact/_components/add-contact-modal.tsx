@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronDown, ShieldAlert } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
+import { AiFillWarning } from "react-icons/ai";
 import Image from "next/image";
 import { Contact } from "./types";
 import { ALL_CONTACTS } from "./data";
@@ -107,7 +108,7 @@ export function AddContactModal({ isOpen, existingIds, onAdd, onClose }: Props) 
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 font-work-sans text-xs text-red-500">
-                        <ShieldAlert size={12} /> Unverified
+                        <AiFillWarning className="w-3.5 h-3.5" /> Unverified
                       </span>
                     )}
                   </div>

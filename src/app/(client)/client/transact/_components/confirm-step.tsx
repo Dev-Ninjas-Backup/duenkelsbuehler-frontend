@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ShieldAlert, X } from "lucide-react";
+import { X } from "lucide-react";
+import { AiFillWarning } from "react-icons/ai";
 import { SP } from "./types";
 
 export function ConfirmStep({
@@ -46,7 +47,7 @@ export function ConfirmStep({
           <p className="font-rozha text-lg text-[#181D27]">{sp.name}</p>
           {!sp.verified && (
             <span className="inline-flex items-center gap-1 font-work-sans text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded-full mt-0.5">
-              <ShieldAlert size={11} /> Unverified
+              <AiFillWarning className="w-[11px] h-[11px]" /> Unverified
             </span>
           )}
         </div>

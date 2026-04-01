@@ -20,20 +20,15 @@ import { AddContactModal } from "./add-contact-modal";
 
 const STEP_ORDER: SubStep[] = ["contacts", "amount", "payment-method", "contract", "invoice", "final-details", "ready"];
 
-const slideVariants = {
-  enter:  (dir: number) => ({ opacity: 0, x: dir > 0 ?  40 : -40 }),
-  center:              () => ({ opacity: 1, x: 0 }),
-  exit:   (dir: number) => ({ opacity: 0, x: dir > 0 ? -40 :  40 }),
-};
-
 const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08 } },
+  enter: { opacity: 0 },
+  center: { opacity: 1, transition: { staggerChildren: 0.08 } },
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" as const } },
+  enter: { opacity: 0, y: 16 },
+  center: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" as const } },
+  exit: { opacity: 0, y: -16 },
 };
 
 const EMPTY_DATA: TransactionData = {
@@ -89,6 +84,12 @@ export function NewTransactionTab({ onDone }: Props) {
 
   const showBack = subStep !== "contacts";
 
+  const fadeUpVariants = {
+    enter: { opacity: 0, y: 10 },
+    center: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: -10 },
+  };
+
   return (
     <div>
       {/* Back button */}
@@ -107,11 +108,10 @@ export function NewTransactionTab({ onDone }: Props) {
         )}
       </AnimatePresence>
 
-      <AnimatePresence mode="wait" custom={direction}>
+      <AnimatePresence mode="wait">
         <motion.div
           key={subStep}
-          custom={direction}
-          variants={slideVariants}
+          variants={fadeUpVariants}
           initial="enter"
           animate="center"
           exit="exit"
@@ -121,7 +121,8 @@ export function NewTransactionTab({ onDone }: Props) {
           {subStep === "contacts" && (
             <div>
               <p className="font-rozha text-2xl text-[#181D27] text-center mb-6">Choose a Contact</p>
-              <motion.div variants={containerVariants} initial="hidden" animate="visible" className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+              {/* Note: Not providing initial/animate here allows variants to stagger from the parent's enter/center */}
+              <motion.div variants={containerVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto">
                 {contacts.map((contact) => (
                   <motion.div key={contact.id} variants={cardVariants}>
                     <ContactCard contact={contact} onClick={handleSelectContact} />
@@ -131,7 +132,7 @@ export function NewTransactionTab({ onDone }: Props) {
                   variants={cardVariants}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setShowAddModal(true)}
-                  className="bg-[#F5F5F5] rounded-2xl p-5 flex items-center justify-center min-h-[160px] hover:bg-gray-100 transition-colors"
+                  className="bg-[#F5F5F5] rounded-2xl p-5 flex items-center justify-center min-h-[160px] hover:bg-gray-100 transition-colors shadow-sm cursor-pointer"
                 >
                   <motion.div whileHover={{ scale: 1.1 }} className="w-14 h-14 rounded-full bg-[#6B7280] flex items-center justify-center text-white shadow-md">
                     <Plus size={26} strokeWidth={2.5} />

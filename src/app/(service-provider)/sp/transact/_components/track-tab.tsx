@@ -107,7 +107,7 @@ export function TrackTab() {
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="grid grid-cols-3 gap-4 max-w-2xl mx-auto"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-3xl mx-auto"
             >
               {TRACK_CONTACTS.map((contact) => (
                 <motion.div key={contact.id} variants={cardVariants}>

@@ -216,61 +216,73 @@ export function TransactionHistoryTab() {
       {/* Table */}
       <div className="w-full">
         {/* Header */}
-        <div className="grid grid-cols-[60px_1fr_160px_160px] bg-[#181D27] rounded-xl px-6 py-3.5 mb-3">
+        <div className="hidden lg:grid grid-cols-[60px_1fr_140px_120px] bg-[#181D27] rounded-[16px] px-6 py-3.5 mb-3">
           <span className="font-work-sans text-sm font-medium text-white">
             Sl
           </span>
           <span className="font-work-sans text-sm font-medium text-white">
             Name
           </span>
-          <span className="font-work-sans text-sm font-medium text-white">
+          <span className="font-work-sans text-sm font-medium text-white text-center">
             Status
           </span>
-          <span className="font-work-sans text-sm font-medium text-white">
+          <span className="font-work-sans text-sm font-medium text-white text-right">
             Paid
           </span>
         </div>
 
         {/* Rows */}
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-4">
           {rows.map((tx, i) => (
             <motion.div
               key={tx.id + "-" + i}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2, delay: i * 0.04 }}
-              className="grid grid-cols-[60px_1fr_160px_160px] items-center bg-white border border-gray-100 rounded-xl px-6 py-4 shadow-sm"
+              className="flex flex-col lg:grid lg:grid-cols-[60px_1fr_140px_120px] items-start lg:items-center bg-[#F9F9F9] lg:bg-[#F9F9F9] border border-gray-100/80 rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 gap-3 lg:gap-0 hover:bg-[#EFEFEF] transition-colors"
             >
-              <span className="font-work-sans text-sm text-[#414651]">
+              {/* Desktop Sl */}
+              <span className="hidden lg:block font-work-sans text-sm text-[#414651]">
                 {i + 1}
               </span>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 shrink-0">
-                  <Image
-                    src={tx.avatar}
-                    alt={tx.name}
-                    width={40}
-                    height={40}
-                    className="object-cover w-full h-full"
-                  />
+
+              {/* Mobile Header */}
+              <div className="flex w-full justify-between items-center lg:hidden mb-1 border-b border-gray-200 pb-3">
+                <span className="font-work-sans text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">
+                  Tx #{i + 1}
+                </span>
+                <StatusBadge status={tx.status} />
+              </div>
+
+              {/* Name */}
+              <div className="flex items-center gap-3 w-full lg:w-auto mt-1 lg:mt-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 shrink-0 bg-white">
+                  <Image src={tx.avatar} alt={tx.name} width={40} height={40} className="object-cover w-full h-full" />
                 </div>
-                <span className="font-work-sans text-sm font-semibold text-[#181D27]">
+                <span className="font-work-sans text-[14px] font-bold text-[#181D27]">
                   {tx.name}
                 </span>
               </div>
-              <StatusBadge status={tx.status} />
-              <span
-                className={`font-work-sans text-sm font-semibold ${statusStyle[tx.status].amount}`}
-              >
-                {tx.amount}
-              </span>
+
+              {/* Status (Desktop only, mobile shows in header) */}
+              <div className="hidden lg:flex justify-center">
+                 <StatusBadge status={tx.status} />
+              </div>
+
+              {/* Amount */}
+              <div className="flex justify-between items-center w-full lg:w-auto lg:block text-right">
+                <span className="lg:hidden font-work-sans text-[13px] text-[#535862]">Amount:</span>
+                <span className={`font-work-sans text-[15px] font-bold ${statusStyle[tx.status].amount}`}>
+                  {tx.amount}
+                </span>
+              </div>
             </motion.div>
           ))}
         </div>
       </div>
 
       {/* Footer: show entries + pagination */}
-      <div className="flex items-center justify-between w-full mt-2">
+      <div className="flex flex-col sm:flex-row items-center justify-between w-full mt-4 gap-4">
         {/* Show entries */}
         <div className="flex items-center gap-2">
           <span className="font-work-sans text-sm text-[#414651]">Show</span>
@@ -293,7 +305,7 @@ export function TransactionHistoryTab() {
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap justify-center items-center gap-1.5">
           <PagBtn
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}

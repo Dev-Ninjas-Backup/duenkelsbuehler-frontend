@@ -13,7 +13,7 @@ export function ContactCard({ contact, onClick }: Props) {
     <motion.button
       whileTap={{ scale: 0.97 }}
       onClick={() => onClick(contact)}
-      className="bg-[#F5F5F5] rounded-2xl p-5 flex flex-col items-center gap-3 hover:bg-gray-100 transition-colors w-full"
+      className="bg-[#F5F5F5] rounded-2xl p-5 flex flex-col items-center gap-3 hover:bg-gray-100 transition-colors w-full cursor-pointer shadow-sm"
     >
       <div className="relative">
         <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200">

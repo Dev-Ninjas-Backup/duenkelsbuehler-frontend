@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FileText, Trash2, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { FileText, Download, ChevronLeft, ChevronRight } from "lucide-react";
+import { AiFillDelete } from "react-icons/ai";
 import { useSavedContracts } from "@/store/saved-contracts";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
@@ -58,7 +59,7 @@ export default function SavedContractsPage() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="font-rozha text-4xl lg:text-5xl text-[#181D27] text-center mb-8"
+        className="font-rozha text-[36px] lg:text-[40px] text-[#181D27] text-center mt-3 mb-6 shrink-0"
       >
         Saved Contracts
       </motion.h1>
@@ -68,7 +69,7 @@ export default function SavedContractsPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.1 }}
-        className="grid grid-cols-[40px_1fr_160px_120px] bg-[#181D27] text-white rounded-xl px-6 py-4 mb-3"
+        className="hidden lg:grid grid-cols-[40px_1fr_160px_120px] bg-[#181D27] text-white rounded-[16px] px-6 py-3.5 mb-3"
       >
         <span className="font-work-sans text-sm font-medium">Sl</span>
         <span className="font-work-sans text-sm font-medium">Contract</span>
@@ -94,63 +95,90 @@ export default function SavedContractsPage() {
 
       {/* Table Rows */}
       {contracts.length > 0 && (
-        <motion.div
-          key={currentPage}
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col gap-3 flex-1"
-        >
-          {paginated.map((c, index) => (
-            <motion.div
-              key={c.id}
-              variants={rowVariants}
-              className="grid grid-cols-[40px_1fr_160px_120px] bg-[#F9F9F9] rounded-xl px-6 py-4 items-center"
-            >
-              {/* Sl */}
-              <span className="font-work-sans text-sm text-[#414651]">
-                {(currentPage - 1) * pageSize + index + 1}
-              </span>
+        <div className="flex-1 overflow-y-auto pr-2 pb-4">
+          <motion.div
+            key={currentPage}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-col gap-4"
+          >
+            {paginated.map((c, index) => (
+              <motion.div
+                key={c.id}
+                variants={rowVariants}
+                className="flex flex-col lg:grid lg:grid-cols-[40px_1fr_160px_120px] bg-[#F9F9F9] lg:bg-[#F9F9F9] rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 items-start lg:items-center border border-gray-100/80 hover:bg-[#EFEFEF] transition-colors gap-3 lg:gap-0"
+              >
+                {/* Desktop Sl */}
+                <span className="hidden lg:block font-work-sans text-sm text-[#414651]">
+                  {(currentPage - 1) * pageSize + index + 1}
+                </span>
 
-              {/* Contract file info */}
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
-                  <FileText size={20} className="text-red-500" />
+                {/* Mobile Header with ID & Actions */}
+                <div className="flex w-full items-center justify-between lg:hidden mb-1 border-b border-gray-200 pb-3">
+                  <span className="font-work-sans text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">
+                    Contract #{(currentPage - 1) * pageSize + index + 1}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <motion.button
+                      whileTap={{ scale: 0.85 }}
+                      onClick={() => handleDownload(c.file, c.fileName)}
+                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                      aria-label="Download contract"
+                    >
+                      <Download className="h-[14px] w-[14px]" />
+                    </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.85 }}
+                      onClick={() => removeContract(c.id)}
+                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-red-500 hover:bg-red-50 transition-colors"
+                      aria-label="Delete contract"
+                    >
+                      <AiFillDelete className="h-[16px] w-[16px]" />
+                    </motion.button>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="font-work-sans text-sm font-semibold text-[#181D27] truncate">{c.fileName}</p>
-                  <p className="font-work-sans text-xs text-[#9CA3AF]">Saved {c.savedAt}</p>
+
+                {/* Contract Info */}
+                <div className="flex w-full items-center gap-4 lg:w-auto">
+                  <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                    <FileText size={20} className="text-red-500" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-work-sans text-[15px] font-bold text-[#181D27] truncate mb-1.5 mt-0.5">{c.fileName}</p>
+                    <p className="font-work-sans text-[13px] text-[#535862]">Saved {c.savedAt}</p>
+                  </div>
                 </div>
-              </div>
 
-              {/* Details — client + amount */}
-              <div className="min-w-0">
-                <p className="font-work-sans text-sm font-medium text-[#181D27] truncate">{c.clientName}</p>
-                <p className="font-work-sans text-xs text-[#414651] truncate">{c.amount}</p>
-              </div>
+                {/* Details — client + amount */}
+                <div className="min-w-0 w-full lg:w-auto pl-14 lg:pl-0">
+                  <p className="font-work-sans text-sm font-medium text-[#181D27] truncate">{c.clientName}</p>
+                  <p className="font-work-sans text-[13px] text-[#414651] truncate">{c.amount}</p>
+                </div>
 
-              {/* Actions */}
-              <div className="flex items-center justify-center gap-3">
-                <motion.button
-                  whileTap={{ scale: 0.85 }}
-                  onClick={() => handleDownload(c.file, c.fileName)}
-                  className="text-[#181D27] hover:text-[#414651] transition-colors"
-                  aria-label="Download contract"
-                >
-                  <Download className="h-4 w-4" />
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.85 }}
-                  onClick={() => removeContract(c.id)}
-                  className="text-[#9CA3AF] hover:text-red-500 transition-colors"
-                  aria-label="Delete contract"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </motion.button>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
+                {/* Desktop Actions */}
+                <div className="hidden lg:flex items-center justify-center gap-3">
+                  <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => handleDownload(c.file, c.fileName)}
+                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                    aria-label="Download contract"
+                  >
+                    <Download className="h-[14px] w-[14px]" />
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => removeContract(c.id)}
+                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-red-500 hover:bg-red-50 transition-colors"
+                    aria-label="Delete contract"
+                  >
+                    <AiFillDelete className="h-[16px] w-[16px]" />
+                  </motion.button>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
       )}
 
       {/* Pagination */}
@@ -159,7 +187,7 @@ export default function SavedContractsPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.3 }}
-          className="flex items-center justify-between mt-6"
+          className="flex flex-col sm:flex-row items-center sm:justify-between mt-4 mb-2 shrink-0 gap-4 sm:gap-0"
         >
           {/* Show entries */}
           <div className="flex items-center gap-2">
