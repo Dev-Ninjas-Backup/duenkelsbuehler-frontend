@@ -4,13 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Bookmark,
-  MessageCircle,
-  ShieldAlert,
-} from "lucide-react";
+import { Bookmark, ChevronLeft, ChevronRight } from "lucide-react";
+import { AiFillWarning, AiFillMessage } from "react-icons/ai";
 
 interface ServiceProvider {
   id: number;
@@ -156,11 +151,12 @@ export default function ClientMyServicesPage() {
 
   return (
     <div className="flex flex-col h-full px-2 py-6 lg:px-8">
+      {/* Title */}
       <motion.h1
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="font-rozha text-4xl lg:text-5xl text-[#181D27] text-center mb-8"
+        className="font-rozha text-[36px] lg:text-[40px] text-[#181D27] text-center mt-3 mb-6 shrink-0"
       >
         Saved Service Providers
       </motion.h1>
@@ -170,7 +166,7 @@ export default function ClientMyServicesPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.1 }}
-        className="grid grid-cols-[40px_1fr_100px] bg-[#181D27] text-white rounded-xl px-6 py-4 mb-3"
+        className="hidden lg:grid grid-cols-[40px_1fr_100px] bg-[#181D27] text-white rounded-[16px] px-6 py-3.5 mb-3"
       >
         <span className="font-work-sans text-sm font-medium">Sl</span>
         <span className="font-work-sans text-sm font-medium">Name</span>
@@ -180,79 +176,112 @@ export default function ClientMyServicesPage() {
       </motion.div>
 
       {/* Table Rows */}
-      <motion.div
-        key={currentPage}
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col gap-3 flex-1"
-      >
-        {paginated.map((sp, index) => (
-          <motion.div
-            key={sp.id}
-            variants={rowVariants}
-            className="grid grid-cols-[40px_1fr_100px] bg-[#F9F9F9] rounded-xl px-6 py-4 items-center"
-          >
-            <span className="font-work-sans text-sm text-[#414651]">
-              {(currentPage - 1) * pageSize + index + 1}
-            </span>
+      <div className="flex-1 overflow-y-auto pr-2 pb-4">
+        <motion.div
+          key={currentPage}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col gap-4"
+        >
+          {paginated.map((sp, index) => (
+            <motion.div
+              key={sp.id}
+              variants={rowVariants}
+              className="flex flex-col lg:grid lg:grid-cols-[40px_1fr_100px] bg-[#F9F9F9] lg:bg-[#F9F9F9] rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 items-start lg:items-center border border-gray-100/80 hover:bg-[#EFEFEF] transition-colors gap-3 lg:gap-0 mt-1"
+            >
+              {/* Desktop Sl */}
+              <span className="hidden lg:block font-work-sans text-sm text-[#414651]">
+                {(currentPage - 1) * pageSize + index + 1}
+              </span>
 
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-200">
-                <Image
-                  src={sp.avatar}
-                  alt={sp.name}
-                  width={40}
-                  height={40}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="font-work-sans text-sm font-semibold text-[#181D27]">
-                    {sp.name}
-                  </span>
-                  {sp.verified ? (
-                    <span className="flex items-center gap-1 font-work-sans text-xs text-[#16A34A]">
-                      <Image src="/svg/crown.svg" alt="Verified" width={14} height={14} /> Verified
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-1 font-work-sans text-xs text-red-500">
-                      <ShieldAlert className="h-3.5 w-3.5" /> Unverified
-                    </span>
-                  )}
+              {/* Mobile Header with ID & Actions */}
+              <div className="flex w-full items-center justify-between lg:hidden mb-1 border-b border-gray-200 pb-3">
+                <span className="font-work-sans text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">
+                  Provider #{(currentPage - 1) * pageSize + index + 1}
+                </span>
+                <div className="flex items-center gap-2">
+                  <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                    aria-label="Save provider"
+                  >
+                    <Bookmark className="h-[14px] w-[14px] fill-[#181D27]" />
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.85 }}
+                    onClick={() => router.push(`/client/messages?spId=${sp.id}`)}
+                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                    aria-label="Message provider"
+                  >
+                    <AiFillMessage className="h-[14px] w-[14px]" />
+                  </motion.button>
                 </div>
-                <p className="font-work-sans text-xs text-[#414651]">
-                  {sp.description}
-                </p>
               </div>
-            </div>
 
-            <div className="flex items-center justify-center gap-3">
-              <motion.button
-                whileTap={{ scale: 0.85 }}
-                className="text-[#181D27] hover:text-[#414651] transition-colors"
-              >
-                <Bookmark className="h-4 w-4 fill-[#181D27]" />
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.85 }}
-                onClick={() => router.push(`/client/messages?spId=${sp.id}`)}
-                className="text-[#181D27] hover:text-[#414651] transition-colors"
-              >
-                <MessageCircle className="h-4 w-4 fill-[#181D27]" />
-              </motion.button>
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
+              {/* Name + Info */}
+              <div className="flex w-full items-center gap-4 lg:w-auto">
+                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-200">
+                  <Image
+                    src={sp.avatar}
+                    alt={sp.name}
+                    width={40}
+                    height={40}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5 mt-0.5">
+                    <span className="font-work-sans text-[15px] font-bold text-[#181D27]">
+                      {sp.name}
+                    </span>
+                    {sp.verified ? (
+                      <span className="flex items-center gap-1 font-work-sans text-[11px] font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                        <Image src="/svg/crown.svg" alt="Verified" width={14} height={14} />
+                        Verified
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 font-work-sans text-[11px] font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded-full">
+                        <AiFillWarning className="h-3 w-3" />
+                        Unverified
+                      </span>
+                    )}
+                  </div>
+                  <p className="font-work-sans text-[13px] text-[#535862]">
+                    {sp.description}
+                  </p>
+                </div>
+              </div>
 
-      {/* Pagination */}
+              {/* Desktop Actions */}
+              <div className="hidden lg:flex items-center justify-center gap-3">
+                <motion.button
+                  whileTap={{ scale: 0.85 }}
+                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                  aria-label="Save provider"
+                >
+                  <Bookmark className="h-[14px] w-[14px] fill-[#181D27]" />
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.85 }}
+                  onClick={() => router.push(`/client/messages?spId=${sp.id}`)}
+                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                  aria-label="Message provider"
+                >
+                  <AiFillMessage className="h-[14px] w-[14px]" />
+                </motion.button>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Pagination Container Component */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
-        className="flex items-center justify-between mt-6"
+        className="flex flex-col sm:flex-row items-center justify-between mt-auto shrink-0 lg:-mx-4 bg-white/50 backdrop-blur-sm lg:p-4 rounded-xl gap-4 sm:gap-0"
       >
         <div className="flex items-center gap-2">
           <span className="font-work-sans text-sm text-[#414651]">Show</span>
@@ -263,7 +292,7 @@ export default function ClientMyServicesPage() {
               setCurrentPage(1);
             }}
             aria-label="Entries per page"
-            className="h-8 px-2 rounded-lg border border-gray-200 font-work-sans text-sm text-[#181D27] focus:outline-none cursor-pointer"
+            className="h-10 px-3 rounded-lg border border-gray-200 font-work-sans text-sm text-[#181D27] focus:outline-none cursor-pointer hover:border-gray-300 transition-colors bg-white shadow-sm"
           >
             {PAGE_SIZE_OPTIONS.map((s) => (
               <option key={s} value={s}>
@@ -279,7 +308,7 @@ export default function ClientMyServicesPage() {
             whileTap={{ scale: 0.9 }}
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-[#414651] hover:bg-gray-50 disabled:opacity-40 transition-colors"
+            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-[#414651] hover:bg-gray-50 disabled:opacity-40 transition-colors shadow-sm bg-white"
           >
             <ChevronLeft className="h-4 w-4" />
           </motion.button>
@@ -288,7 +317,7 @@ export default function ClientMyServicesPage() {
             page === "..." ? (
               <span
                 key={`ellipsis-${i}`}
-                className="w-9 h-9 flex items-center justify-center font-work-sans text-sm text-[#414651]"
+                className="w-10 h-10 flex items-center justify-center font-work-sans text-sm text-[#414651]"
               >
                 ...
               </span>
@@ -297,10 +326,10 @@ export default function ClientMyServicesPage() {
                 key={page}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setCurrentPage(page as number)}
-                className={`w-9 h-9 rounded-full font-work-sans text-sm font-medium transition-colors ${
+                className={`w-10 h-10 rounded-full font-work-sans text-sm font-medium transition-colors shadow-sm ${
                   currentPage === page
                     ? "bg-[#181D27] text-white"
-                    : "border border-gray-200 text-[#414651] hover:bg-gray-50"
+                    : "border border-gray-200 text-[#414651] hover:bg-gray-50 bg-white"
                 }`}
               >
                 {page}
@@ -312,7 +341,7 @@ export default function ClientMyServicesPage() {
             whileTap={{ scale: 0.9 }}
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-[#414651] hover:bg-gray-50 disabled:opacity-40 transition-colors"
+            className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center text-[#414651] hover:bg-gray-50 disabled:opacity-40 transition-colors shadow-sm bg-white"
           >
             <ChevronRight className="h-4 w-4" />
           </motion.button>

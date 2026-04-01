@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShieldAlert } from "lucide-react";
+import { AiFillWarning } from "react-icons/ai";
 import { RatingModal } from "./_components/rating-modal";
 
 interface Proposal {
@@ -130,30 +130,32 @@ function KaChingModal({
 /* ── SP Card (reused across views) ── */
 function SPCard({ proposal }: { proposal: Proposal }) {
   return (
-    <div className="w-full bg-[#F9F9F9] rounded-2xl px-5 py-4 flex items-center gap-4">
-      <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
+    <div className="w-full bg-[#F9F9F9] rounded-[20px] px-5 py-4 flex items-center gap-4 border border-gray-100/80">
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden shrink-0 bg-gray-200">
         <Image
           src={proposal.avatar}
           alt={proposal.name}
-          width={48}
-          height={48}
+          width={56}
+          height={56}
           className="object-cover w-full h-full"
         />
       </div>
-      <div>
-        <p className="font-rozha text-lg text-[#181D27]">
-          {proposal.name} (
-          <span className="text-[#16A34A]">{proposal.amount}</span>)
+      <div className="min-w-0">
+        <p className="font-rozha text-base sm:text-lg text-[#181D27] truncate">
+          {proposal.name}{" "}
+          <span className="text-[#16A34A]">({proposal.amount})</span>
         </p>
-        {proposal.verified ? (
-          <span className="inline-flex items-center gap-1 font-work-sans text-xs text-[#16A34A]">
-            <Image src="/svg/crown.svg" alt="Verified" width={11} height={11} /> Verified
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1 font-work-sans text-xs text-red-500 bg-red-50 px-2 py-0.5 rounded-full mt-0.5">
-            <ShieldAlert size={11} /> Unverified
-          </span>
-        )}
+        <div className="mt-1">
+          {proposal.verified ? (
+            <span className="inline-flex items-center gap-1 font-work-sans text-[11px] font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+              <Image src="/svg/crown.svg" alt="Verified" width={12} height={12} /> Verified
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 font-work-sans text-[11px] font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded-full">
+              <AiFillWarning className="w-3 h-3" /> Unverified
+            </span>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -236,7 +238,7 @@ export default function ReviewProposalsPage() {
               initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="font-rozha text-4xl lg:text-5xl text-[#181D27] text-center mb-8"
+              className="font-rozha text-[36px] lg:text-[40px] text-[#181D27] text-center mt-3 mb-6 shrink-0"
             >
               Review Proposals
             </motion.h1>
@@ -245,7 +247,7 @@ export default function ReviewProposalsPage() {
               variants={containerVariants}
               initial="hidden"
               animate="visible"
-              className="grid grid-cols-3 gap-4"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
             >
               {MOCK.map((p) => (
                 <motion.div
@@ -256,10 +258,10 @@ export default function ReviewProposalsPage() {
                     setSelected(p);
                     setView("detail");
                   }}
-                  className="bg-[#F9F9F9] rounded-2xl p-5 flex flex-col items-center gap-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                  className="bg-[#F9F9F9] rounded-[20px] p-5 flex flex-col items-center gap-3 cursor-pointer hover:bg-[#EFEFEF] transition-colors border border-gray-100/80"
                 >
                   <div className="relative">
-                    <div className="w-20 h-20 rounded-full overflow-hidden">
+                    <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200">
                       <Image
                         src={p.avatar}
                         alt={p.name}
@@ -269,11 +271,11 @@ export default function ReviewProposalsPage() {
                       />
                     </div>
                     {/* badge icon */}
-                    <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow">
+                    <div className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-sm">
                       {p.verified ? (
-                        <Image src="/svg/crown.svg" alt="Verified" width={13} height={13} className="text-[#16A34A]" />
+                        <Image src="/svg/crown.svg" alt="Verified" width={13} height={13} />
                       ) : (
-                        <ShieldAlert size={13} className="text-red-500" />
+                        <AiFillWarning className="text-red-500 w-[13px] h-[13px]" />
                       )}
                     </div>
                   </div>
@@ -297,13 +299,13 @@ export default function ReviewProposalsPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="flex flex-col max-w-lg mx-auto w-full gap-6"
+            className="flex flex-col max-w-lg mx-auto w-full gap-5 px-2"
           >
             <motion.h1
               initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="font-rozha text-4xl lg:text-5xl text-[#181D27] text-center"
+              className="font-rozha text-[36px] lg:text-[40px] text-[#181D27] text-center mt-3"
             >
               Review Proposals
             </motion.h1>
@@ -323,18 +325,18 @@ export default function ReviewProposalsPage() {
               </p>
             </div>
 
-            <div className="flex justify-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleAccept}
-                className="px-8 h-12 rounded-full border border-gray-300 font-work-sans text-sm font-semibold text-[#181D27] hover:bg-gray-50 transition-colors"
+                className="w-full sm:w-auto px-8 h-12 rounded-full border border-gray-300 font-work-sans text-sm font-semibold text-[#181D27] hover:bg-gray-50 transition-colors"
               >
                 Accept
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleDecline}
-                className="px-8 h-12 rounded-full bg-red-500 text-white font-work-sans text-sm font-semibold hover:bg-red-600 transition-colors"
+                className="w-full sm:w-auto px-8 h-12 rounded-full bg-red-500 text-white font-work-sans text-sm font-semibold hover:bg-red-600 transition-colors"
               >
                 Decline
               </motion.button>
@@ -350,13 +352,13 @@ export default function ReviewProposalsPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="flex flex-col max-w-lg mx-auto w-full gap-6"
+            className="flex flex-col max-w-lg mx-auto w-full gap-5 px-2"
           >
             <motion.h1
               initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="font-rozha text-4xl lg:text-5xl text-[#181D27] text-center"
+              className="font-rozha text-[36px] lg:text-[40px] text-[#181D27] text-center mt-3"
             >
               Review Proposals
             </motion.h1>
@@ -386,13 +388,13 @@ export default function ReviewProposalsPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="flex flex-col max-w-lg mx-auto w-full gap-6"
+            className="flex flex-col max-w-lg mx-auto w-full gap-5 px-2"
           >
             <motion.h1
               initial={{ opacity: 0, y: -16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
-              className="font-rozha text-4xl lg:text-5xl text-[#181D27] text-center"
+              className="font-rozha text-[36px] lg:text-[40px] text-[#181D27] text-center mt-3"
             >
               Review Proposals
             </motion.h1>

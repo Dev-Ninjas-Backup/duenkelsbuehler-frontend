@@ -179,7 +179,7 @@ export default function ClientRatingsRewardsPage() {
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="font-rozha text-4xl lg:text-5xl text-[#181D27] text-center mb-8"
+        className="font-rozha text-[36px] lg:text-[40px] text-[#181D27] text-center mt-3 mb-6 shrink-0"
       >
         Rating & Badges
       </motion.h1>
@@ -189,33 +189,33 @@ export default function ClientRatingsRewardsPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
-        className="flex flex-col gap-6 mb-8"
+        className="flex flex-col gap-6 mb-6 shrink-0"
       >
         {/* Badge 1 — Seal */}
-        <div className="flex items-start gap-5">
-          <div className="w-20 h-20 shrink-0 flex items-center justify-center">
+        <div className="flex items-start gap-4 lg:gap-5">
+          <div className="w-16 h-16 lg:w-20 lg:h-20 shrink-0 flex items-center justify-center">
             <Image src="/images/seal.png" alt="Seal" width={80} height={80} className="object-contain" />
           </div>
           <div>
-            <h2 className="font-rozha text-2xl text-[#181D27] mb-1">
+            <h2 className="font-rozha text-xl lg:text-2xl text-[#181D27] mb-1">
               The seal is now yours to bear.
             </h2>
-            <p className="font-work-sans text-sm text-[#414651]">
+            <p className="font-work-sans text-[13px] lg:text-sm text-[#414651]">
               No more shadows—your name carries weight.
             </p>
           </div>
         </div>
 
         {/* Badge 2 — Fine Print Club */}
-        <div className="flex items-start gap-5">
-          <div className="w-20 h-20 shrink-0 flex items-center justify-center">
+        <div className="flex items-start gap-4 lg:gap-5">
+          <div className="w-16 h-16 lg:w-20 lg:h-20 shrink-0 flex items-center justify-center">
             <Image src="/images/hand.png" alt="Fine Print Club" width={80} height={80} className="object-contain" />
           </div>
           <div>
-            <h2 className="font-rozha text-2xl text-[#181D27] mb-1">
+            <h2 className="font-rozha text-xl lg:text-2xl text-[#181D27] mb-1">
               The Fine Print Club
             </h2>
-            <p className="font-work-sans text-sm text-[#414651] max-w-sm">
+            <p className="font-work-sans text-[13px] lg:text-sm text-[#414651] max-w-sm">
               A contract sent, a standard set. Welcome to The Fine Print Club —
               where the details are respected.
             </p>
@@ -228,73 +228,73 @@ export default function ClientRatingsRewardsPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.2 }}
-        className="grid grid-cols-[40px_1fr_160px] bg-[#181D27] text-white rounded-xl px-6 py-4 mb-3"
+        className="hidden lg:grid grid-cols-[1fr_160px] bg-[#181D27] text-white rounded-[16px] px-6 py-3.5 mb-3"
       >
-        <span className="font-work-sans text-sm font-medium">Sl</span>
         <span className="font-work-sans text-sm font-medium">Name</span>
         <span className="font-work-sans text-sm font-medium text-center">
           Rating
         </span>
       </motion.div>
 
-      {/* Table Rows */}
-      <motion.div
-        key={currentPage}
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="flex flex-col gap-3 flex-1"
-      >
-        {paginated.map((review, index) => (
-          <motion.div
-            key={review.id}
-            variants={rowVariants}
-            className="grid grid-cols-[40px_1fr_160px] bg-[#F9F9F9] rounded-xl px-6 py-4 items-center"
-          >
-            <span className="font-work-sans text-sm text-[#414651]">
-              {(currentPage - 1) * pageSize + index + 1}
-            </span>
-
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-200">
-                <Image
-                  src={review.avatar}
-                  alt={review.name}
-                  width={40}
-                  height={40}
-                  className="object-cover w-full h-full"
-                />
-              </div>
-              <div>
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="font-work-sans text-sm font-semibold text-[#181D27]">
-                    {review.name}
-                  </span>
-                  {review.verified && (
-                    <span className="flex items-center gap-1 font-work-sans text-xs text-[#16A34A]">
-                      <Image src="/svg/crown.svg" alt="Verified" width={14} height={14} /> Verified
-                    </span>
-                  )}
+      {/* Table Rows - Wrapped by Scroll Container max height */}
+      <div className="flex-1 overflow-y-auto pr-2 pb-4">
+        <motion.div
+          key={currentPage}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex flex-col gap-4"
+        >
+          {paginated.map((review) => (
+            <motion.div
+              key={review.id}
+              variants={rowVariants}
+              className="flex flex-col lg:grid lg:grid-cols-[1fr_160px] bg-[#F9F9F9] lg:bg-[#F9F9F9] rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 items-start lg:items-center border border-gray-100/80 hover:bg-[#EFEFEF] transition-colors gap-3 lg:gap-0"
+            >
+              {/* Name + Info */}
+              <div className="flex w-full items-start gap-4 lg:items-center lg:w-auto">
+                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-200 mt-1 lg:mt-0">
+                  <Image
+                    src={review.avatar}
+                    alt={review.name}
+                    width={40}
+                    height={40}
+                    className="object-cover w-full h-full"
+                  />
                 </div>
-                <p className="font-work-sans text-xs text-[#414651]">
-                  {review.description}
-                </p>
+                <div className="min-w-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mb-1.5 mt-0.5">
+                    <span className="font-work-sans text-[15px] font-bold text-[#181D27]">
+                      {review.name}
+                    </span>
+                    {review.verified && (
+                      <span className="flex items-center gap-1 w-max font-work-sans text-[11px] font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+                        <Image src="/svg/crown.svg" alt="Verified" width={14} height={14} />
+                        Verified
+                      </span>
+                    )}
+                  </div>
+                  <p className="font-work-sans text-[13px] text-[#535862]">
+                    {review.description}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <div className="flex justify-center">
-              <StarRating rating={review.rating} />
-            </div>
-          </motion.div>
-        ))}
-      </motion.div>
+              {/* Stars */}
+              <div className="flex justify-start lg:justify-center pl-14 lg:pl-0 w-full lg:w-auto">
+                <StarRating rating={review.rating} />
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
 
       {/* Pagination */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
-        className="flex items-center justify-between mt-6"
+        className="flex flex-col sm:flex-row items-center sm:justify-between mt-4 mb-2 shrink-0 gap-4 sm:gap-0"
       >
         <div className="flex items-center gap-2">
           <span className="font-work-sans text-sm text-[#414651]">Show</span>

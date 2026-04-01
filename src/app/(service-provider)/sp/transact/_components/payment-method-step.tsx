@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ShieldAlert } from "lucide-react";
+import { AiFillWarning } from "react-icons/ai";
 import { Contact } from "./types";
 
 const METHODS = [
@@ -57,7 +57,7 @@ export function PaymentMethodStep({ contact, selected, onSelect, onNext }: Props
           {contact.badge === "gold" ? (
             <span className="flex items-center gap-1 font-work-sans text-xs text-[#16A34A] mt-0.5"><Image src="/svg/crown.svg" alt="Verified" width={13} height={13} /> Verified</span>
           ) : (
-            <span className="flex items-center gap-1 font-work-sans text-xs text-red-500 mt-0.5"><ShieldAlert size={13} /> Unverified</span>
+            <span className="flex items-center gap-1 font-work-sans text-xs text-red-500 mt-0.5"><AiFillWarning className="w-4 h-4" /> Unverified</span>
           )}
         </div>
       </motion.div>

@@ -27,32 +27,36 @@ export default function SPSettingsPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.1 }}
-        className="flex justify-center border-b border-gray-200 mb-8"
+        className="flex justify-center mb-8 shrink-0"
       >
-        {(["profile", "payments"] as Tab[]).map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`relative px-8 py-3 font-work-sans text-sm font-medium transition-colors ${
-              activeTab === tab ? "text-[#181D27]" : "text-[#9CA3AF] hover:text-[#414651]"
-            }`}
-          >
-            {tab === "profile" ? "My Profile" : "Payments"}
-            {activeTab === tab && (
-              <motion.div
-                layoutId="tab-indicator"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#181D27]"
-              />
-            )}
-          </button>
-        ))}
+        <div className="flex border-b border-gray-200">
+          {(["profile", "payments"] as Tab[]).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`relative px-8 py-3 font-work-sans text-sm font-medium transition-colors ${
+                activeTab === tab ? "text-[#181D27]" : "text-[#9CA3AF] hover:text-[#414651]"
+              }`}
+            >
+              {tab === "profile" ? "My Profile" : "Payments"}
+              {activeTab === tab && (
+                <motion.div
+                  layoutId="tab-indicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#181D27]"
+                />
+              )}
+            </button>
+          ))}
+        </div>
       </motion.div>
 
       {/* Tab Content */}
-      <AnimatePresence mode="wait">
-        {activeTab === "profile" && <MyProfileTab />}
-        {activeTab === "payments" && <PaymentsTab />}
-      </AnimatePresence>
+      <div className="flex-1 overflow-y-auto pr-2 pb-4">
+        <AnimatePresence mode="wait">
+          {activeTab === "profile" && <MyProfileTab />}
+          {activeTab === "payments" && <PaymentsTab />}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

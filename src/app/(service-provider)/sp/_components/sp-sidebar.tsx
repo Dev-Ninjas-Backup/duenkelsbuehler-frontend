@@ -117,7 +117,9 @@ export function SPSidebar({ isOpen, onToggle }: SPSidebarProps) {
         <motion.button
           onClick={onToggle}
           whileTap={{ scale: 0.9 }}
-          className="absolute top-6 -right-4 z-40 w-9 h-9 rounded-full bg-[#181D27] text-white flex items-center justify-center shadow-lg"
+          initial={false}
+          animate={{ right: isOpen ? -18 : -46 }}
+          className="absolute top-6 z-40 w-9 h-9 rounded-full bg-[#181D27] text-white flex items-center justify-center shadow-lg"
         >
           {isOpen ? (
             <ChevronLeft className="h-4 w-4" />

@@ -35,29 +35,31 @@ export default function ClientSettingsPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.1 }}
-        className="flex justify-center border-b border-gray-200 mb-8 overflow-x-auto"
+        className="flex justify-start sm:justify-center mb-8 shrink-0 overflow-x-auto hidden-scrollbar"
       >
-        {tabs.map(({ key, label }) => (
-          <button
-            key={key}
-            onClick={() => setActiveTab(key)}
-            className={`relative px-6 py-3 font-work-sans text-sm font-medium whitespace-nowrap transition-colors ${
-              activeTab === key ? "text-[#181D27]" : "text-[#9CA3AF] hover:text-[#414651]"
-            }`}
-          >
-            {label}
-            {activeTab === key && (
-              <motion.div
-                layoutId="client-tab-indicator"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#181D27]"
-              />
-            )}
-          </button>
-        ))}
+        <div className="flex border-b border-gray-200 min-w-max px-2 sm:px-0">
+          {tabs.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className={`relative px-4 sm:px-6 py-3 font-work-sans text-sm font-medium whitespace-nowrap transition-colors ${
+                activeTab === key ? "text-[#181D27]" : "text-[#9CA3AF] hover:text-[#414651]"
+              }`}
+            >
+              {label}
+              {activeTab === key && (
+                <motion.div
+                  layoutId="client-tab-indicator"
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#181D27]"
+                />
+              )}
+            </button>
+          ))}
+        </div>
       </motion.div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pr-2 pb-4">
         <AnimatePresence mode="wait">
           {activeTab === "profile" && <ClientMyProfileTab />}
 

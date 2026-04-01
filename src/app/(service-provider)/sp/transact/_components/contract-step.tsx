@@ -3,7 +3,8 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, FileText, ShieldAlert, Bookmark, ChevronDown } from "lucide-react";
+import { Upload, X, FileText, Bookmark, ChevronDown } from "lucide-react";
+import { AiFillWarning } from "react-icons/ai";
 import { Contact } from "./types";
 import { FinePrintModal } from "./fine-print-modal";
 import { useSavedContracts } from "@/store/saved-contracts";
@@ -69,7 +70,7 @@ export function ContractStep({
               </span>
             ) : (
               <span className="flex items-center gap-1 font-work-sans text-xs text-red-500 mt-0.5">
-                <ShieldAlert size={13} /> Unverified
+                <AiFillWarning className="w-4 h-4" /> Unverified
               </span>
             )}
           </div>
