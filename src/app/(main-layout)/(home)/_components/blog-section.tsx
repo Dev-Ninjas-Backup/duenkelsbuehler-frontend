@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { motion, type Variants } from "framer-motion"
@@ -92,6 +93,22 @@ export function BlogSection() {
           {blogPosts.map((post) => (
             <BlogCard key={post.id} post={post} />
           ))}
+        </motion.div>
+
+        {/* View All Button */}
+        <motion.div
+           initial={{ opacity: 0, y: 20 }}
+           whileInView={{ opacity: 1, y: 0 }}
+           viewport={{ once: true }}
+           transition={{ duration: 0.6, delay: 0.4 }}
+           className="mt-12 sm:mt-16 flex justify-center"
+        >
+           <Link
+             href="/blog"
+             className="px-8 py-3.5 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:scale-105 hover:bg-[#181D27]/90 transition-all shadow-sm flex items-center gap-2"
+           >
+             View All
+           </Link>
         </motion.div>
       </div>
     </section>

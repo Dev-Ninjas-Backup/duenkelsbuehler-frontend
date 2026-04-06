@@ -1,18 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { AiFillWarning } from "react-icons/ai";
 import { SP } from "./types";
 
 function KaChingModal({ onClose }: { onClose: () => void }) {
-  return (
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const content = (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-6"
+      className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center px-6"
       onClick={onClose}
     >
       <motion.div
@@ -31,6 +35,9 @@ function KaChingModal({ onClose }: { onClose: () => void }) {
       </motion.div>
     </motion.div>
   );
+
+  if (!mounted) return null;
+  return createPortal(content, document.body);
 }
 
 export function ReadyStep({ sp, onDone }: { sp: SP; onDone: () => void }) {

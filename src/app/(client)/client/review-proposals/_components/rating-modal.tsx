@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface Props {
@@ -12,6 +13,11 @@ export function RatingModal({ isOpen, name, onSubmit, onSkip }: Props) {
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [comment, setComment] = useState("");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmit = () => {
     if (rating === 0) return;
@@ -20,7 +26,7 @@ export function RatingModal({ isOpen, name, onSubmit, onSkip }: Props) {
     setComment("");
   };
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
         <>
@@ -28,14 +34,14 @@ export function RatingModal({ isOpen, name, onSubmit, onSkip }: Props) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[100]"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ duration: 0.28, ease: "easeOut" }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center text-center gap-5"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] w-full max-w-md bg-white rounded-2xl p-8 shadow-2xl flex flex-col items-center text-center gap-5"
           >
             <h2 className="font-rozha text-3xl text-[#181D27]">Rate Your Experience</h2>
             <p className="font-work-sans text-sm text-[#414651]">
@@ -91,4 +97,7 @@ export function RatingModal({ isOpen, name, onSubmit, onSkip }: Props) {
       )}
     </AnimatePresence>
   );
+
+  if (!mounted) return null;
+  return createPortal(modalContent, document.body);
 }

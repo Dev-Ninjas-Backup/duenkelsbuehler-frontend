@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { AiFillWarning } from "react-icons/ai";
@@ -35,12 +36,15 @@ function UnverifiedModal({
   onContinue: () => void;
   onReturn: () => void;
 }) {
-  return (
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const content = (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-6"
+      className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center px-6"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.93 }}
@@ -76,6 +80,9 @@ function UnverifiedModal({
       </motion.div>
     </motion.div>
   );
+
+  if (!mounted) return null;
+  return createPortal(content, document.body);
 }
 
 /* ── Ka-Ching Modal ── */
@@ -88,12 +95,15 @@ function KaChingModal({
   btnLabel: string;
   onAction: () => void;
 }) {
-  return (
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const content = (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-6"
+      className="fixed inset-0 bg-black/40 z-[100] flex items-center justify-center px-6"
     >
       <motion.div
         initial={{ opacity: 0, scale: 0.93 }}
@@ -125,6 +135,9 @@ function KaChingModal({
       </motion.div>
     </motion.div>
   );
+
+  if (!mounted) return null;
+  return createPortal(content, document.body);
 }
 
 /* ── SP Card (reused across views) ── */

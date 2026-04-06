@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { AiFillWarning } from "react-icons/ai";
 import { motion } from "framer-motion";
 
 interface User {
@@ -167,7 +168,7 @@ function AppleIcon() {
 
 export default function UserManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(5);
 
   const totalPages = Math.ceil(MOCK.length / pageSize);
   const paginated = MOCK.slice(
@@ -196,12 +197,12 @@ export default function UserManagementPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 h-[calc(100dvh-160px)]">
       <motion.h2
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="font-rozha text-3xl text-[#181D27]"
+        className="font-rozha text-3xl text-[#181D27] shrink-0"
       >
         User Management
       </motion.h2>
@@ -211,15 +212,17 @@ export default function UserManagementPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.1 }}
-        className="grid grid-cols-[40px_1fr_100px_180px_50px] bg-[#181D27] text-white rounded-xl px-6 py-3.5"
+        className="grid grid-cols-[30px_1fr_60px_40px] md:grid-cols-[60px_2.5fr_1fr_1.5fr_80px] gap-2 md:gap-0 bg-[#181D27] text-white rounded-xl px-4 md:px-6 py-4 items-center shrink-0"
       >
-        <span className="font-work-sans text-sm font-medium">Sl</span>
-        <span className="font-work-sans text-sm font-medium">Name</span>
-        <span className="font-work-sans text-sm font-medium">Sign in by</span>
+        <span className="font-work-sans text-xs md:text-sm font-medium">Sl</span>
+        <span className="font-work-sans text-xs md:text-sm font-medium">Name</span>
+        <span className="font-work-sans text-[11px] md:text-sm font-medium text-center leading-tight">
+          Sign in
+        </span>
         <span className="font-work-sans text-sm font-medium hidden md:block">
           Date & Time
         </span>
-        <span className="font-work-sans text-sm font-medium">Action</span>
+        <span className="font-work-sans text-xs md:text-sm font-medium text-center">Action</span>
       </motion.div>
 
       {/* Rows */}
@@ -228,13 +231,13 @@ export default function UserManagementPage() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex flex-col gap-3"
+        className="flex flex-col gap-5 overflow-y-auto pr-2 flex-1 min-h-0 custom-scrollbar pb-2"
       >
         {paginated.map((user, i) => (
           <motion.div
             key={user.id}
             variants={rowVariants}
-            className="grid grid-cols-[40px_1fr_100px_180px_50px] items-center bg-[#F9F9F9] rounded-xl px-6 py-4"
+            className="grid grid-cols-[30px_1fr_60px_40px] md:grid-cols-[60px_2.5fr_1fr_1.5fr_80px] gap-2 md:gap-0 items-center bg-[#F9F9F9] rounded-2xl px-4 md:px-6 py-5 shrink-0"
           >
             <span className="font-work-sans text-sm text-[#414651]">
               {(currentPage - 1) * pageSize + i + 1}
@@ -251,22 +254,22 @@ export default function UserManagementPage() {
                 />
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-work-sans text-sm font-semibold text-[#181D27]">
+                <span className="font-work-sans text-sm font-bold text-[#181D27]">
                   {user.name}
                 </span>
                 {user.verified ? (
-                  <span className="flex items-center gap-1 font-work-sans text-xs text-[#16A34A]">
-                    <Image src="/svg/crown.svg" alt="Verified" width={14} height={14} /> Verified
+                  <span className="flex items-center gap-1 font-work-sans text-[10px] sm:text-xs text-[#16A34A] bg-[#16A34A]/10 px-2 py-1 rounded-full font-semibold">
+                    <Image src="/svg/crown.svg" alt="Verified" width={12} height={12} /> Verified
                   </span>
                 ) : (
-                  <span className="flex items-center gap-1 font-work-sans text-xs text-red-500">
-                    <ShieldAlert className="h-3.5 w-3.5" /> Unverified
+                  <span className="flex items-center gap-1 font-work-sans text-[10px] sm:text-xs text-red-500 bg-red-500/10 px-2 py-1 rounded-full font-semibold">
+                    <AiFillWarning className="w-3 h-3 lg:w-[14px] lg:h-[14px]" /> Unverified
                   </span>
                 )}
               </div>
             </div>
 
-            <div>
+            <div className="flex justify-center">
               {user.signInBy === "google" ? <GoogleIcon /> : <AppleIcon />}
             </div>
 
@@ -274,13 +277,15 @@ export default function UserManagementPage() {
               {user.dateTime}
             </span>
 
-            <motion.button
-              whileTap={{ scale: 0.85 }}
-              className="flex items-center justify-center text-[#414651] hover:text-[#181D27] transition-colors"
-              aria-label="More options"
-            >
-              <MoreVertical size={16} />
-            </motion.button>
+            <div className="flex justify-center">
+              <motion.button
+                whileTap={{ scale: 0.85 }}
+                className="w-7 h-7 flex items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-full hover:text-[#181D27] hover:border-gray-300 transition-colors shadow-sm"
+                aria-label="More options"
+              >
+                <MoreVertical size={14} />
+              </motion.button>
+            </div>
           </motion.div>
         ))}
       </motion.div>
@@ -290,7 +295,7 @@ export default function UserManagementPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
-        className="flex items-center justify-between"
+        className="flex items-center justify-between shrink-0 pt-2"
       >
         <div className="flex items-center gap-2">
           <span className="font-work-sans text-sm text-[#414651]">Show</span>

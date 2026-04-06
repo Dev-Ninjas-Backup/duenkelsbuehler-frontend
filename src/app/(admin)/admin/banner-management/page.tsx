@@ -94,7 +94,7 @@ const rowVariants = {
 export default function BannerManagementPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(5);
 
   const totalPages = Math.ceil(MOCK.length / pageSize);
   const paginated = MOCK.slice(
@@ -123,14 +123,14 @@ export default function BannerManagementPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 h-[calc(100dvh-160px)]">
       {/* Title row */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between shrink-0 gap-4">
         <motion.h2
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="font-rozha text-3xl text-[#181D27]"
+          className="font-rozha text-2xl md:text-3xl text-[#181D27]"
         >
           Banner Management
         </motion.h2>
@@ -140,7 +140,7 @@ export default function BannerManagementPage() {
           transition={{ duration: 0.4 }}
           whileTap={{ scale: 0.97 }}
           onClick={() => setModalOpen(true)}
-          className="px-6 py-3 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
+          className="px-4 md:px-6 py-2.5 md:py-3 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors whitespace-nowrap shrink-0"
         >
           Add New
         </motion.button>
@@ -153,14 +153,14 @@ export default function BannerManagementPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.1 }}
-        className="grid grid-cols-[40px_1fr_200px_50px] bg-[#181D27] text-white rounded-xl px-6 py-3.5"
+        className="grid grid-cols-[30px_1fr_40px] md:grid-cols-[60px_2fr_1.5fr_80px] gap-2 md:gap-0 bg-[#181D27] text-white rounded-xl px-4 md:px-6 py-4 items-center shrink-0"
       >
-        <span className="font-work-sans text-sm font-medium">Sl</span>
-        <span className="font-work-sans text-sm font-medium">Name</span>
+        <span className="font-work-sans text-xs md:text-sm font-medium">Sl</span>
+        <span className="font-work-sans text-xs md:text-sm font-medium">Name</span>
         <span className="font-work-sans text-sm font-medium hidden md:block">
           Upload Date & Time
         </span>
-        <span className="font-work-sans text-sm font-medium">Action</span>
+        <span className="font-work-sans text-xs md:text-sm font-medium text-center">Action</span>
       </motion.div>
 
       {/* Rows */}
@@ -169,20 +169,20 @@ export default function BannerManagementPage() {
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        className="flex flex-col gap-3"
+        className="flex flex-col gap-5 overflow-y-auto pr-2 flex-1 min-h-0 custom-scrollbar pb-2"
       >
         {paginated.map((banner, i) => (
           <motion.div
             key={banner.id}
             variants={rowVariants}
-            className="grid grid-cols-[40px_1fr_200px_50px] items-center bg-[#F9F9F9] rounded-xl px-6 py-4"
+            className="grid grid-cols-[30px_1fr_40px] md:grid-cols-[60px_2fr_1.5fr_80px] gap-2 md:gap-0 items-center bg-[#F9F9F9] rounded-2xl px-4 md:px-6 py-5 shrink-0"
           >
             <span className="font-work-sans text-sm text-[#414651]">
               {(currentPage - 1) * pageSize + i + 1}
             </span>
 
             {/* Banner thumbnail */}
-            <div className="w-44 h-24 rounded-xl overflow-hidden bg-gray-200 shrink-0">
+            <div className="w-32 md:w-44 h-16 md:h-24 rounded-xl overflow-hidden bg-gray-200 shrink-0">
               <Image
                 src={banner.image}
                 alt={`Banner ${banner.id}`}
@@ -196,13 +196,15 @@ export default function BannerManagementPage() {
               {banner.uploadDateTime}
             </span>
 
-            <motion.button
-              whileTap={{ scale: 0.85 }}
-              className="flex items-center justify-center text-[#414651] hover:text-[#181D27] transition-colors"
-              aria-label="More options"
-            >
-              <MoreVertical size={16} />
-            </motion.button>
+            <div className="flex justify-center">
+              <motion.button
+                whileTap={{ scale: 0.85 }}
+                className="w-7 h-7 flex items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-full hover:text-[#181D27] hover:border-gray-300 transition-colors shadow-sm"
+                aria-label="More options"
+              >
+                <MoreVertical size={14} />
+              </motion.button>
+            </div>
           </motion.div>
         ))}
       </motion.div>
@@ -212,7 +214,7 @@ export default function BannerManagementPage() {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.3 }}
-        className="flex items-center justify-between"
+        className="flex items-center justify-between shrink-0 pt-2"
       >
         <div className="flex items-center gap-2">
           <span className="font-work-sans text-sm text-[#414651]">Show</span>
