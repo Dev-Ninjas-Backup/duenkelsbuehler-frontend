@@ -49,7 +49,7 @@ export function AddBlogModal({ isOpen, onClose }: Props) {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
               <h3 className="font-rozha text-2xl text-[#181D27]">Add New Blog</h3>
-              <button onClick={handleClose} className="text-gray-400 hover:text-[#181D27] transition-colors">
+              <button onClick={handleClose} aria-label="Close modal" className="text-gray-400 hover:text-[#181D27] transition-colors">
                 <X size={20} />
               </button>
             </div>
@@ -96,6 +96,7 @@ export function AddBlogModal({ isOpen, onClose }: Props) {
                 ref={inputRef}
                 type="file"
                 accept="image/jpeg,image/png,.pdg,video/mp4"
+                aria-label="Upload blog file"
                 className="hidden"
                 onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
               />

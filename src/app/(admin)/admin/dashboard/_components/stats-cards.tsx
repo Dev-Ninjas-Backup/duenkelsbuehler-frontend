@@ -32,7 +32,7 @@ export function StatsCards() {
           key={label}
           variants={cardVariants}
           whileHover={{ y: -2, transition: { duration: 0.2 } }}
-          className="bg-white border border-gray-100 rounded-xl px-5 py-5 shadow-sm"
+          className="bg-[#F9F9F9] rounded-2xl px-6 py-6"
         >
           <p className="font-work-sans text-sm text-[#9CA3AF] mb-3">{label}</p>
           <p className="font-rozha text-3xl text-[#181D27]">{value}</p>
