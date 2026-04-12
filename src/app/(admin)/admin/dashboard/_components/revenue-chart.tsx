@@ -43,7 +43,7 @@ export function RevenueChart() {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" as const }}
-      className="bg-white border border-gray-100 rounded-xl px-6 py-5 shadow-sm"
+      className="bg-[#F9F9F9] rounded-2xl px-8 py-6"
     >
       {/* Top row */}
       <div className="flex items-start justify-between mb-1">
