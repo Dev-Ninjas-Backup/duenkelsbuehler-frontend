@@ -2,78 +2,10 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
+import { MoreVertical, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { AddBannerModal } from "./_components/add-banner-modal";
-
-interface Banner {
-  id: number;
-  image: string;
-  uploadDateTime: string;
-}
-
-const MOCK: Banner[] = [
-  {
-    id: 1,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-  {
-    id: 2,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-  {
-    id: 3,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-  {
-    id: 4,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-  {
-    id: 5,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-  {
-    id: 6,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-  {
-    id: 7,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-  {
-    id: 8,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-  {
-    id: 9,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-  {
-    id: 10,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-  {
-    id: 11,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-  {
-    id: 12,
-    image: "/images/banner_cover.png",
-    uploadDateTime: "12 March 26, 10:00 PM",
-  },
-];
+import { useBanners, useDeleteBanner } from "@/hooks/admin/use-admin";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
@@ -96,8 +28,11 @@ export default function BannerManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
-  const totalPages = Math.ceil(MOCK.length / pageSize);
-  const paginated = MOCK.slice(
+  const { data: banners = [], isLoading } = useBanners();
+  const { mutate: deleteBanner } = useDeleteBanner();
+
+  const totalPages = Math.ceil(banners.length / pageSize);
+  const paginated = banners.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
   );
@@ -171,7 +106,15 @@ export default function BannerManagementPage() {
         animate="visible"
         className="flex flex-col gap-5 overflow-y-auto pr-2 flex-1 min-h-0 custom-scrollbar pb-2"
       >
-        {paginated.map((banner, i) => (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <span className="font-work-sans text-sm text-[#414651]">Loading...</span>
+          </div>
+        ) : paginated.length === 0 ? (
+          <div className="flex items-center justify-center py-20">
+            <span className="font-work-sans text-sm text-[#414651]">No banners found</span>
+          </div>
+        ) : paginated.map((banner, i) => (
           <motion.div
             key={banner.id}
             variants={rowVariants}
@@ -181,28 +124,27 @@ export default function BannerManagementPage() {
               {(currentPage - 1) * pageSize + i + 1}
             </span>
 
-            {/* Banner thumbnail */}
             <div className="w-32 md:w-44 h-16 md:h-24 rounded-xl overflow-hidden bg-gray-200 shrink-0">
               <Image
-                src={banner.image}
+                src={banner.imageUrl}
                 alt={`Banner ${banner.id}`}
-                width={176}
-                height={96}
+                width={176} height={96}
                 className="object-cover w-full h-full"
               />
             </div>
 
             <span className="font-work-sans text-sm text-[#414651] hidden md:block">
-              {banner.uploadDateTime}
+              {new Date(banner.createdAt).toLocaleString()}
             </span>
 
             <div className="flex justify-center">
               <motion.button
                 whileTap={{ scale: 0.85 }}
-                className="w-7 h-7 flex items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-full hover:text-[#181D27] hover:border-gray-300 transition-colors shadow-sm"
-                aria-label="More options"
+                onClick={() => deleteBanner(banner.id)}
+                className="w-7 h-7 flex items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-full hover:text-red-500 hover:border-red-200 transition-colors shadow-sm"
+                aria-label="Delete banner"
               >
-                <MoreVertical size={14} />
+                <Trash2 size={14} />
               </motion.button>
             </div>
           </motion.div>

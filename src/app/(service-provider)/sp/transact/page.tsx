@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Tab } from "./_components/types";
 import { NewTransactionTab } from "./_components/new-transaction-tab";
 import { TrackTab } from "./_components/track-tab";
+import { useTrustapSocket } from "@/hooks/trustap/use-trustap-socket";
+import { toast } from "sonner";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "new",   label: "New Transaction" },
@@ -13,6 +15,13 @@ const TABS: { key: Tab; label: string }[] = [
 
 export default function TransactPage() {
   const [activeTab, setActiveTab] = useState<Tab>("new");
+
+  const handleTransactionCreated = useCallback(() => {
+    toast.success("Transaction created successfully!");
+    setActiveTab("track");
+  }, []);
+
+  useTrustapSocket({ onTransactionCreated: handleTransactionCreated });
 
   return (
     <div className="flex flex-col h-full px-2 py-6 lg:px-8">

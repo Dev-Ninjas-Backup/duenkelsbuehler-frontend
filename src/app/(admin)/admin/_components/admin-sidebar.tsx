@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuthStore } from "@/stores/auth/use-auth-store";
 import {
   LayoutDashboard,
   Users,
@@ -15,6 +16,7 @@ import {
   ChevronRight,
   Globe,
   LogOut,
+  CreditCard,
 } from "lucide-react";
 
 const navItems = [
@@ -24,6 +26,7 @@ const navItems = [
   { label: "Deal Management", href: "/admin/deal-management", icon: Handshake },
   { label: "Blog Management", href: "/admin/blog-management", icon: BookOpen },
   { label: "Badges Management", href: "/admin/badges-management", icon: Award },
+  { label: "Subscriptions", href: "/admin/subscription-management", icon: CreditCard },
 ];
 
 interface AdminSidebarProps {
@@ -33,6 +36,13 @@ interface AdminSidebarProps {
 
 export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { clearAuth } = useAuthStore();
+
+  const handleLogout = () => {
+    clearAuth();
+    router.replace("/admin/login");
+  };
 
   return (
     <>
@@ -135,7 +145,7 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: 0.35 }}
                 >
-                  <button className="w-full text-left">
+                  <button onClick={handleLogout} className="w-full text-left">
                     <motion.div
                       whileTap={{ scale: 0.97 }}
                       className="flex items-center gap-3 px-5 py-3.5 rounded-full font-work-sans text-sm text-red-500 hover:bg-red-50 transition-colors"

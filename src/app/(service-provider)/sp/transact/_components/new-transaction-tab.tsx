@@ -17,6 +17,8 @@ import { RatingModal } from "./rating-modal";
 import { MOCK_CONTACTS } from "./data";
 import { useSavedContracts } from "@/store/saved-contracts";
 import { AddContactModal } from "./add-contact-modal";
+import { useCreateTransaction } from "@/hooks/trustap/use-trustap";
+import { useAuthStore } from "@/stores/auth/use-auth-store";
 
 const STEP_ORDER: SubStep[] = ["contacts", "amount", "payment-method", "contract", "invoice", "final-details", "ready"];
 
@@ -52,8 +54,11 @@ export function NewTransactionTab({ onDone }: Props) {
   const [showRating, setShowRating]       = useState(false);
   const [showAddModal, setShowAddModal]   = useState(false);
   const [contacts, setContacts]           = useState(MOCK_CONTACTS);
+  const [txError, setTxError]             = useState<string | null>(null);
 
   const { saveContract } = useSavedContracts();
+  const { mutate: createTransaction, isPending: isCreatingTx } = useCreateTransaction();
+  const user = useAuthStore((s) => s.user);
 
   const goTo = (next: SubStep, dir: number) => {
     setDirection(dir);
@@ -79,7 +84,30 @@ export function NewTransactionTab({ onDone }: Props) {
     goTo("amount", 1);
   };
 
-  const handleSubmit = () => setShowKaChing(true);
+  const handleSubmit = () => {
+    if (!data.contact || !user?.trustapUserId) {
+      setShowKaChing(true);
+      return;
+    }
+    const priceInCents = Math.round(parseFloat(data.price || "0") * 100);
+    createTransaction(
+      {
+        seller_id: user.trustapUserId,
+        buyer_id: String(data.contact.id),
+        creator_role: "seller",
+        currency: "eur",
+        description: data.invoiceTitle || data.notes || "Service transaction",
+        price: priceInCents,
+        charge: Math.round(priceInCents * 0.038),
+        charge_calculator_version: 5,
+        image_url: "https://docs.trustap.com/images/soccer-tickets.png",
+      },
+      {
+        onSuccess: () => setShowKaChing(true),
+        onError: (err) => setTxError((err as Error).message),
+      }
+    );
+  };
   const handleFinalize = () => { setShowKaChing(false); setShowRating(true); };
 
   const showBack = subStep !== "contacts";
@@ -213,6 +241,8 @@ export function NewTransactionTab({ onDone }: Props) {
               onConfirmClientChange={(v) => set("confirmClient", v)}
               onConfirmUnverifiedChange={(v) => set("confirmUnverified", v)}
               onSubmit={handleSubmit}
+              isPending={isCreatingTx}
+              error={txError}
             />
           )}
         </motion.div>

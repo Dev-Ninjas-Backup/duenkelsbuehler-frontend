@@ -3,7 +3,8 @@
 import Image from "next/image";
 import { Bell, LogOut, User, Settings } from "lucide-react";
 import { motion } from "framer-motion";
-
+import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/auth/use-auth-store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,6 +15,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function AdminHeader() {
+  const router = useRouter();
+  const { clearAuth, user } = useAuthStore();
+
+  const handleLogout = () => {
+    clearAuth();
+    router.replace("/admin/login");
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: -16 }}
@@ -48,7 +56,7 @@ export function AdminHeader() {
               </div>
               <div className="hidden sm:flex flex-col">
                 <span className="font-work-sans text-sm font-semibold text-[#181D27] leading-tight">
-                  Alexis
+                  {user?.name ?? "Admin"}
                 </span>
                 <span className="font-work-sans text-xs text-[#9CA3AF] leading-tight">
                   Admin
@@ -68,7 +76,8 @@ export function AdminHeader() {
               <span className="text-sm font-medium text-[#414651]">Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-gray-100 my-1" />
-            <DropdownMenuItem className="cursor-pointer py-2.5 hover:bg-red-50 focus:bg-red-50 rounded-lg transition-colors text-red-500 focus:text-red-600">
+            <DropdownMenuItem onClick={handleLogout}
+              className="cursor-pointer py-2.5 hover:bg-red-50 focus:bg-red-50 rounded-lg transition-colors text-red-500 focus:text-red-600">
               <LogOut className="mr-2 h-4 w-4" />
               <span className="text-sm font-medium">Log out</span>
             </DropdownMenuItem>

@@ -1,17 +1,19 @@
 import { create } from "zustand"
 import { persist } from "zustand/middleware"
-import type { AuthState, AuthUser } from "@/types/auth"
+import type { AuthState, AuthUser, UserRole } from "@/types/auth"
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
+      accessToken: null,
+      role: null,
       isAuthenticated: false,
-      setUser: (user: AuthUser) => set({ user, isAuthenticated: true }),
-      clearUser: () => set({ user: null, isAuthenticated: false }),
+      setAuth: (user: AuthUser, accessToken: string, role: UserRole) =>
+        set({ user, accessToken, role, isAuthenticated: true }),
+      clearAuth: () =>
+        set({ user: null, accessToken: null, role: null, isAuthenticated: false }),
     }),
-    {
-      name: "auth-storage",
-    }
+    { name: "auth-storage" }
   )
 )
