@@ -116,6 +116,8 @@ export function AddBannerModal({ isOpen, onClose }: AddBannerModalProps) {
               </div>
 
               <input ref={fileInputRef} type="file" accept="image/jpeg,image/png"
+                title="Upload banner image"
+                aria-label="Upload banner image"
                 className="hidden"
                 onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }}
               />

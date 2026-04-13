@@ -42,7 +42,7 @@ function PlanModal({ plan, onClose }: {
         className="bg-white rounded-2xl p-8 w-full max-w-md flex flex-col gap-5 shadow-xl">
         <div className="flex items-center justify-between">
           <h2 className="font-rozha text-2xl text-[#181D27]">{plan ? "Edit Plan" : "Add New Plan"}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-[#181D27]"><X size={20} /></button>
+          <button onClick={onClose} aria-label="Close modal" title="Close modal" className="text-gray-400 hover:text-[#181D27]"><X size={20} /></button>
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -61,6 +61,7 @@ function PlanModal({ plan, onClose }: {
           <div className="flex flex-col gap-1.5">
             <label className="font-work-sans text-sm font-medium text-[#181D27]">Currency</label>
             <select value={currency} onChange={(e) => setCurrency(e.target.value)}
+              aria-label="Select currency" title="Select currency"
               className={inputCls}>
               {["USD", "EUR", "GBP"].map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
