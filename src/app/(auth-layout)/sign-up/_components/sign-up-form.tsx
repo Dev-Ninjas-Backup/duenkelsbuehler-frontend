@@ -12,8 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { OTPInput } from "@/components/ui/otp-input";
-import { useSendOtp, useVerifyOtp, useCompleteRegistration } from "@/hooks/auth/use-signup";
 import { useFirebaseSocialLogin } from "@/hooks/auth/use-firebase-social-login";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { authService } from "@/services/auth/auth-service";
 
 const step1Schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -40,12 +42,27 @@ const itemVariants = {
 };
 
 export function SignUpForm() {
+  const router = useRouter();
   const [step, setStep] = useState<1 | 2>(1);
   const [registrationData, setRegistrationData] = useState<Step1Data | null>(null);
 
-  const { mutate: sendOtp, isPending: isSendingOtp, error: sendOtpError } = useSendOtp();
-  const { mutate: verifyOtp, isPending: isVerifyingOtp, error: verifyOtpError } = useVerifyOtp();
-  const { mutate: completeRegistration, isPending: isCompleting, error: completeError } = useCompleteRegistration();
+  // Step 1: POST /auth/register — sends OTP + creates user with password
+  const { mutate: register, isPending: isRegistering, error: registerError } = useMutation({
+    mutationFn: (data: Step1Data) =>
+      authService.sendOtp({ email: data.email, name: data.name, password: data.password, role: data.role }),
+    onSuccess: (_, data) => {
+      setRegistrationData(data);
+      setStep(2);
+    },
+  });
+
+  // Step 2: POST /auth/register/verify-otp — verifies OTP
+  const { mutate: verifyOtp, isPending: isVerifying, error: verifyError } = useMutation({
+    mutationFn: (data: { email: string; otp: string }) =>
+      authService.verifyOtp({ email: data.email, otp: data.otp }),
+    onSuccess: () => router.push("/login"),
+  });
+
   const { loginWithGoogle, loginWithApple, isPending: isSocialPending, error: socialError } = useFirebaseSocialLogin();
 
   const step1Form = useForm<Step1Data>({
@@ -59,31 +76,11 @@ export function SignUpForm() {
 
   const selectedRole = step1Form.watch("role");
 
-  const onStep1Submit = (data: Step1Data) => {
-    sendOtp(
-      { email: data.email, name: data.name, password: data.password, role: data.role },
-      {
-        onSuccess: () => {
-          setRegistrationData(data);
-          setStep(2);
-        },
-      }
-    );
-  };
+  const onStep1Submit = (data: Step1Data) => register(data);
 
   const onStep2Submit = (data: Step2Data) => {
     if (!registrationData) return;
-    verifyOtp(
-      { email: registrationData.email, otp: data.otp },
-      {
-        onSuccess: () => {
-          completeRegistration({
-            email: registrationData.email,
-            password: registrationData.password,
-          });
-        },
-      }
-    );
+    verifyOtp({ email: registrationData.email, otp: data.otp });
   };
 
   return (
@@ -134,7 +131,6 @@ export function SignUpForm() {
 
           {/* Step 1 Form */}
           <form onSubmit={step1Form.handleSubmit(onStep1Submit)} className="space-y-5">
-            {/* Role Selector */}
             <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
               {([
                 { value: "SERVICE_PROVIDER", label: "Service Provider" },
@@ -150,9 +146,9 @@ export function SignUpForm() {
               ))}
             </motion.div>
 
-            {sendOtpError && (
+            {registerError && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 rounded-lg bg-red-50 border border-red-200">
-                <p className="font-work-sans text-sm text-red-600">{sendOtpError.message}</p>
+                <p className="font-work-sans text-sm text-red-600">{(registerError as Error).message}</p>
               </motion.div>
             )}
 
@@ -195,9 +191,9 @@ export function SignUpForm() {
             )}
 
             <motion.div variants={itemVariants}>
-              <Button type="submit" disabled={isSendingOtp}
+              <Button type="submit" disabled={isRegistering}
                 className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base mt-2">
-                {isSendingOtp ? "Sending OTP..." : "Sign up"}
+                {isRegistering ? "Sending OTP..." : "Sign up"}
               </Button>
             </motion.div>
 
@@ -214,11 +210,9 @@ export function SignUpForm() {
       {/* ── STEP 2: OTP ── */}
       {step === 2 && (
         <form onSubmit={step2Form.handleSubmit(onStep2Submit)} className="space-y-6">
-          {(verifyOtpError || completeError) && (
+          {verifyError && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 rounded-lg bg-red-50 border border-red-200">
-              <p className="font-work-sans text-sm text-red-600">
-                {verifyOtpError?.message || completeError?.message}
-              </p>
+              <p className="font-work-sans text-sm text-red-600">{(verifyError as Error).message}</p>
             </motion.div>
           )}
 
@@ -232,9 +226,9 @@ export function SignUpForm() {
             )}
           </motion.div>
 
-          <Button type="submit" disabled={isVerifyingOtp || isCompleting}
+          <Button type="submit" disabled={isVerifying}
             className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base">
-            {isVerifyingOtp || isCompleting ? "Verifying..." : "Verify & Complete"}
+            {isVerifying ? "Verifying..." : "Verify & Complete"}
           </Button>
 
           <button type="button" onClick={() => setStep(1)}

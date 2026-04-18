@@ -30,14 +30,20 @@ async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     throw new Error(json?.message || "Something went wrong")
   }
 
-  // Backend wraps all responses in { success, statusCode, message, data }
   return (json?.data !== undefined ? json.data : json) as T
 }
 
 export const authService = {
-  // POST /auth/register
+  // POST /auth/register — sends OTP + creates user with password
   register: (data: RegisterFormData) =>
-    request<AuthUser>("/auth/register", {
+    request<OtpResponse>("/auth/register", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  // POST /auth/register/verify-otp — verifies OTP, completes registration
+  verifyOtp: (data: VerifyOtpFormData) =>
+    request<OtpResponse>("/auth/register/verify-otp", {
       method: "POST",
       body: JSON.stringify(data),
     }),
@@ -80,21 +86,14 @@ export const authService = {
       body: JSON.stringify(data),
     }),
 
-  // POST /auth/send-otp
+  // POST /auth/send-otp (legacy — kept for compatibility)
   sendOtp: (data: SendOtpFormData) =>
-    request<OtpResponse>("/auth/send-otp", {
+    request<OtpResponse>("/auth/register", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
-  // POST /auth/verify-otp
-  verifyOtp: (data: VerifyOtpFormData) =>
-    request<OtpResponse>("/auth/verify-otp", {
-      method: "POST",
-      body: JSON.stringify(data),
-    }),
-
-  // POST /auth/complete-registration
+  // POST /auth/complete-registration (legacy — kept for compatibility)
   completeRegistration: (data: CompleteRegistrationFormData) =>
     request<AuthUser>("/auth/complete-registration", {
       method: "POST",

@@ -29,6 +29,7 @@ export interface AdminUser {
   isIdentityVerified: boolean
   isEmailVerified: boolean
   firebaseUid: string | null
+  PROVIDER: "GOOGLE" | "APPLE" | "PASSWORD" | null
   createdAt: string
   updatedAt: string
 }
