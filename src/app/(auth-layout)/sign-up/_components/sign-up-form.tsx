@@ -98,6 +98,22 @@ export function SignUpForm() {
       {/* ── STEP 1 ── */}
       {step === 1 && (
         <>
+          {/* Role Selector — সবার আগে */}
+          <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 mb-6">
+            {([
+              { value: "SERVICE_PROVIDER", label: "Service Provider" },
+              { value: "CLIENT", label: "Client" },
+            ] as const).map(({ value, label }) => (
+              <button key={value} type="button" onClick={() => step1Form.setValue("role", value)}
+                className={`flex flex-col items-center gap-2 px-4 py-3 rounded-xl border-2 font-work-sans text-sm font-medium transition-all ${
+                  selectedRole === value ? "border-[#181D27] bg-[#181D27]/5" : "border-gray-200 hover:border-gray-300"
+                }`}>
+                <FaUser className="h-6 w-6 text-[#181D27] shrink-0" />
+                {label}
+              </button>
+            ))}
+          </motion.div>
+
           {/* Social Buttons */}
           <div className="space-y-3 mb-6">
             <Button type="button" variant="outline" disabled={isSocialPending}
@@ -131,21 +147,6 @@ export function SignUpForm() {
 
           {/* Step 1 Form */}
           <form onSubmit={step1Form.handleSubmit(onStep1Submit)} className="space-y-5">
-            <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
-              {([
-                { value: "SERVICE_PROVIDER", label: "Service Provider" },
-                { value: "CLIENT", label: "Client" },
-              ] as const).map(({ value, label }) => (
-                <button key={value} type="button" onClick={() => step1Form.setValue("role", value)}
-                  className={`flex flex-col items-center gap-2 px-4 py-3 rounded-xl border-2 font-work-sans text-sm font-medium transition-all ${
-                    selectedRole === value ? "border-[#181D27] bg-[#181D27]/5" : "border-gray-200 hover:border-gray-300"
-                  }`}>
-                  <FaUser className="h-6 w-6 text-[#181D27] shrink-0" />
-                  {label}
-                </button>
-              ))}
-            </motion.div>
-
             {registerError && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 rounded-lg bg-red-50 border border-red-200">
                 <p className="font-work-sans text-sm text-red-600">{(registerError as Error).message}</p>

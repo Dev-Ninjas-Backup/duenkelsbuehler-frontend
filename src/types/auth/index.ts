@@ -34,6 +34,7 @@ export interface CompleteRegistrationFormData {
 export interface SocialLoginFormData {
   idToken: string
   role: "CLIENT" | "SERVICE_PROVIDER"
+  provider: "GOOGLE" | "APPLE"
 }
 
 export interface ForgotPasswordFormData {

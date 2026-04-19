@@ -33,11 +33,9 @@ export function useCreateAdminUser() {
 
 // ─── Banner Hooks ─────────────────────────────────────────────────
 export function useBanners() {
-  const token = useToken();
   return useQuery({
     queryKey: ["banners"],
-    queryFn: () => bannerService.findAll(token),
-    enabled: !!token,
+    queryFn: () => bannerService.findAll(),
   });
 }
 
@@ -70,12 +68,18 @@ export function useDeleteBanner() {
 }
 
 // ─── Blog Hooks ───────────────────────────────────────────────────
+export function useBlog(id: number) {
+  return useQuery({
+    queryKey: ["blogs", id],
+    queryFn: () => blogService.findOne(id),
+    enabled: !!id,
+  });
+}
+
 export function useBlogs() {
-  const token = useToken();
   return useQuery({
     queryKey: ["blogs"],
-    queryFn: () => blogService.findAll(token),
-    enabled: !!token,
+    queryFn: () => blogService.findAll(),
   });
 }
 

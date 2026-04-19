@@ -20,7 +20,7 @@ export function useFirebaseSocialLogin() {
     try {
       const result = await signInWithPopup(auth, googleProvider)
       const idToken = await result.user.getIdToken()
-      const tokenRes = await authService.socialLogin({ idToken, role })
+      const tokenRes = await authService.socialLogin({ idToken, role, provider: "GOOGLE" })
       const user = await authService.getMe(tokenRes.accessToken)
       setAuth(user, tokenRes.accessToken, tokenRes.role as UserRole)
       redirect(tokenRes.role as UserRole, router)
@@ -37,7 +37,7 @@ export function useFirebaseSocialLogin() {
     try {
       const result = await signInWithPopup(auth, appleProvider)
       const idToken = await result.user.getIdToken()
-      const tokenRes = await authService.socialLogin({ idToken, role })
+      const tokenRes = await authService.socialLogin({ idToken, role, provider: "APPLE" })
       const user = await authService.getMe(tokenRes.accessToken)
       setAuth(user, tokenRes.accessToken, tokenRes.role as UserRole)
       redirect(tokenRes.role as UserRole, router)

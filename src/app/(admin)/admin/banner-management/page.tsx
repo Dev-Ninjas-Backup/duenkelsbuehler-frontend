@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { MoreVertical, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight, Trash2, Pencil, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { AddBannerModal } from "./_components/add-banner-modal";
-import { useBanners, useDeleteBanner } from "@/hooks/admin/use-admin";
+import { useBanners, useDeleteBanner, useUpdateBanner } from "@/hooks/admin/use-admin";
+import { ImageUpload } from "@/components/shared/image-upload";
+import type { Banner } from "@/types/admin";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
@@ -28,8 +30,13 @@ export default function BannerManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
+  const [editImageUrl, setEditImageUrl] = useState("");
+
   const { data: banners = [], isLoading } = useBanners();
   const { mutate: deleteBanner } = useDeleteBanner();
+  const { mutate: updateBanner, isPending: isUpdating } = useUpdateBanner();
 
   const totalPages = Math.ceil(banners.length / pageSize);
   const paginated = banners.slice(
@@ -88,13 +95,11 @@ export default function BannerManagementPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.1 }}
-        className="grid grid-cols-[30px_1fr_40px] md:grid-cols-[60px_2fr_1.5fr_80px] gap-2 md:gap-0 bg-[#181D27] text-white rounded-xl px-4 md:px-6 py-4 items-center shrink-0"
+        className="grid grid-cols-[30px_1fr_60px] md:grid-cols-[60px_2fr_1.5fr_100px] gap-2 md:gap-0 bg-[#181D27] text-white rounded-xl px-4 md:px-6 py-4 items-center shrink-0"
       >
         <span className="font-work-sans text-xs md:text-sm font-medium">Sl</span>
-        <span className="font-work-sans text-xs md:text-sm font-medium">Name</span>
-        <span className="font-work-sans text-sm font-medium hidden md:block">
-          Upload Date & Time
-        </span>
+        <span className="font-work-sans text-xs md:text-sm font-medium">Image</span>
+        <span className="font-work-sans text-sm font-medium hidden md:block">Upload Date & Time</span>
         <span className="font-work-sans text-xs md:text-sm font-medium text-center">Action</span>
       </motion.div>
 
@@ -118,7 +123,7 @@ export default function BannerManagementPage() {
           <motion.div
             key={banner.id}
             variants={rowVariants}
-            className="grid grid-cols-[30px_1fr_40px] md:grid-cols-[60px_2fr_1.5fr_80px] gap-2 md:gap-0 items-center bg-[#F9F9F9] rounded-2xl px-4 md:px-6 py-5 shrink-0"
+            className="grid grid-cols-[30px_1fr_60px] md:grid-cols-[60px_2fr_1.5fr_100px] gap-2 md:gap-0 items-center bg-[#F9F9F9] rounded-2xl px-4 md:px-6 py-5 shrink-0"
           >
             <span className="font-work-sans text-sm text-[#414651]">
               {(currentPage - 1) * pageSize + i + 1}
@@ -137,13 +142,17 @@ export default function BannerManagementPage() {
               {new Date(banner.createdAt).toLocaleString()}
             </span>
 
-            <div className="flex justify-center">
-              <motion.button
-                whileTap={{ scale: 0.85 }}
-                onClick={() => deleteBanner(banner.id)}
+            <div className="flex items-center justify-center gap-2">
+              <motion.button whileTap={{ scale: 0.85 }}
+                onClick={() => { setEditingBanner(banner); setEditImageUrl(banner.imageUrl); }}
+                className="w-7 h-7 flex items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-full hover:text-[#181D27] hover:border-gray-300 transition-colors shadow-sm"
+                aria-label="Edit banner">
+                <Pencil size={13} />
+              </motion.button>
+              <motion.button whileTap={{ scale: 0.85 }}
+                onClick={() => setDeleteConfirmId(banner.id)}
                 className="w-7 h-7 flex items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-full hover:text-red-500 hover:border-red-200 transition-colors shadow-sm"
-                aria-label="Delete banner"
-              >
+                aria-label="Delete banner">
                 <Trash2 size={14} />
               </motion.button>
             </div>
@@ -222,6 +231,62 @@ export default function BannerManagementPage() {
           </motion.button>
         </div>
       </motion.div>
+
+      {/* Edit Modal */}
+      <AnimatePresence>
+        {editingBanner && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/30 z-40" onClick={() => setEditingBanner(null)} />
+            <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+              <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.2 }}
+                className="bg-white rounded-2xl p-8 w-full max-w-lg flex flex-col gap-6 shadow-xl">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-rozha text-2xl text-[#181D27]">Edit Banner</h3>
+                  <motion.button whileTap={{ scale: 0.9 }} onClick={() => setEditingBanner(null)}
+                    className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                    <X size={16} className="text-[#414651]" />
+                  </motion.button>
+                </div>
+                <div className="h-px bg-gray-100" />
+                <ImageUpload value={editImageUrl} onChange={setEditImageUrl} />
+                <motion.button whileTap={{ scale: 0.98 }}
+                  disabled={!editImageUrl || isUpdating}
+                  onClick={() => updateBanner({ id: editingBanner.id, data: { imageUrl: editImageUrl } }, { onSuccess: () => setEditingBanner(null) })}
+                  className="w-full py-4 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                  {isUpdating ? "Saving..." : "Save Changes"}
+                </motion.button>
+              </motion.div>
+            </div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {deleteConfirmId !== null && (
+        <>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="fixed inset-0 bg-black/30 z-40" onClick={() => setDeleteConfirmId(null)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white rounded-2xl p-8 w-full max-w-sm flex flex-col gap-5 shadow-xl">
+              <h3 className="font-rozha text-2xl text-[#181D27]">Delete Banner?</h3>
+              <p className="font-work-sans text-sm text-[#414651]">Are you sure you want to delete this banner? This action cannot be undone.</p>
+              <div className="flex gap-3">
+                <button onClick={() => setDeleteConfirmId(null)}
+                  className="flex-1 h-11 rounded-full border border-gray-200 font-work-sans text-sm font-medium text-[#414651] hover:bg-gray-50 transition-colors">
+                  Cancel
+                </button>
+                <button onClick={() => { deleteBanner(deleteConfirmId); setDeleteConfirmId(null); }}
+                  className="flex-1 h-11 rounded-full bg-red-500 text-white font-work-sans text-sm font-semibold hover:bg-red-600 transition-colors">
+                  Yes, Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

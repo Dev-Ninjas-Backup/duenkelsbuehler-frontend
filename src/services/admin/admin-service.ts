@@ -20,6 +20,15 @@ async function request<T>(endpoint: string, token: string, options?: RequestInit
   return (json?.data !== undefined ? json.data : json) as T
 }
 
+async function publicRequest<T>(endpoint: string): Promise<T> {
+  const res = await fetch(`${BASE_URL}${endpoint}`, {
+    headers: { "Content-Type": "application/json" },
+  })
+  const json = await res.json()
+  if (!res.ok) throw new Error(json?.message || "Something went wrong")
+  return (json?.data !== undefined ? json.data : json) as T
+}
+
 // ─── Users ───────────────────────────────────────────────────────
 export const userService = {
   create: (data: { email: string; name: string; country?: string }, token: string) =>
@@ -37,11 +46,11 @@ export const bannerService = {
   create: (data: CreateBannerData, token: string) =>
     request<Banner>("/banner/create-banner", token, { method: "POST", body: JSON.stringify(data) }),
 
-  findAll: (token: string) =>
-    request<Banner[]>("/banner", token),
+  findAll: () =>
+    publicRequest<Banner[]>("/banner"),
 
-  findOne: (id: number, token: string) =>
-    request<Banner>(`/banner/${id}`, token),
+  findOne: (id: number) =>
+    publicRequest<Banner>(`/banner/${id}`),
 
   update: (id: number, data: UpdateBannerData, token: string) =>
     request<Banner>(`/banner/${id}`, token, { method: "PATCH", body: JSON.stringify(data) }),
@@ -55,11 +64,11 @@ export const blogService = {
   create: (data: CreateBlogData, token: string) =>
     request<Blog>("/blog/create-blog", token, { method: "POST", body: JSON.stringify(data) }),
 
-  findAll: (token: string) =>
-    request<Blog[]>("/blog", token),
+  findAll: () =>
+    publicRequest<Blog[]>("/blog"),
 
-  findOne: (id: number, token: string) =>
-    request<Blog>(`/blog/${id}`, token),
+  findOne: (id: number) =>
+    publicRequest<Blog>(`/blog/${id}`),
 
   update: (id: number, data: UpdateBlogData, token: string) =>
     request<Blog>(`/blog/${id}`, token, { method: "PATCH", body: JSON.stringify(data) }),

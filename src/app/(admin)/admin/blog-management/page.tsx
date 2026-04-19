@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, ChevronRight, X, CloudUpload, Pencil, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import { useBlogs, useCreateBlog, useUpdateBlog, useDeleteBlog } from "@/hooks/admin/use-admin";
+import { ImageUpload } from "@/components/shared/image-upload";
 import type { Blog } from "@/types/admin";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
@@ -24,8 +25,8 @@ export default function BlogManagementPage() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [imagePreview, setImagePreview] = useState("");
-  const [dragging, setDragging] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+
 
   const { data: blogs = [], isLoading } = useBlogs();
   const { mutate: createBlog, isPending: isCreating } = useCreateBlog();
@@ -53,17 +54,6 @@ export default function BlogManagementPage() {
   const openEdit = (blog: Blog) => {
     setTitle(blog.title); setContent(blog.content); setImagePreview(blog.imageUrl);
     setEditing(blog); setMode("edit");
-  };
-
-  const handleImageDrop = (e: React.DragEvent) => {
-    e.preventDefault(); setDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) setImagePreview(URL.createObjectURL(file));
-  };
-
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) setImagePreview(URL.createObjectURL(file));
   };
 
   const handleSave = () => {
@@ -101,34 +91,8 @@ export default function BlogManagementPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="font-work-sans text-sm font-medium text-[#181D27]">Image URL <span className="text-red-500">*</span></label>
-            <input value={imagePreview} onChange={(e) => setImagePreview(e.target.value)} placeholder="https://example.com/image.jpg"
-              className="w-full border border-gray-200 rounded-xl px-4 py-3 font-work-sans text-sm text-[#181D27] placeholder:text-gray-400 focus:outline-none focus:border-[#181D27] transition-colors" />
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="font-work-sans text-sm font-medium text-[#181D27]">Cover Image Preview</label>
-            {imagePreview ? (
-              <div className="relative w-full h-48 rounded-xl overflow-hidden bg-gray-100">
-                <Image src={imagePreview} alt="preview" fill className="object-cover" />
-                <button aria-label="Remove" onClick={() => setImagePreview("")}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white shadow flex items-center justify-center text-[#181D27] hover:bg-gray-100">
-                  <X size={14} />
-                </button>
-              </div>
-            ) : (
-              <div onDragOver={(e) => { e.preventDefault(); setDragging(true); }} onDragLeave={() => setDragging(false)} onDrop={handleImageDrop}
-                className={`border-2 border-dashed rounded-xl flex flex-col items-center gap-3 py-8 px-6 transition-colors ${dragging ? "border-[#181D27] bg-gray-50" : "border-gray-300"}`}>
-                <CloudUpload size={36} strokeWidth={1.5} className="text-[#181D27]" />
-                <p className="font-work-sans text-sm font-bold text-[#181D27]">Choose a file or drag & drop it here</p>
-                <p className="font-work-sans text-xs text-gray-400">JPEG, PNG formats, up to 10MB</p>
-                <input ref={inputRef} type="file" accept="image/jpeg,image/png" title="Upload" className="hidden" onChange={handleImageSelect} />
-                <button type="button" onClick={() => inputRef.current?.click()}
-                  className="px-8 py-2.5 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors">
-                  Browse File
-                </button>
-              </div>
-            )}
+            <label className="font-work-sans text-sm font-medium text-[#181D27]">Cover Image <span className="text-red-500">*</span></label>
+            <ImageUpload value={imagePreview} onChange={setImagePreview} />
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -202,7 +166,7 @@ export default function BlogManagementPage() {
                     className="w-7 h-7 flex items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-full hover:text-[#181D27] hover:border-gray-300 transition-colors shadow-sm" aria-label="Edit">
                     <Pencil size={13} />
                   </motion.button>
-                  <motion.button whileTap={{ scale: 0.85 }} onClick={() => deleteBlog(blog.id)}
+                  <motion.button whileTap={{ scale: 0.85 }} onClick={() => setDeleteConfirmId(blog.id)}
                     className="w-7 h-7 flex items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-full hover:text-red-500 hover:border-red-200 transition-colors shadow-sm" aria-label="Delete">
                     <Trash2 size={13} />
                   </motion.button>
@@ -244,6 +208,32 @@ export default function BlogManagementPage() {
           </motion.button>
         </div>
       </motion.div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId !== null && (
+        <>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/30 z-40" onClick={() => setDeleteConfirmId(null)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-white rounded-2xl p-8 w-full max-w-sm flex flex-col gap-5 shadow-xl">
+              <h3 className="font-rozha text-2xl text-[#181D27]">Delete Blog?</h3>
+              <p className="font-work-sans text-sm text-[#414651]">Are you sure you want to delete this blog? This action cannot be undone.</p>
+              <div className="flex gap-3">
+                <button onClick={() => setDeleteConfirmId(null)}
+                  className="flex-1 h-11 rounded-full border border-gray-200 font-work-sans text-sm font-medium text-[#414651] hover:bg-gray-50 transition-colors">
+                  Cancel
+                </button>
+                <button onClick={() => { deleteBlog(deleteConfirmId); setDeleteConfirmId(null); }}
+                  className="flex-1 h-11 rounded-full bg-red-500 text-white font-work-sans text-sm font-semibold hover:bg-red-600 transition-colors">
+                  Yes, Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

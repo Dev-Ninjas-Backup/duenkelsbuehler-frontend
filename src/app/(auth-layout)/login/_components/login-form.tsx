@@ -53,6 +53,18 @@ export function LoginForm() {
         </p>
       </motion.div>
 
+      {/* Role Selector — সবার আগে */}
+      <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 mb-6">
+        {(["CLIENT", "SERVICE_PROVIDER"] as const).map((r) => (
+          <button key={r} type="button" onClick={() => setValue("role", r)}
+            className={`py-2 rounded-xl border-2 font-work-sans text-sm font-medium transition-all ${
+              selectedRole === r ? "border-[#181D27] bg-[#181D27]/5" : "border-gray-200 hover:border-gray-300"
+            }`}>
+            {r === "CLIENT" ? "Client" : "Service Provider"}
+          </button>
+        ))}
+      </motion.div>
+
       {/* Social Login Buttons */}
       <motion.div variants={itemVariants} className="space-y-3 mb-6">
         <Button type="button" variant="outline" disabled={isSocialPending}
@@ -92,18 +104,6 @@ export function LoginForm() {
             <p className="font-work-sans text-sm text-red-600">{error?.message || socialError}</p>
           </motion.div>
         )}
-
-        {/* Role Selector */}
-        <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3">
-          {(["CLIENT", "SERVICE_PROVIDER"] as const).map((r) => (
-            <button key={r} type="button" onClick={() => setValue("role", r)}
-              className={`py-2 rounded-xl border-2 font-work-sans text-sm font-medium transition-all ${
-                selectedRole === r ? "border-[#181D27] bg-[#181D27]/5" : "border-gray-200 hover:border-gray-300"
-              }`}>
-              {r === "CLIENT" ? "Client" : "Service Provider"}
-            </button>
-          ))}
-        </motion.div>
 
         {/* Email */}
         <motion.div variants={itemVariants} className="space-y-2">
