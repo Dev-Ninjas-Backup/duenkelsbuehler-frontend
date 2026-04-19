@@ -6,28 +6,8 @@ import { AiFillEdit, AiFillDelete } from "react-icons/ai";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AddServiceModal, type AddServiceForm } from "./_components/add-service-modal";
-
-interface Service {
-  id: number;
-  description: string;
-  industry: string;
-  location: string;
-}
-
-const mockServices: Service[] = [
-  { id: 1, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Accounting", location: "USA" },
-  { id: 2, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Engineering", location: "Australia" },
-  { id: 3, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Legal", location: "Canada" },
-  { id: 4, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Media", location: "Algeria" },
-  { id: 5, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Finance", location: "India" },
-  { id: 6, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Technology", location: "UK" },
-  { id: 7, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Healthcare", location: "Germany" },
-  { id: 8, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Education", location: "Spain" },
-  { id: 9, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Marketing", location: "Japan" },
-  { id: 10, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Design", location: "Singapore" },
-  { id: 11, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Retail", location: "UAE" },
-  { id: 12, description: "Corporate lawyer specializing in mergers and aquisitions.", industry: "Logistics", location: "Brazil" },
-];
+import { useServiceItems, useCreateServiceItem, useUpdateServiceItem, useDeleteServiceItem } from "@/hooks/sp/use-sp";
+import type { ServiceItem } from "@/types/sp";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
@@ -42,12 +22,15 @@ const rowVariants = {
 };
 
 export default function MyServicesPage() {
-  const [services, setServices] = useState<Service[]>(mockServices);
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingService, setEditingService] = useState<Service | null>(null);
-
+  const [editingService, setEditingService] = useState<ServiceItem | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
+
+  const { data: services = [], isLoading } = useServiceItems();
+  const { mutate: createService, isPending: isCreating } = useCreateServiceItem();
+  const { mutate: updateService, isPending: isUpdating } = useUpdateServiceItem();
+  const { mutate: deleteService } = useDeleteServiceItem();
 
   const totalPages = Math.ceil(services.length / pageSize) || 1;
   const paginated = services.slice(
@@ -75,28 +58,20 @@ export default function MyServicesPage() {
     return pages;
   };
 
-  const handleDelete = (id: number) => {
-    setServices((prev) => prev.filter((s) => s.id !== id));
-  };
+  const handleDelete = (id: number) => deleteService(id);
 
   const handleModalSubmit = (data: AddServiceForm) => {
     if (editingService) {
-      setServices((prev) =>
-        prev.map((s) => (s.id === editingService.id ? { ...s, ...data } : s))
+      updateService(
+        { id: editingService.id, data },
+        { onSuccess: () => { setModalOpen(false); setEditingService(null); } }
       );
     } else {
-      setServices((prev) => [
-        ...prev,
-        {
-          id: prev.length + 1,
-          description: data.description,
-          industry: data.industry,
-          location: data.location,
-        },
-      ]);
+      createService(
+        data,
+        { onSuccess: () => { setModalOpen(false); } }
+      );
     }
-    setModalOpen(false);
-    setEditingService(null);
   };
 
   return (
@@ -136,7 +111,15 @@ export default function MyServicesPage() {
             animate="visible"
             className="flex flex-col gap-4"
           >
-            {paginated.map((service, index) => {
+            {isLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <span className="font-work-sans text-sm text-[#414651]">Loading...</span>
+              </div>
+            ) : paginated.length === 0 ? (
+              <div className="flex items-center justify-center py-20">
+                <span className="font-work-sans text-sm text-[#414651]">No services found. Add your first service!</span>
+              </div>
+            ) : paginated.map((service, index) => {
               const rowSl = (currentPage - 1) * pageSize + index + 1;
               return (
               <motion.div
@@ -234,6 +217,7 @@ export default function MyServicesPage() {
               setEditingService(null);
               setModalOpen(true);
             }}
+            disabled={isCreating || isUpdating}
             className="rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold px-8 h-12 shadow-md"
           >
             + Add Service
@@ -325,6 +309,7 @@ export default function MyServicesPage() {
           setEditingService(null);
         }}
         onSubmit={handleModalSubmit}
+        isPending={isCreating || isUpdating}
         initialData={
           editingService
             ? {

@@ -1,19 +1,23 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCreateReview } from "@/hooks/reviews/use-reviews";
 
 interface Props {
   isOpen: boolean;
   name: string;
+  serviceId: number;
+  revieweeId: number;
   onSubmit: (rating: number, comment: string) => void;
   onSkip: () => void;
 }
 
-export function RatingModal({ isOpen, name, onSubmit, onSkip }: Props) {
+export function RatingModal({ isOpen, name, serviceId, revieweeId, onSubmit, onSkip }: Props) {
   const [rating, setRating] = useState(0);
   const [hovered, setHovered] = useState(0);
   const [comment, setComment] = useState("");
   const [mounted, setMounted] = useState(false);
+  const { mutate: createReview, isPending } = useCreateReview();
 
   useEffect(() => {
     setMounted(true);
@@ -21,9 +25,16 @@ export function RatingModal({ isOpen, name, onSubmit, onSkip }: Props) {
 
   const handleSubmit = () => {
     if (rating === 0) return;
-    onSubmit(rating, comment);
-    setRating(0);
-    setComment("");
+    createReview(
+      { serviceId, revieweeId, data: { rating, comment: comment || undefined } },
+      {
+        onSuccess: () => {
+          onSubmit(rating, comment);
+          setRating(0);
+          setComment("");
+        },
+      }
+    );
   };
 
   const modalContent = (
@@ -80,10 +91,10 @@ export function RatingModal({ isOpen, name, onSubmit, onSkip }: Props) {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleSubmit}
-              disabled={rating === 0}
+              disabled={rating === 0 || isPending}
               className="w-full py-4 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 disabled:opacity-40 transition-colors"
             >
-              Submit Rating
+              {isPending ? "Submitting..." : "Submit Rating"}
             </motion.button>
 
             <button

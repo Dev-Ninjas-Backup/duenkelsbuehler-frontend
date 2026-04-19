@@ -9,7 +9,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
-const industries = ["Accounting", "Engineering", "Legal", "Media", "Finance", "Technology", "Healthcare", "Education"];
+const industries = [
+  "Accounting",
+  "Engineering",
+  "Legal",
+  "Media",
+  "Finance",
+  "Technology",
+  "Healthcare",
+  "Education",
+];
 
 const addServiceSchema = z.object({
   industry: z.string().min(1, "Please select an industry"),
@@ -24,9 +33,16 @@ interface AddServiceModalProps {
   onClose: () => void;
   onSubmit: (data: AddServiceForm) => void;
   initialData?: AddServiceForm;
+  isPending?: boolean;
 }
 
-export function AddServiceModal({ open, onClose, onSubmit, initialData }: AddServiceModalProps) {
+export function AddServiceModal({
+  open,
+  onClose,
+  onSubmit,
+  initialData,
+  isPending,
+}: AddServiceModalProps) {
   const [industryOpen, setIndustryOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -72,7 +88,7 @@ export function AddServiceModal({ open, onClose, onSubmit, initialData }: AddSer
   const modalContent = (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center">
+        <div className="fixed inset-0 z-100 flex items-center justify-center">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -88,14 +104,17 @@ export function AddServiceModal({ open, onClose, onSubmit, initialData }: AddSer
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 24 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="relative z-10 w-full max-w-lg bg-white rounded-[24px] p-8 shadow-2xl mx-4"
+            className="relative z-10 w-full max-w-lg bg-white rounded-3xl p-8 shadow-2xl mx-4"
           >
             <h2 className="font-rozha text-3xl text-[#181D27] mb-1">
               {initialData ? "Edit Service" : "Add Service"}
             </h2>
             <div className="h-px bg-gray-200 mb-6" />
 
-            <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
+            <form
+              onSubmit={handleSubmit(handleFormSubmit)}
+              className="space-y-5"
+            >
               {/* Industry Dropdown */}
               <div className="space-y-2">
                 <label className="font-work-sans font-bold text-sm text-[#181D27]">
@@ -107,17 +126,24 @@ export function AddServiceModal({ open, onClose, onSubmit, initialData }: AddSer
                     onClick={() => setIndustryOpen((p) => !p)}
                     className="w-full h-12 px-4 rounded-xl border border-gray-200 font-work-sans text-sm text-left flex items-center justify-between bg-white hover:border-gray-300 transition-colors"
                   >
-                    <span className={selectedIndustry ? "text-[#181D27]" : "text-gray-400"}>
+                    <span
+                      className={
+                        selectedIndustry ? "text-[#181D27]" : "text-gray-400"
+                      }
+                    >
                       {selectedIndustry || "Select industry"}
                     </span>
-                    <motion.div animate={{ rotate: industryOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <motion.div
+                      animate={{ rotate: industryOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
                       <ChevronDown className="h-4 w-4 text-gray-400" />
                     </motion.div>
                   </button>
 
                   <AnimatePresence>
                     {industryOpen && (
-                      <motion.ul
+                      <motion.div
                         initial={{ opacity: 0, y: -8 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -8 }}
@@ -125,25 +151,29 @@ export function AddServiceModal({ open, onClose, onSubmit, initialData }: AddSer
                         className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden"
                       >
                         {industries.map((ind) => (
-                          <li
+                          <div
                             key={ind}
                             onClick={() => {
                               setValue("industry", ind, { shouldValidate: true });
                               setIndustryOpen(false);
                             }}
                             className={`px-4 py-3 font-work-sans text-sm cursor-pointer transition-colors hover:bg-gray-50 ${
-                              selectedIndustry === ind ? "bg-gray-50 font-medium text-[#181D27]" : "text-[#414651]"
+                              selectedIndustry === ind
+                                ? "bg-gray-50 font-medium text-[#181D27]"
+                                : "text-[#414651]"
                             }`}
                           >
                             {ind}
-                          </li>
+                          </div>
                         ))}
-                      </motion.ul>
+                      </motion.div>
                     )}
                   </AnimatePresence>
                 </div>
                 {errors.industry && (
-                  <p className="font-work-sans text-xs text-red-500">● {errors.industry.message}</p>
+                  <p className="font-work-sans text-xs text-red-500">
+                    ● {errors.industry.message}
+                  </p>
                 )}
               </div>
 
@@ -159,7 +189,9 @@ export function AddServiceModal({ open, onClose, onSubmit, initialData }: AddSer
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 font-work-sans text-sm text-[#414651] placeholder:text-gray-400 resize-none focus:outline-none focus:border-gray-400 transition-colors"
                 />
                 {errors.description && (
-                  <p className="font-work-sans text-xs text-red-500">● {errors.description.message}</p>
+                  <p className="font-work-sans text-xs text-red-500">
+                    ● {errors.description.message}
+                  </p>
                 )}
               </div>
 
@@ -174,16 +206,23 @@ export function AddServiceModal({ open, onClose, onSubmit, initialData }: AddSer
                   className="w-full h-12 px-4 rounded-xl border border-gray-200 font-work-sans text-sm text-[#414651] placeholder:text-gray-400 focus:outline-none focus:border-gray-400 transition-colors"
                 />
                 {errors.location && (
-                  <p className="font-work-sans text-xs text-red-500">● {errors.location.message}</p>
+                  <p className="font-work-sans text-xs text-red-500">
+                    ● {errors.location.message}
+                  </p>
                 )}
               </div>
 
               {/* Submit */}
               <Button
                 type="submit"
+                disabled={isPending}
                 className="w-full h-12 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base mt-2"
               >
-                {initialData ? "Save Changes" : "Submit"}
+                {isPending
+                  ? "Saving..."
+                  : initialData
+                    ? "Save Changes"
+                    : "Submit"}
               </Button>
             </form>
           </motion.div>

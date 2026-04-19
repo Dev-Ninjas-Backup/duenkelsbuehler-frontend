@@ -3,28 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-interface Transaction {
-  id: number;
-  serviceName: string;
-  status: "Paid" | "In Process" | "Due";
-  amount: string;
-}
-
-const MOCK: Transaction[] = [
-  { id: 1,  serviceName: "Tax Attorny",       status: "Paid", amount: "$89.759" },
-  { id: 2,  serviceName: "Accountant",         status: "Paid", amount: "$89.759" },
-  { id: 3,  serviceName: "Marketing Analyst",  status: "Paid", amount: "$89.759" },
-  { id: 4,  serviceName: "Tax Attorny",        status: "Paid", amount: "$89.759" },
-  { id: 5,  serviceName: "Accountant",         status: "Paid", amount: "$89.759" },
-  { id: 6,  serviceName: "Marketing Analyst",  status: "Paid", amount: "$89.759" },
-  { id: 7,  serviceName: "Tax Attorny",        status: "Paid", amount: "$89.759" },
-  { id: 8,  serviceName: "Accountant",         status: "Paid", amount: "$89.759" },
-  { id: 9,  serviceName: "Marketing Analyst",  status: "Paid", amount: "$89.759" },
-  { id: 10, serviceName: "Tax Attorny",        status: "Paid", amount: "$89.759" },
-  { id: 11, serviceName: "Accountant",         status: "Paid", amount: "$89.759" },
-  { id: 12, serviceName: "Marketing Analyst",  status: "Paid", amount: "$89.759" },
-];
+import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
@@ -32,41 +11,43 @@ const containerVariants = {
   hidden: { opacity: 0 },
   visible: { opacity: 1, transition: { staggerChildren: 0.06 } },
 };
-
 const rowVariants = {
   hidden: { opacity: 0, y: 14 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" as const } },
 };
 
-const statusColor: Record<Transaction["status"], string> = {
-  Paid:       "text-[#16A34A]",
-  "In Process": "text-[#414651]",
-  Due:        "text-red-500",
-};
-
-const amountColor: Record<Transaction["status"], string> = {
-  Paid:         "text-[#16A34A]",
-  "In Process": "text-[#181D27]",
-  Due:          "text-red-500",
+const statusColor: Record<string, string> = {
+  PAID: "text-[#16A34A]",
+  PENDING: "text-[#414651]",
+  FAILED: "text-red-500",
+  REFUNDED: "text-[#9CA3AF]",
 };
 
 export function ClientTransactionHistoryTab() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const totalPages = Math.ceil(MOCK.length / pageSize);
-  const paginated = MOCK.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const { data: subscriptions = [], isLoading } = useMySubscriptions();
+
+  const allPayments = subscriptions.flatMap((sub) =>
+    sub.payments.map((p) => ({
+      id: p.id,
+      serviceName: sub.plan.name,
+      status: p.status,
+      amount: `${p.currency} ${p.amount.toFixed(2)}`,
+    }))
+  );
+
+  const totalPages = Math.ceil(allPayments.length / pageSize) || 1;
+  const paginated = allPayments.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const getPageNumbers = () => {
     const pages: (number | "...")[] = [];
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
-    } else {
+    if (totalPages <= 5) { for (let i = 1; i <= totalPages; i++) pages.push(i); }
+    else {
       pages.push(1);
       if (currentPage > 3) pages.push("...");
-      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
-        pages.push(i);
-      }
+      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i);
       if (currentPage < totalPages - 2) pages.push("...");
       pages.push(totalPages);
     }
@@ -90,16 +71,17 @@ export function ClientTransactionHistoryTab() {
         <span className="font-work-sans text-sm font-medium">Paid</span>
       </div>
 
-      {/* Rows */}
-      <div className="flex-1 overflow-y-auto pr-2 pb-4">
-        <motion.div
-          key={currentPage}
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="flex flex-col gap-4"
-        >
-          {paginated.map((tx, index) => (
+        <div className="flex-1 overflow-y-auto pr-2 pb-4">
+        <motion.div key={currentPage} variants={containerVariants} initial="hidden" animate="visible" className="flex flex-col gap-4">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <span className="font-work-sans text-sm text-[#414651]">Loading...</span>
+            </div>
+          ) : paginated.length === 0 ? (
+            <div className="flex items-center justify-center py-20">
+              <span className="font-work-sans text-sm text-[#414651]">No transactions found</span>
+            </div>
+          ) : paginated.map((tx, index) => (
             <motion.div
               key={tx.id}
               variants={rowVariants}
@@ -132,19 +114,16 @@ export function ClientTransactionHistoryTab() {
                 
                 {/* Mobile Amount (Paid) */}
                 <div className="ml-auto lg:hidden">
-                  <span className={`font-work-sans text-[15px] font-bold ${amountColor[tx.status]}`}>
+                  <span className={`font-work-sans text-[15px] font-bold ${statusColor[tx.status] ?? "text-[#181D27]"}`}>
                     {tx.amount}
                   </span>
                 </div>
               </div>
 
-              {/* Desktop Status */}
-              <span className={`hidden lg:block font-work-sans text-sm font-medium ${statusColor[tx.status]}`}>
+              <span className={`hidden lg:block font-work-sans text-sm font-medium ${statusColor[tx.status] ?? "text-[#414651]"}`}>
                 {tx.status}
               </span>
-
-              {/* Desktop Amount (Paid) */}
-              <span className={`hidden lg:block font-work-sans text-sm font-semibold ${amountColor[tx.status]}`}>
+              <span className={`hidden lg:block font-work-sans text-sm font-semibold ${statusColor[tx.status] ?? "text-[#181D27]"}`}>
                 {tx.amount}
               </span>
             </motion.div>

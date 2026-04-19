@@ -1,373 +1,143 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
 
-type TxStatus = "Paid" | "In Process" | "Due";
-
-interface Transaction {
-  id: number;
-  name: string;
-  avatar: string;
-  status: TxStatus;
-  amount: string;
-}
-
-const MOCK: Transaction[] = [
-  {
-    id: 1,
-    name: "First Name, Last Name",
-    avatar: "/images/user/user_avatar.png",
-    status: "Paid",
-    amount: "$89.759",
-  },
-  {
-    id: 2,
-    name: "First Name, Last Name",
-    avatar: "/images/user/user_avatar.png",
-    status: "In Process",
-    amount: "$89.759",
-  },
-  {
-    id: 3,
-    name: "First Name, Last Name",
-    avatar: "/images/user/user_avatar.png",
-    status: "Due",
-    amount: "$89.759",
-  },
-  {
-    id: 4,
-    name: "First Name, Last Name",
-    avatar: "/images/user/user_avatar.png",
-    status: "Paid",
-    amount: "$89.759",
-  },
-  {
-    id: 5,
-    name: "First Name, Last Name",
-    avatar: "/images/user/user_avatar.png",
-    status: "In Process",
-    amount: "$89.759",
-  },
-  {
-    id: 6,
-    name: "First Name, Last Name",
-    avatar: "/images/user/user_avatar.png",
-    status: "Due",
-    amount: "$89.759",
-  },
-  {
-    id: 7,
-    name: "First Name, Last Name",
-    avatar: "/images/user/user_avatar.png",
-    status: "Paid",
-    amount: "$89.759",
-  },
-  {
-    id: 8,
-    name: "First Name, Last Name",
-    avatar: "/images/user/user_avatar.png",
-    status: "In Process",
-    amount: "$89.759",
-  },
-  {
-    id: 9,
-    name: "First Name, Last Name",
-    avatar: "/images/user/user_avatar.png",
-    status: "Due",
-    amount: "$89.759",
-  },
-  {
-    id: 10,
-    name: "First Name, Last Name",
-    avatar: "/images/user/user_avatar.png",
-    status: "Paid",
-    amount: "$89.759",
-  },
-];
-
-const FILTER_OPTIONS = [
-  "Last 24h",
-  "Last 7 days",
-  "Last 30 days",
-  "Last 3 months",
-  "Last year",
-];
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
-const TOTAL_PAGES = 10;
 
-const statusStyle: Record<
-  TxStatus,
-  { text: string; badge: string; amount: string }
-> = {
-  Paid: {
-    text: "text-[#16A34A]",
-    badge: "text-[#16A34A]",
-    amount: "text-[#16A34A]",
-  },
-  "In Process": {
-    text: "text-[#414651]",
-    badge: "bg-gray-100 text-[#414651] px-3 py-0.5 rounded-full text-xs",
-    amount: "text-[#181D27]",
-  },
-  Due: {
-    text: "text-[#DC2626]",
-    badge: "text-[#DC2626]",
-    amount: "text-[#DC2626]",
-  },
+const statusStyle: Record<string, { label: string; cls: string }> = {
+  PAID: { label: "Paid", cls: "text-[#16A34A]" },
+  PENDING: { label: "In Process", cls: "bg-gray-100 text-[#414651] px-3 py-0.5 rounded-full text-xs" },
+  FAILED: { label: "Failed", cls: "text-[#DC2626]" },
+  REFUNDED: { label: "Refunded", cls: "text-[#9CA3AF]" },
+  ACTIVE: { label: "Active", cls: "text-[#16A34A]" },
+  CANCELED: { label: "Canceled", cls: "text-[#DC2626]" },
+  PAST_DUE: { label: "Past Due", cls: "text-orange-500" },
 };
 
-function StatusBadge({ status }: { status: TxStatus }) {
-  if (status === "In Process") {
-    return (
-      <span className="bg-gray-100 text-[#414651] px-3 py-1 rounded-full font-work-sans text-xs font-medium">
-        In Process
-      </span>
-    );
-  }
+function PagBtn({ children, onClick, active, disabled }: {
+  children: React.ReactNode; onClick: () => void; active?: boolean; disabled?: boolean;
+}) {
   return (
-    <span
-      className={`font-work-sans text-sm font-medium ${statusStyle[status].text}`}
-    >
-      {status}
-    </span>
+    <button onClick={onClick} disabled={disabled}
+      className={`w-9 h-9 rounded-full flex items-center justify-center font-work-sans text-sm transition-colors ${
+        active ? "bg-[#181D27] text-white" : disabled ? "text-gray-300 cursor-not-allowed" : "text-[#414651] hover:bg-gray-100 border border-gray-200"
+      }`}>
+      {children}
+    </button>
   );
 }
 
 export function TransactionHistoryTab() {
-  const [filter, setFilter] = useState("Last 24h");
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [pageSize, setPageSize] = useState(10);
-  const [currentPage, setCurrentPage] = useState(3);
+  const [pageSize, setPageSize] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const rows = MOCK.slice(0, pageSize);
+  const { data: subscriptions = [], isLoading } = useMySubscriptions();
 
-  const visiblePages = (() => {
-    if (TOTAL_PAGES <= 5)
-      return Array.from({ length: TOTAL_PAGES }, (_, i) => i + 1);
-    if (currentPage <= 3) return [1, 2, 3, null, TOTAL_PAGES];
-    if (currentPage >= TOTAL_PAGES - 2)
-      return [1, null, TOTAL_PAGES - 2, TOTAL_PAGES - 1, TOTAL_PAGES];
-    return [1, 2, currentPage, null, TOTAL_PAGES];
-  })();
+  // Flatten all payments from all subscriptions
+  const allPayments = subscriptions.flatMap((sub) =>
+    sub.payments.map((p) => ({
+      id: p.id,
+      planName: sub.plan.name,
+      status: p.status,
+      amount: `${p.currency} ${p.amount.toFixed(2)}`,
+      date: p.paidAt ? new Date(p.paidAt).toLocaleDateString() : new Date(p.createdAt).toLocaleDateString(),
+    }))
+  );
+
+  const totalPages = Math.ceil(allPayments.length / pageSize) || 1;
+  const paginated = allPayments.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const getPageNumbers = () => {
+    const pages: (number | "...")[] = [];
+    if (totalPages <= 5) { for (let i = 1; i <= totalPages; i++) pages.push(i); }
+    else {
+      pages.push(1);
+      if (currentPage > 3) pages.push("...");
+      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) pages.push(i);
+      if (currentPage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
 
   return (
-    <motion.div
-      key="history"
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.25 }}
-      className="flex flex-col items-center gap-6"
-    >
-      <h2 className="font-rozha text-2xl text-[#181D27]">
-        Transaction History
-      </h2>
+    <motion.div key="history" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}
+      className="flex flex-col items-center gap-6">
+      <h2 className="font-rozha text-2xl text-[#181D27]">Transaction History</h2>
 
-      {/* Filter dropdown */}
-      <div className="relative">
-        <button
-          onClick={() => setFilterOpen((p) => !p)}
-          className="flex items-center gap-3 px-5 py-2.5 border border-gray-200 rounded-lg bg-white font-work-sans text-sm text-[#181D27] min-w-[160px] justify-between hover:border-[#181D27] transition-colors"
-        >
-          {filter}
-          <motion.span
-            animate={{ rotate: filterOpen ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <ChevronDown size={16} className="text-[#414651]" />
-          </motion.span>
-        </button>
-
-        <AnimatePresence>
-          {filterOpen && (
-            <motion.ul
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.15 }}
-              className="absolute top-full mt-1 left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-md z-10 overflow-hidden"
-            >
-              {FILTER_OPTIONS.map((opt) => (
-                <li key={opt}>
-                  <button
-                    onClick={() => {
-                      setFilter(opt);
-                      setFilterOpen(false);
-                      setCurrentPage(1);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 font-work-sans text-sm transition-colors ${
-                      filter === opt
-                        ? "bg-[#181D27] text-white"
-                        : "text-[#181D27] hover:bg-gray-50"
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                </li>
-              ))}
-            </motion.ul>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Table */}
-      <div className="w-full">
-        {/* Header */}
-        <div className="hidden lg:grid grid-cols-[60px_1fr_140px_120px] bg-[#181D27] rounded-[16px] px-6 py-3.5 mb-3">
-          <span className="font-work-sans text-sm font-medium text-white">
-            Sl
-          </span>
-          <span className="font-work-sans text-sm font-medium text-white">
-            Name
-          </span>
-          <span className="font-work-sans text-sm font-medium text-white text-center">
-            Status
-          </span>
-          <span className="font-work-sans text-sm font-medium text-white text-right">
-            Paid
-          </span>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <span className="font-work-sans text-sm text-[#414651]">Loading...</span>
         </div>
+      ) : allPayments.length === 0 ? (
+        <div className="flex items-center justify-center py-20">
+          <span className="font-work-sans text-sm text-[#414651]">No transactions found</span>
+        </div>
+      ) : (
+        <div className="w-full">
+          {/* Header */}
+          <div className="hidden lg:grid grid-cols-[60px_1fr_140px_120px] bg-[#181D27] rounded-[16px] px-6 py-3.5 mb-3">
+            <span className="font-work-sans text-sm font-medium text-white">Sl</span>
+            <span className="font-work-sans text-sm font-medium text-white">Plan</span>
+            <span className="font-work-sans text-sm font-medium text-white text-center">Status</span>
+            <span className="font-work-sans text-sm font-medium text-white text-right">Amount</span>
+          </div>
 
-        {/* Rows */}
-        <div className="flex flex-col gap-4">
-          {rows.map((tx, i) => (
-            <motion.div
-              key={tx.id + "-" + i}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: i * 0.04 }}
-              className="flex flex-col lg:grid lg:grid-cols-[60px_1fr_140px_120px] items-start lg:items-center bg-[#F9F9F9] lg:bg-[#F9F9F9] border border-gray-100/80 rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 gap-3 lg:gap-0 hover:bg-[#EFEFEF] transition-colors"
-            >
-              {/* Desktop Sl */}
-              <span className="hidden lg:block font-work-sans text-sm text-[#414651]">
-                {i + 1}
-              </span>
-
-              {/* Mobile Header */}
-              <div className="flex w-full justify-between items-center lg:hidden mb-1 border-b border-gray-200 pb-3">
-                <span className="font-work-sans text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">
-                  Tx #{i + 1}
-                </span>
-                <StatusBadge status={tx.status} />
-              </div>
-
-              {/* Name */}
-              <div className="flex items-center gap-3 w-full lg:w-auto mt-1 lg:mt-0">
-                <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 shrink-0 bg-white">
-                  <Image src={tx.avatar} alt={tx.name} width={40} height={40} className="object-cover w-full h-full" />
+          <div className="flex flex-col gap-4">
+            {paginated.map((tx, i) => (
+              <motion.div key={tx.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: i * 0.04 }}
+                className="flex flex-col lg:grid lg:grid-cols-[60px_1fr_140px_120px] items-start lg:items-center bg-[#F9F9F9] border border-gray-100/80 rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 gap-3 lg:gap-0">
+                <span className="hidden lg:block font-work-sans text-sm text-[#414651]">{(currentPage - 1) * pageSize + i + 1}</span>
+                <div className="flex flex-col">
+                  <span className="font-work-sans text-[14px] font-bold text-[#181D27]">{tx.planName}</span>
+                  <span className="font-work-sans text-xs text-[#9CA3AF]">{tx.date}</span>
                 </div>
-                <span className="font-work-sans text-[14px] font-bold text-[#181D27]">
-                  {tx.name}
-                </span>
-              </div>
-
-              {/* Status (Desktop only, mobile shows in header) */}
-              <div className="hidden lg:flex justify-center">
-                 <StatusBadge status={tx.status} />
-              </div>
-
-              {/* Amount */}
-              <div className="flex justify-between items-center w-full lg:w-auto lg:block text-right">
-                <span className="lg:hidden font-work-sans text-[13px] text-[#535862]">Amount:</span>
-                <span className={`font-work-sans text-[15px] font-bold ${statusStyle[tx.status].amount}`}>
-                  {tx.amount}
-                </span>
-              </div>
-            </motion.div>
-          ))}
+                <div className="flex justify-center">
+                  <span className={`font-work-sans text-sm font-medium ${statusStyle[tx.status]?.cls ?? ""}`}>
+                    {statusStyle[tx.status]?.label ?? tx.status}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="font-work-sans text-[15px] font-bold text-[#181D27]">{tx.amount}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Footer: show entries + pagination */}
+      {/* Pagination */}
       <div className="flex flex-col sm:flex-row items-center justify-between w-full mt-4 gap-4">
-        {/* Show entries */}
         <div className="flex items-center gap-2">
           <span className="font-work-sans text-sm text-[#414651]">Show</span>
-          <select
-            aria-label="Entries per page"
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="border border-gray-200 rounded-lg px-2 py-1.5 font-work-sans text-sm text-[#181D27] focus:outline-none focus:border-[#181D27] bg-white"
-          >
-            {PAGE_SIZE_OPTIONS.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
+          <select aria-label="Entries per page" value={pageSize}
+            onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+            className="border border-gray-200 rounded-lg px-2 py-1.5 font-work-sans text-sm text-[#181D27] focus:outline-none bg-white">
+            {PAGE_SIZE_OPTIONS.map((n) => <option key={n} value={n}>{n}</option>)}
           </select>
           <span className="font-work-sans text-sm text-[#414651]">entries</span>
         </div>
-
-        {/* Pagination */}
         <div className="flex flex-wrap justify-center items-center gap-1.5">
-          <PagBtn
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1}
-          >
+          <PagBtn onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>
             <ChevronLeft size={15} />
           </PagBtn>
-
-          {visiblePages.map((p, i) =>
-            p === null ? (
-              <span
-                key={`ellipsis-${i}`}
-                className="w-9 h-9 flex items-center justify-center font-work-sans text-sm text-[#9CA3AF]"
-              >
-                ...
-              </span>
+          {getPageNumbers().map((p, i) =>
+            p === "..." ? (
+              <span key={`e-${i}`} className="w-9 h-9 flex items-center justify-center font-work-sans text-sm text-[#9CA3AF]">...</span>
             ) : (
-              <PagBtn
-                key={p}
-                active={currentPage === p}
-                onClick={() => setCurrentPage(p as number)}
-              >
-                {p}
-              </PagBtn>
-            ),
+              <PagBtn key={p} active={currentPage === p} onClick={() => setCurrentPage(p as number)}>{p}</PagBtn>
+            )
           )}
-
-          <PagBtn
-            onClick={() => setCurrentPage((p) => Math.min(TOTAL_PAGES, p + 1))}
-            disabled={currentPage === TOTAL_PAGES}
-          >
+          <PagBtn onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
             <ChevronRight size={15} />
           </PagBtn>
         </div>
       </div>
     </motion.div>
-  );
-}
-
-function PagBtn({
-  children,
-  onClick,
-  active,
-  disabled,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  active?: boolean;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
-      className={`w-9 h-9 rounded-full flex items-center justify-center font-work-sans text-sm transition-colors ${
-        active
-          ? "bg-[#181D27] text-white"
-          : disabled
-            ? "text-gray-300 cursor-not-allowed"
-            : "text-[#414651] hover:bg-gray-100 border border-gray-200"
-      }`}
-    >
-      {children}
-    </button>
   );
 }

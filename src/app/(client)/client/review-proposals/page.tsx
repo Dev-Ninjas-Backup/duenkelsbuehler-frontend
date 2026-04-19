@@ -14,6 +14,8 @@ interface Proposal {
   avatar: string;
   verified: boolean;
   description: string;
+  serviceId: number;
+  revieweeId: number;
 }
 
 const MOCK: Proposal[] = Array.from({ length: 6 }, (_, i) => ({
@@ -24,6 +26,8 @@ const MOCK: Proposal[] = Array.from({ length: 6 }, (_, i) => ({
   verified: i % 3 === 0,
   description:
     "Provides legal counsel and advocacy for individuals, businesses, and government organizations. Their duties typically include educating and defending clients regarding their rights, communicating with courts and other lawyers, and managing their clients' legal proceedings.",
+  serviceId: i + 1,
+  revieweeId: i + 1,
 }));
 
 type View = "grid" | "detail" | "accepted" | "finalized";
@@ -229,7 +233,7 @@ export default function ReviewProposalsPage() {
     setShowRating(true);
   };
 
-  const handleRatingDone = () => {
+  const handleRatingDone = (_rating?: number, _comment?: string) => {
     setShowRating(false);
     setSelected(null);
     setView("grid");
@@ -456,6 +460,8 @@ export default function ReviewProposalsPage() {
           <RatingModal
             isOpen={showRating}
             name={selected.name}
+            serviceId={selected.serviceId}
+            revieweeId={selected.revieweeId}
             onSubmit={handleRatingDone}
             onSkip={handleRatingDone}
           />

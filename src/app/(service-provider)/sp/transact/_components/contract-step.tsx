@@ -8,6 +8,7 @@ import { AiFillWarning } from "react-icons/ai";
 import { Contact } from "./types";
 import { FinePrintModal } from "./fine-print-modal";
 import { useSavedContracts } from "@/store/saved-contracts";
+import { useUploadDocument } from "@/hooks/files/use-files";
 
 interface Props {
   contact: Contact;
@@ -28,13 +29,17 @@ export function ContractStep({
   const [saveContract, setSaveContract] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-
   const { contracts } = useSavedContracts();
+  const { mutate: uploadDocument, isPending: isUploading } = useUploadDocument();
 
   const handleNext = () => onNext(saveContract);
 
   const handleFileChange = (file: File | null) => {
-    onFileChange(file);
+    if (!file) { onFileChange(null); setSaveContract(false); return; }
+    uploadDocument(file, {
+      onSuccess: () => onFileChange(file),
+      onError: () => onFileChange(file), // still allow local use even if upload fails
+    });
     setSaveContract(false);
   };
 
@@ -208,9 +213,17 @@ export function ContractStep({
             whileTap={{ scale: 0.95 }}
             aria-label="Upload contract"
             onClick={() => fileRef.current?.click()}
-            className="w-14 h-14 rounded-full bg-[#6B7280] flex items-center justify-center text-white shadow-md hover:bg-[#4B5563] transition-colors"
+            disabled={isUploading}
+            className="w-14 h-14 rounded-full bg-[#6B7280] flex items-center justify-center text-white shadow-md hover:bg-[#4B5563] transition-colors disabled:opacity-60"
           >
-            <Upload size={22} />
+            {isUploading ? (
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            ) : (
+              <Upload size={22} />
+            )}
           </motion.button>
         </div>
 

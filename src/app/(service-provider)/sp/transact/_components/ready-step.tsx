@@ -6,9 +6,11 @@ interface Props {
   onConfirmClientChange: (val: boolean) => void;
   onConfirmUnverifiedChange: (val: boolean) => void;
   onSubmit: () => void;
+  isPending?: boolean;
+  error?: string | null;
 }
 
-export function ReadyStep({ confirmClient, confirmUnverified, onConfirmClientChange, onConfirmUnverifiedChange, onSubmit }: Props) {
+export function ReadyStep({ confirmClient, confirmUnverified, onConfirmClientChange, onConfirmUnverifiedChange, onSubmit, isPending, error }: Props) {
   const canSubmit = confirmClient && confirmUnverified;
 
   return (
@@ -53,14 +55,17 @@ export function ReadyStep({ confirmClient, confirmUnverified, onConfirmClientCha
         </label>
       </motion.div>
 
+      {error && (
+        <div className="p-3 rounded-lg bg-red-50 border border-red-200">
+          <p className="font-work-sans text-sm text-red-600">{error}</p>
+        </div>
+      )}
+
       <div className="flex justify-center mt-2">
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          disabled={!canSubmit}
+        <motion.button whileTap={{ scale: 0.97 }} disabled={!canSubmit || isPending}
           onClick={onSubmit}
-          className="px-8 py-3 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 disabled:opacity-40 transition-colors"
-        >
-          Submit
+          className="px-8 py-3 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 disabled:opacity-40 transition-colors">
+          {isPending ? "Creating transaction..." : "Submit"}
         </motion.button>
       </div>
     </div>
