@@ -247,10 +247,24 @@ export function RecentUsersTable() {
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-10">
-            <span className="font-work-sans text-sm text-[#414651]">
-              Loading...
-            </span>
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center bg-[#F9F9F9] rounded-2xl px-6 py-4 animate-pulse">
+                <div className="w-10"><div className="h-3 w-4 bg-gray-200 rounded-full" /></div>
+                <div className="flex items-center gap-3 flex-1">
+                  <div className="w-9 h-9 rounded-full bg-gray-200 shrink-0" />
+                  <div className="flex flex-col gap-1.5">
+                    <div className="h-3 w-28 bg-gray-200 rounded-full" />
+                    <div className="h-2.5 w-36 bg-gray-200 rounded-full" />
+                  </div>
+                </div>
+                <div className="w-28 flex justify-center"><div className="h-5 w-16 bg-gray-200 rounded-full" /></div>
+                <div className="w-20 flex justify-center"><div className="h-5 w-8 bg-gray-200 rounded-full" /></div>
+                <div className="flex-1 flex justify-center"><div className="h-5 w-5 bg-gray-200 rounded-full" /></div>
+                <div className="flex-1"><div className="h-3 w-24 bg-gray-200 rounded-full" /></div>
+                <div className="w-12 flex justify-center"><div className="w-7 h-7 bg-gray-200 rounded-full" /></div>
+              </div>
+            ))}
           </div>
         ) : (
           <motion.div
@@ -337,10 +351,29 @@ export function RecentUsersTable() {
       {/* ── Mobile Card View ── */}
       <div className="md:hidden">
         {isLoading ? (
-          <div className="flex items-center justify-center py-10">
-            <span className="font-work-sans text-sm text-[#414651]">
-              Loading...
-            </span>
+          <div className="flex flex-col gap-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="bg-[#F9F9F9] rounded-2xl px-4 py-4 flex flex-col gap-3 border border-gray-100/80 animate-pulse">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="w-9 h-9 rounded-full bg-gray-200 shrink-0" />
+                    <div className="flex flex-col gap-1.5">
+                      <div className="h-3 w-24 bg-gray-200 rounded-full" />
+                      <div className="h-2.5 w-32 bg-gray-200 rounded-full" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2.5 w-14 bg-gray-200 rounded-full" />
+                    <div className="w-7 h-7 bg-gray-200 rounded-full" />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-5 w-14 bg-gray-200 rounded-full" />
+                  <div className="h-5 w-8 bg-gray-200 rounded-full" />
+                  <div className="h-5 w-5 bg-gray-200 rounded-full" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <motion.div

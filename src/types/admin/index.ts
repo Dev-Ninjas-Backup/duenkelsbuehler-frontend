@@ -26,6 +26,7 @@ export interface AdminUser {
   email: string
   name: string
   role: string[]
+  country: string | null
   isIdentityVerified: boolean
   isEmailVerified: boolean
   firebaseUid: string | null

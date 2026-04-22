@@ -36,8 +36,28 @@ export default function BadgesManagementPage() {
       />
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <span className="font-work-sans text-sm text-[#414651]">Loading...</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+          <div className="flex flex-col gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm animate-pulse">
+                <div className="flex items-start gap-3">
+                  <div className="w-14 h-14 rounded-xl bg-gray-200 shrink-0" />
+                  <div className="flex flex-col gap-2 flex-1">
+                    <div className="flex items-start justify-between">
+                      <div className="h-4 w-36 bg-gray-200 rounded-lg" />
+                      <div className="w-5 h-5 rounded bg-gray-200" />
+                    </div>
+                    <div className="h-3 w-full bg-gray-200 rounded-lg" />
+                    <div className="h-3 w-3/4 bg-gray-200 rounded-lg" />
+                    <div className="h-3 w-24 bg-gray-200 rounded-lg mt-1" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center min-h-[200px] animate-pulse">
+            <div className="w-14 h-14 rounded-full bg-gray-200" />
+          </div>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">

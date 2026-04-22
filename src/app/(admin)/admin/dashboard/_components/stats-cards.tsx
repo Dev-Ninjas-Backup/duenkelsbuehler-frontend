@@ -15,9 +15,11 @@ const cardVariants = {
 };
 
 export function StatsCards() {
-  const { data: users = [] } = useAdminUsers();
-  const { data: banners = [] } = useBanners();
-  const { data: finance } = useAdminFinanceSummary();
+  const { data: users = [], isLoading: usersLoading } = useAdminUsers();
+  const { data: banners = [], isLoading: bannersLoading } = useBanners();
+  const { data: finance, isLoading: financeLoading } = useAdminFinanceSummary();
+
+  const isLoading = usersLoading || bannersLoading || financeLoading;
 
   const stats = [
     { label: "Total Revenue", value: finance ? `$${finance.totalRevenueUsd.toLocaleString()}` : "$0" },
@@ -25,6 +27,19 @@ export function StatsCards() {
     { label: "Active Subscriptions", value: finance?.activeSubscriptions?.toString() ?? "0" },
     { label: "Total Banners", value: banners.length.toString() },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="bg-[#F9F9F9] rounded-2xl px-6 py-6 animate-pulse">
+            <div className="h-3.5 w-24 bg-gray-200 rounded-full mb-4" />
+            <div className="h-8 w-16 bg-gray-200 rounded-full" />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible"

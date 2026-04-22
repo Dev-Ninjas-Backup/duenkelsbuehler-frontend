@@ -278,10 +278,24 @@ export default function UserManagementPage() {
           className="flex flex-col gap-4 overflow-y-auto pr-2 flex-1 min-h-0 custom-scrollbar pb-2"
         >
           {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <span className="font-work-sans text-sm text-[#414651]">
-                Loading...
-              </span>
+            <div className="flex flex-col gap-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-center bg-[#F9F9F9] rounded-2xl px-6 py-4 shrink-0 animate-pulse">
+                  <div className="h-4 w-6 bg-gray-200 rounded w-10" />
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="w-9 h-9 rounded-full bg-gray-200 shrink-0" />
+                    <div className="flex flex-col gap-2">
+                      <div className="h-4 w-32 bg-gray-200 rounded-lg" />
+                      <div className="h-3 w-44 bg-gray-200 rounded-lg" />
+                    </div>
+                  </div>
+                  <div className="w-28 flex justify-center"><div className="h-6 w-20 bg-gray-200 rounded-full" /></div>
+                  <div className="w-20 flex justify-center"><div className="h-5 w-10 bg-gray-200 rounded-full" /></div>
+                  <div className="flex-1 flex justify-center"><div className="w-5 h-5 bg-gray-200 rounded" /></div>
+                  <div className="flex-1"><div className="h-3 w-28 bg-gray-200 rounded-lg" /></div>
+                  <div className="w-12 flex justify-center"><div className="w-7 h-7 rounded-full bg-gray-200" /></div>
+                </div>
+              ))}
             </div>
           ) : paginated.length === 0 ? (
             <div className="flex items-center justify-center py-20">
@@ -374,10 +388,26 @@ export default function UserManagementPage() {
         className="flex lg:hidden flex-col gap-4 overflow-y-auto flex-1 min-h-0 pb-2"
       >
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
-            <span className="font-work-sans text-sm text-[#414651]">
-              Loading...
-            </span>
+          <div className="flex flex-col gap-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="bg-[#F9F9F9] rounded-2xl px-4 py-4 flex flex-col gap-3 border border-gray-100/80 animate-pulse">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 flex-1">
+                    <div className="w-9 h-9 rounded-full bg-gray-200 shrink-0" />
+                    <div className="flex flex-col gap-2">
+                      <div className="h-4 w-28 bg-gray-200 rounded-lg" />
+                      <div className="h-3 w-36 bg-gray-200 rounded-lg" />
+                    </div>
+                  </div>
+                  <div className="h-3 w-16 bg-gray-200 rounded" />
+                </div>
+                <div className="flex gap-2">
+                  <div className="h-5 w-20 bg-gray-200 rounded-full" />
+                  <div className="h-5 w-12 bg-gray-200 rounded-full" />
+                  <div className="w-5 h-5 bg-gray-200 rounded" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : paginated.length === 0 ? (
           <div className="flex items-center justify-center py-20">

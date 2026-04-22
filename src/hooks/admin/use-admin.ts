@@ -29,6 +29,15 @@ export function useAdminUsers() {
   });
 }
 
+export function useAdminUser(id: number | null) {
+  const token = useToken();
+  return useQuery({
+    queryKey: ["admin-users", id],
+    queryFn: () => userService.findOne(id!, token),
+    enabled: !!id && !!token,
+  });
+}
+
 export function useCreateAdminUser() {
   const token = useToken();
   const qc = useQueryClient();
