@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Pencil, X } from "lucide-react";
+import { Plus, Pencil, X, ToggleLeft, ToggleRight } from "lucide-react";
 import { useAdminPlans, useAdminCreatePlan, useAdminUpdatePlan } from "@/hooks/subscription/use-subscription";
 import type { CreatePlanData, UpdatePlanData } from "@/services/subscription/subscription-service";
+import { toast } from "sonner";
 
 const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-3 font-work-sans text-sm text-[#181D27] placeholder:text-gray-400 focus:outline-none focus:border-[#181D27] transition-colors";
 
@@ -27,10 +28,16 @@ function PlanModal({ plan, onClose }: {
     if (!name || !amount) return;
     if (plan) {
       const data: UpdatePlanData = { name, description, amount: parseFloat(amount), currency, interval };
-      updatePlan({ planId: plan.id, data }, { onSuccess: onClose });
+      updatePlan({ planId: plan.id, data }, {
+        onSuccess: () => { toast.success("Plan updated successfully!"); onClose(); },
+        onError: (err) => toast.error((err as Error).message || "Failed to update plan"),
+      });
     } else {
       const data: CreatePlanData = { name, description, amount: parseFloat(amount), currency, interval };
-      createPlan(data, { onSuccess: onClose });
+      createPlan(data, {
+        onSuccess: () => { toast.success("Plan created successfully!"); onClose(); },
+        onError: (err) => toast.error((err as Error).message || "Failed to create plan"),
+      });
     }
   };
 
@@ -92,6 +99,17 @@ export default function SubscriptionManagementPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<any>(null);
   const { data: plans = [], isLoading } = useAdminPlans();
+  const { mutate: updatePlan } = useAdminUpdatePlan();
+
+  const handleToggleActive = (plan: any) => {
+    updatePlan(
+      { planId: plan.id, data: { isActive: !plan.isActive } },
+      {
+        onSuccess: () => toast.success(`Plan ${plan.isActive ? "deactivated" : "activated"} successfully!`),
+        onError: (err) => toast.error((err as Error).message || "Failed to update plan"),
+      }
+    );
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -108,8 +126,23 @@ export default function SubscriptionManagementPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <span className="font-work-sans text-sm text-[#414651]">Loading...</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-[#F9F9F9] rounded-2xl p-6 flex flex-col gap-3 animate-pulse">
+              <div className="flex items-start justify-between">
+                <div className="flex flex-col gap-2">
+                  <div className="h-5 w-32 bg-gray-200 rounded-lg" />
+                  <div className="h-3 w-48 bg-gray-200 rounded-lg" />
+                </div>
+                <div className="flex gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gray-200" />
+                  <div className="w-8 h-8 rounded-full bg-gray-200" />
+                </div>
+              </div>
+              <div className="h-8 w-28 bg-gray-200 rounded-lg" />
+              <div className="h-6 w-16 bg-gray-200 rounded-full" />
+            </div>
+          ))}
         </div>
       ) : plans.length === 0 ? (
         <div className="flex items-center justify-center py-20">
@@ -125,11 +158,20 @@ export default function SubscriptionManagementPage() {
                   <p className="font-rozha text-xl text-[#181D27]">{plan.name}</p>
                   <p className="font-work-sans text-xs text-[#9CA3AF] mt-0.5">{plan.description}</p>
                 </div>
-                <motion.button whileTap={{ scale: 0.85 }}
-                  onClick={() => { setEditingPlan(plan); setModalOpen(true); }}
-                  className="w-8 h-8 flex items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-full hover:text-[#181D27] transition-colors shadow-sm">
-                  <Pencil size={13} />
-                </motion.button>
+                <div className="flex items-center gap-2">
+                  <motion.button whileTap={{ scale: 0.85 }} title={plan.isActive ? "Deactivate" : "Activate"}
+                    onClick={() => handleToggleActive(plan)}
+                    className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 hover:border-gray-300 transition-colors shadow-sm">
+                    {plan.isActive
+                      ? <ToggleRight size={16} className="text-green-600" />
+                      : <ToggleLeft size={16} className="text-gray-400" />}
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.85 }}
+                    onClick={() => { setEditingPlan(plan); setModalOpen(true); }}
+                    className="w-8 h-8 flex items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-full hover:text-[#181D27] transition-colors shadow-sm">
+                    <Pencil size={13} />
+                  </motion.button>
+                </div>
               </div>
               <div className="flex items-end gap-1">
                 <p className="font-rozha text-3xl text-[#181D27]">{plan.currency} {plan.amount}</p>
