@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Navbar, Footer } from "../(home)/_components";
+import { Navbar, FooterCTA } from "../(home)/_components";
 import { motion } from "framer-motion";
 
 const SECTIONS = [
@@ -41,13 +41,14 @@ export default function PrivacyPolicyPage() {
 
   const handleNavClick = (
     e: React.MouseEvent<HTMLAnchorElement>,
-    id: string
+    id: string,
   ) => {
     e.preventDefault();
     const element = document.getElementById(id);
     if (element) {
       // Offset accounts for the sticky Navbar
-      const offsetTop = element.getBoundingClientRect().top + window.scrollY - 110;
+      const offsetTop =
+        element.getBoundingClientRect().top + window.scrollY - 110;
       window.scrollTo({ top: offsetTop, behavior: "smooth" });
     }
   };
@@ -58,7 +59,7 @@ export default function PrivacyPolicyPage() {
 
       {/* Hero Header */}
       <section className="bg-[#181D27] text-white pt-32 pb-20 px-4 sm:px-6 lg:px-8 shrink-0 relative overflow-hidden">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 0.05, scale: 1 }}
           transition={{ duration: 1.5 }}
@@ -78,103 +79,175 @@ export default function PrivacyPolicyPage() {
             transition={{ delay: 0.1 }}
             className="font-work-sans text-gray-300 text-lg md:text-xl max-w-2xl text-center md:text-left leading-relaxed"
           >
-            Your privacy is critically important to us at AristoPay. <br className="hidden md:block" />
-            <span className="text-[#16A34A] font-medium mt-2 inline-block">Last updated: April 7, 2026.</span>
+            Your privacy is critically important to us at AristoPay.{" "}
+            <br className="hidden md:block" />
+            <span className="text-[#16A34A] font-medium mt-2 inline-block">
+              Last updated: April 7, 2026.
+            </span>
           </motion.p>
         </div>
       </section>
 
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-16 md:py-24 flex flex-col lg:flex-row gap-16 lg:gap-24 relative">
-        
         {/* Left: Content */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="flex-1 order-2 lg:order-1 font-work-sans text-[#414651] max-w-3xl"
         >
-          
-          <section id="information-collection" className="mb-14 lg:mb-20 scroll-mt-32">
-            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">1. Information Collection</h2>
+          <section
+            id="information-collection"
+            className="mb-14 lg:mb-20 scroll-mt-32"
+          >
+            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">
+              1. Information Collection
+            </h2>
             <p className="leading-loose mb-5 text-base md:text-lg">
-              We collect information to provide better services to all our users. Information is collected in the following ways:
+              We collect information to provide better services to all our
+              users. Information is collected in the following ways:
             </p>
             <ul className="list-disc pl-6 mb-5 space-y-3 text-base md:text-lg">
-              <li><strong className="text-[#181D27]">Information you give us:</strong> This includes your name, email address, billing information, and identity verification credentials required to create an AristoPay account.</li>
-              <li><strong className="text-[#181D27]">Information we get from your use of our services:</strong> We collect device information, log data, location tracking, and interaction times to monitor service health and security.</li>
+              <li>
+                <strong className="text-[#181D27]">
+                  Information you give us:
+                </strong>{" "}
+                This includes your name, email address, billing information, and
+                identity verification credentials required to create an
+                AristoPay account.
+              </li>
+              <li>
+                <strong className="text-[#181D27]">
+                  Information we get from your use of our services:
+                </strong>{" "}
+                We collect device information, log data, location tracking, and
+                interaction times to monitor service health and security.
+              </li>
             </ul>
           </section>
 
           <section id="how-we-use" className="mb-14 lg:mb-20 scroll-mt-32">
-            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">2. How We Use Your Data</h2>
+            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">
+              2. How We Use Your Data
+            </h2>
             <p className="leading-loose mb-5 text-base md:text-lg">
-              The data we collect is primarily heavily utilized to maintain, protect, and improve our services setup. Key uses include:
+              The data we collect is primarily heavily utilized to maintain,
+              protect, and improve our services setup. Key uses include:
             </p>
             <ul className="list-disc pl-6 mb-5 space-y-3 text-base md:text-lg">
-              <li>Facilitating secure financial transactions across regions.</li>
+              <li>
+                Facilitating secure financial transactions across regions.
+              </li>
               <li>Validating "AristoAccess+" certifications.</li>
-              <li>Processing payouts to verified bank accounts or crypto wallets.</li>
-              <li>Personalizing your user dashboard and job/freelance recommendations.</li>
+              <li>
+                Processing payouts to verified bank accounts or crypto wallets.
+              </li>
+              <li>
+                Personalizing your user dashboard and job/freelance
+                recommendations.
+              </li>
             </ul>
           </section>
 
           <section id="data-sharing" className="mb-14 lg:mb-20 scroll-mt-32">
-            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">3. Data Sharing & Disclosure</h2>
+            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">
+              3. Data Sharing & Disclosure
+            </h2>
             <p className="leading-loose mb-5 text-base md:text-lg">
-              We do not share personal information with companies, organizations, or individuals outside of AristoPay except in the following cases:
+              We do not share personal information with companies,
+              organizations, or individuals outside of AristoPay except in the
+              following cases:
             </p>
             <p className="leading-loose mb-5 text-base md:text-lg">
-              <strong>With your consent:</strong> We will share personal information outside of AristoPay when we have your explicit consent to do so. <br/><br/>
-              <strong>For legal reasons:</strong> We will share information if we have a good-faith belief that access, use, preservation, or disclosure of the information is reasonably necessary to meet any applicable law, regulation, legal process, or enforceable governmental request.
+              <strong>With your consent:</strong> We will share personal
+              information outside of AristoPay when we have your explicit
+              consent to do so. <br />
+              <br />
+              <strong>For legal reasons:</strong> We will share information if
+              we have a good-faith belief that access, use, preservation, or
+              disclosure of the information is reasonably necessary to meet any
+              applicable law, regulation, legal process, or enforceable
+              governmental request.
             </p>
           </section>
 
           <section id="cookies" className="mb-14 lg:mb-20 scroll-mt-32">
-            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">4. Cookies & Tracking</h2>
+            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">
+              4. Cookies & Tracking
+            </h2>
             <p className="leading-loose mb-5 text-base md:text-lg">
-              We and our partners use various technologies to collect and store information when you visit AristoPay, and this may include using cookies or similar technologies to identify your browser or device.
+              We and our partners use various technologies to collect and store
+              information when you visit AristoPay, and this may include using
+              cookies or similar technologies to identify your browser or
+              device.
             </p>
             <p className="leading-loose mb-5 text-base md:text-lg">
-              You can set your browser to block all cookies, including cookies associated with our services, or to indicate when a cookie is being set by us. However, many of our services may not function properly if your cookies are disabled.
+              You can set your browser to block all cookies, including cookies
+              associated with our services, or to indicate when a cookie is
+              being set by us. However, many of our services may not function
+              properly if your cookies are disabled.
             </p>
           </section>
 
           <section id="data-security" className="mb-14 lg:mb-20 scroll-mt-32">
-            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">5. Data Security</h2>
+            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">
+              5. Data Security
+            </h2>
             <p className="leading-loose mb-5 text-base md:text-lg">
-              We work hard to protect AristoPay and our users from unauthorized access to or unauthorized alteration, disclosure, or destruction of information we hold. We use heavily encrypted databases and SSL/TLS everywhere.
+              We work hard to protect AristoPay and our users from unauthorized
+              access to or unauthorized alteration, disclosure, or destruction
+              of information we hold. We use heavily encrypted databases and
+              SSL/TLS everywhere.
             </p>
             <p className="leading-loose mb-5 text-base md:text-lg">
-              We restrict access to personal information to AristoPay employees, contractors, and agents who need to know that information in order to process it for us, and who are subject to strict contractual confidentiality obligations.
+              We restrict access to personal information to AristoPay employees,
+              contractors, and agents who need to know that information in order
+              to process it for us, and who are subject to strict contractual
+              confidentiality obligations.
             </p>
           </section>
 
           <section id="your-rights" className="mb-14 lg:mb-20 scroll-mt-32">
-            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">6. Your Privacy Rights</h2>
+            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">
+              6. Your Privacy Rights
+            </h2>
             <p className="leading-loose mb-5 text-base md:text-lg">
-              Depending on your location, you may have the right to request access to the personal data we hold about you, request that we delete or correct your data, or restrict how we process your personal data under the GDPR, CCPA, or other applicable laws.
+              Depending on your location, you may have the right to request
+              access to the personal data we hold about you, request that we
+              delete or correct your data, or restrict how we process your
+              personal data under the GDPR, CCPA, or other applicable laws.
             </p>
           </section>
 
           <section id="third-party" className="mb-14 lg:mb-20 scroll-mt-32">
-            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">7. Third-Party Links</h2>
+            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">
+              7. Third-Party Links
+            </h2>
             <p className="leading-loose mb-5 text-base md:text-lg">
-              Our Service may contain links to third-party web sites or services that are not owned or controlled by AristoPay. We have no control over, and assume no responsibility for, the content, privacy policies, or practices of any third party web sites or services.
+              Our Service may contain links to third-party web sites or services
+              that are not owned or controlled by AristoPay. We have no control
+              over, and assume no responsibility for, the content, privacy
+              policies, or practices of any third party web sites or services.
             </p>
           </section>
 
           <section id="policy-updates" className="mb-14 lg:mb-20 scroll-mt-32">
-            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">8. Updates to This Policy</h2>
+            <h2 className="font-rozha text-3xl md:text-4xl text-[#181D27] mb-6">
+              8. Updates to This Policy
+            </h2>
             <p className="leading-loose mb-5 text-base md:text-lg">
-              Our Privacy Policy may change from time to time. We will not reduce your rights under this Privacy Policy without your explicit consent. We will post any privacy policy changes on this page and, if the changes are significant, we will provide a more prominent notice.
+              Our Privacy Policy may change from time to time. We will not
+              reduce your rights under this Privacy Policy without your explicit
+              consent. We will post any privacy policy changes on this page and,
+              if the changes are significant, we will provide a more prominent
+              notice.
             </p>
           </section>
-
         </motion.div>
 
         {/* Right: Sticky Sidebar */}
         <aside className="w-full lg:w-[320px] order-1 lg:order-2 shrink-0">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
@@ -198,7 +271,10 @@ export default function PrivacyPolicyPage() {
                     }`}
                   >
                     {isActive && (
-                      <motion.div layoutId="activeDotPrivacy" className="w-1.5 h-1.5 rounded-full bg-[#16A34A] shrink-0" />
+                      <motion.div
+                        layoutId="activeDotPrivacy"
+                        className="w-1.5 h-1.5 rounded-full bg-[#16A34A] shrink-0"
+                      />
                     )}
                     {section.title}
                   </a>
@@ -207,10 +283,9 @@ export default function PrivacyPolicyPage() {
             </nav>
           </motion.div>
         </aside>
-
       </main>
 
-      <Footer />
+      <FooterCTA />
     </div>
   );
 }

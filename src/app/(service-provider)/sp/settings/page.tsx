@@ -4,8 +4,9 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MyProfileTab } from "./_components/my-profile-tab";
 import { PaymentsTab } from "./_components/payments-tab";
+import { SubscriptionManagementTab } from "@/components/shared/subscription-management-tab";
 
-type Tab = "profile" | "payments";
+type Tab = "profile" | "payments" | "subscription";
 
 export default function SPSettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("profile");
@@ -30,7 +31,7 @@ export default function SPSettingsPage() {
         className="flex justify-center mb-8 shrink-0"
       >
         <div className="flex border-b border-gray-200">
-          {(["profile", "payments"] as Tab[]).map((tab) => (
+          {(["profile", "payments", "subscription"] as Tab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -38,7 +39,7 @@ export default function SPSettingsPage() {
                 activeTab === tab ? "text-[#181D27]" : "text-[#9CA3AF] hover:text-[#414651]"
               }`}
             >
-              {tab === "profile" ? "My Profile" : "Payments"}
+              {tab === "profile" ? "My Profile" : tab === "payments" ? "Payments" : "Subscription"}
               {activeTab === tab && (
                 <motion.div
                   layoutId="tab-indicator"
@@ -55,6 +56,7 @@ export default function SPSettingsPage() {
         <AnimatePresence mode="wait">
           {activeTab === "profile" && <MyProfileTab />}
           {activeTab === "payments" && <PaymentsTab />}
+          {activeTab === "subscription" && <SubscriptionManagementTab />}
         </AnimatePresence>
       </div>
     </div>

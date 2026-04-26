@@ -12,16 +12,9 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
 
-const navLinks = [
-  { href: "#home", label: "Home" },
-  { href: "#about", label: "About" },
-  { href: "#blog", label: "Blog" },
-];
-
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState("#home");
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, user, role, clearAuth } = useAuthStore();
@@ -37,37 +30,11 @@ export function Navbar() {
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
-
-      const sections = ["home", "about", "blog"];
-      for (const section of sections) {
-        const el = document.getElementById(section);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 100 && rect.bottom >= 100) {
-            setActiveSection(`#${section}`);
-            break;
-          }
-        }
-      }
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleNavClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    href: string,
-  ) => {
-    e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      const navbarHeight = 112;
-      const top =
-        element.getBoundingClientRect().top + window.scrollY - navbarHeight;
-      window.scrollTo({ top, behavior: "smooth" });
-      setOpen(false);
-    }
-  };
 
   return (
     <nav
@@ -98,33 +65,6 @@ export function Navbar() {
             </Link>
           </motion.div>
 
-          {/* Desktop Navigation */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="hidden lg:flex items-center"
-          >
-            {navLinks.map((link, index) => (
-              <div key={link.href} className="flex items-center">
-                <Link
-                  href={link.href}
-                  onClick={(e) => handleNavClick(e, link.href)}
-                  className={cn(
-                    "font-work-sans text-base transition-colors px-8",
-                    activeSection === link.href
-                      ? "text-[#181D27] font-bold"
-                      : "text-[#414651] font-normal hover:text-[#181D27]",
-                  )}
-                >
-                  {link.label}
-                </Link>
-                {index < navLinks.length - 1 && (
-                  <div className="h-6 w-px bg-[#414651]/30" />
-                )}
-              </div>
-            ))}
-          </motion.div>
 
           {/* Desktop Auth Buttons */}
           <motion.div
@@ -181,24 +121,6 @@ export function Navbar() {
                   </span>
                 </div>
 
-                {/* Mobile Navigation Links */}
-                <nav className="flex flex-col p-6 gap-1">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={(e) => handleNavClick(e, link.href)}
-                      className={cn(
-                        "font-work-sans text-lg py-3 px-4 rounded-lg transition-colors",
-                        activeSection === link.href
-                          ? "text-[#181D27] font-bold bg-gray-100"
-                          : "text-[#414651] font-normal hover:bg-gray-50",
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </nav>
 
                 {/* Mobile Auth Buttons */}
                 <div className="mt-auto p-6 border-t space-y-3">

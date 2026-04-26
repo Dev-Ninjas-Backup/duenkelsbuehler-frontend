@@ -9,10 +9,10 @@ const features = [
   "Verify your account",
   "Send proposals to Service Providers",
   "Unlock an exclusive badge to attract clients / service providers",
-  "Access to the Aristocrat's Circle",
+  "DocuSign contracts — 5 per month, $2 for each additional",
   "Send agreements to clients before transacting with them",
   "Save your most used contacts to your profile",
-  "(NDA's, service contracts, etc.)",
+  "Dedicated Transaction Concierge — priority email support within 24 hours",
 ];
 
 export function SubscribeStep({ onNext }: { onNext: () => void }) {

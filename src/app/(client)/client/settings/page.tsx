@@ -5,11 +5,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ClientMyProfileTab } from "./_components/client-my-profile-tab";
 import { ClientTransactionHistoryTab } from "./_components/client-transaction-history-tab";
 import { ClientDisputeTab } from "./_components/client-dispute-tab";
+import { SubscriptionManagementTab } from "@/components/shared/subscription-management-tab";
 
-type Tab = "profile" | "payment-methods" | "transaction-history" | "dispute";
+type Tab = "profile" | "payment-methods" | "transaction-history" | "dispute" | "subscription";
 
 const tabs: { key: Tab; label: string }[] = [
   { key: "profile",             label: "My Profile" },
+  { key: "subscription",        label: "Subscription" },
   { key: "payment-methods",     label: "Payment Methods" },
   { key: "transaction-history", label: "Transaction History" },
   { key: "dispute",             label: "Dispute a Charge" },
@@ -62,6 +64,8 @@ export default function ClientSettingsPage() {
       <div className="flex-1 overflow-y-auto pr-2 pb-4">
         <AnimatePresence mode="wait">
           {activeTab === "profile" && <ClientMyProfileTab />}
+
+          {activeTab === "subscription" && <SubscriptionManagementTab />}
 
           {activeTab === "payment-methods" && (
             <motion.div key="payment-methods" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.25 }}
