@@ -1,15 +1,29 @@
-import { Navbar, HeroSection, AboutSection, BlogSection, Footer } from "./_components"
+import { 
+  Navbar, 
+  HeroSection, 
+  QuoteSection, 
+  HowItWorksSection, 
+  ProtectionSection, 
+  WhyWeBuiltSection, 
+  StatsSection, 
+  PricingSection, 
+  FooterCTA 
+} from "./_components"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col font-sans">
       <Navbar />
       <main className="flex-1">
         <HeroSection />
-        <AboutSection />
-        <BlogSection />
+        <QuoteSection />
+        <HowItWorksSection />
+        <ProtectionSection />
+        <WhyWeBuiltSection />
+        <StatsSection />
+        <PricingSection />
       </main>
-      <Footer />
+      <FooterCTA />
     </div>
   )
 }

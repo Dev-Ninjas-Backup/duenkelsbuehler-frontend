@@ -6,7 +6,7 @@ import { motion, type Variants } from "framer-motion"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { useBlogs } from "@/hooks/admin/use-admin"
 import type { Blog } from "@/types/admin"
-import { Navbar, Footer } from "../(home)/_components"
+import { Navbar, FooterCTA } from "../(home)/_components"
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -95,7 +95,7 @@ export default function BlogPage() {
           )}
         </div>
       </main>
-      <Footer />
+      <FooterCTA />
     </div>
   )
 }

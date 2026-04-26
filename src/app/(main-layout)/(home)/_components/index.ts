@@ -1,5 +1,9 @@
-export { Navbar } from "./navbar"
-export { HeroSection } from "./hero-section"
-export { AboutSection } from "./about-section"
-export { BlogSection } from "./blog-section"
-export { Footer } from "./footer"
+export { Navbar } from "./navbar";
+export { HeroSection } from "./hero-section";
+export { QuoteSection } from "./quote-section";
+export { HowItWorksSection } from "./how-it-works-section";
+export { ProtectionSection } from "./protection-section";
+export { WhyWeBuiltSection } from "./why-we-built-section";
+export { StatsSection } from "./stats-section";
+export { PricingSection } from "./pricing-section";
+export { FooterCTA } from "./footer-cta";
