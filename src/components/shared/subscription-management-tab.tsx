@@ -132,7 +132,7 @@ export function SubscriptionManagementTab() {
                   "Identity verification (Veriff)",
                   "Send & receive proposals",
                   "DocuSign contracts (5/month)",
-                  "Dedicated Transaction Concierge — priority email support within 24 hours",
+                  "Dedicated Transaction Concierge — priority email support within 24 hours (Concierge@AristoPay.co)",
                 ].map((f) => (
                   <li key={f} className="font-work-sans text-xs text-[#535862] flex items-start gap-1.5">
                     <span className="text-[#16A34A] mt-0.5">✓</span> {f}

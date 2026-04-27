@@ -39,6 +39,9 @@ export const userService = {
 
   findOne: (id: number, token: string) =>
     request<AdminUser>(`/users/${id}`, token),
+
+  deleteUser: (id: number, token: string) =>
+    request<{ message: string }>(`/users/${id}`, token, { method: "DELETE" }),
 }
 
 // ─── Banner ──────────────────────────────────────────────────────
