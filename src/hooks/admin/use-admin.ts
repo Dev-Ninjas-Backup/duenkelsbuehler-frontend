@@ -38,6 +38,15 @@ export function useAdminUser(id: number | null) {
   });
 }
 
+export function useDeleteAdminUser() {
+  const token = useToken();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => userService.deleteUser(id, token),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["admin-users"] }),
+  });
+}
+
 export function useCreateAdminUser() {
   const token = useToken();
   const qc = useQueryClient();

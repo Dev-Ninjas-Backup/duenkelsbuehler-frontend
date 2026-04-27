@@ -39,7 +39,7 @@ export function Navbar() {
   return (
     <nav
       className={cn(
-        "sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm transition-all duration-300",
+        "sticky top-0 z-50 w-full bg-[#FAFAFA] transition-all duration-300",
         scrolled && "shadow-md",
       )}
     >

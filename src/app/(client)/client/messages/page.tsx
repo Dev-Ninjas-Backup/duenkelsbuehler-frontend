@@ -7,6 +7,7 @@ import { ImagePlus, ArrowUp } from "lucide-react";
 import { useChat } from "@/hooks/messages/use-messages";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
 import { useUploadImage } from "@/hooks/files/use-files";
+import { LeaveAristoPayModal } from "@/app/(service-provider)/sp/messages/_components/leave-aristopay-modal";
 import type { Message } from "@/types/messages";
 
 const fadeIn = {
@@ -57,6 +58,8 @@ function MessagesContent() {
 
   const { messages, otherUser, isLoading, isSending, sendMessage } = useChat(spId);
   const [input, setInput] = useState("");
+  const [leaveModalOpen, setLeaveModalOpen] = useState(false);
+  const [pendingUrl, setPendingUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const { mutate: uploadImage, isPending: isUploading } = useUploadImage();
@@ -78,6 +81,12 @@ function MessagesContent() {
 
   const handleSend = () => {
     if (!input.trim()) return;
+    const urlRegex = /https?:\/\/[^\s]+/;
+    if (urlRegex.test(input.trim())) {
+      setPendingUrl(input.trim());
+      setLeaveModalOpen(true);
+      return;
+    }
     sendMessage(input);
     setInput("");
   };
@@ -144,6 +153,11 @@ function MessagesContent() {
           </motion.button>
         </div>
       </motion.div>
+      <LeaveAristoPayModal
+        isOpen={leaveModalOpen}
+        onClose={() => { setLeaveModalOpen(false); setPendingUrl(null); }}
+        onLeave={() => { if (pendingUrl) window.open(pendingUrl, "_blank"); setLeaveModalOpen(false); setInput(""); setPendingUrl(null); }}
+      />
     </div>
   );
 }

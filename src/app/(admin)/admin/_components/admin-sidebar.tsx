@@ -24,7 +24,6 @@ const navItems = [
   { label: "User Management", href: "/admin/user-management", icon: Users },
   { label: "Banner Management", href: "/admin/banner-management", icon: ImageIcon },
   { label: "Deal Management", href: "/admin/deal-management", icon: Handshake },
-  { label: "Blog Management", href: "/admin/blog-management", icon: BookOpen },
   { label: "Badges Management", href: "/admin/badges-management", icon: Award },
   { label: "Subscriptions", href: "/admin/subscription-management", icon: CreditCard },
 ];
