@@ -18,10 +18,13 @@ async function request<T>(endpoint: string, token: string, options?: RequestInit
 // ─── Service Items ────────────────────────────────────────────────
 export const serviceItemService = {
   create: (data: CreateServiceItemData, token: string) =>
-    request<ServiceItem>("/services", token, { method: "POST", body: JSON.stringify(data) }),
+    request<ServiceItem>("/services/provider/create", token, { method: "POST", body: JSON.stringify(data) }),
 
   findAll: (token: string) =>
     request<ServiceItem[]>("/services", token),
+
+  findMy: (token: string) =>
+    request<ServiceItem[]>("/services/my", token),
 
   findOne: (id: number, token: string) =>
     request<ServiceItem>(`/services/${id}`, token),

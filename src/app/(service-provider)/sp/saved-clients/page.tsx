@@ -7,6 +7,7 @@ import { AiFillWarning, AiFillMessage } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 import { useMyFavorites } from "@/hooks/favorites/use-favorites";
 import { useRemoveFavorite } from "@/hooks/favorites/use-favorites";
+import { toast } from "sonner";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
@@ -25,7 +26,15 @@ export default function SavedClientsPage() {
   const [pageSize, setPageSize] = useState(5);
 
   const { data: favoritesData, isLoading } = useMyFavorites();
-  const { mutate: removeFavorite } = useRemoveFavorite();
+  const { mutate: removeFavorite, isPending: isRemoving } = useRemoveFavorite();
+
+  const handleRemove = (userId: number) => {
+    if (isRemoving) return;
+    removeFavorite(userId, {
+      onSuccess: () => toast.success("Client removed from saved"),
+      onError: () => toast.error("Failed to remove client"),
+    });
+  };
 
   const clients = favoritesData?.favorites ?? [];
   const totalPages = Math.ceil(clients.length / pageSize);
@@ -109,8 +118,9 @@ export default function SavedClientsPage() {
                   <div className="flex items-center gap-2">
                     <motion.button
                       whileTap={{ scale: 0.85 }}
-                      onClick={() => removeFavorite(fav.user.id)}
-                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                      disabled={isRemoving}
+                      onClick={() => handleRemove(fav.user.id)}
+                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors disabled:opacity-50"
                       aria-label="Remove from saved"
                     >
                       <Bookmark className="h-[14px] w-[14px] fill-[#181D27]" />
@@ -148,8 +158,9 @@ export default function SavedClientsPage() {
                 <div className="hidden lg:flex items-center justify-center gap-3">
                   <motion.button
                     whileTap={{ scale: 0.85 }}
-                    onClick={() => removeFavorite(fav.user.id)}
-                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                    disabled={isRemoving}
+                    onClick={() => handleRemove(fav.user.id)}
+                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors disabled:opacity-50"
                     aria-label="Remove from saved"
                   >
                     <Bookmark className="h-[14px] w-[14px] fill-[#181D27]" />
