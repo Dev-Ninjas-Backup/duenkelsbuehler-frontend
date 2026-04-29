@@ -5,24 +5,9 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
-
-interface Client {
-  id: number;
-  name: string;
-  handle: string;
-  avatar: string;
-  verified: boolean;
-  rating: number;
-}
-
-const MOCK: Client[] = Array.from({ length: 30 }, (_, i) => ({
-  id: i + 1,
-  name: "Vanessa R.",
-  handle: "@Vanessa92",
-  avatar: "/images/user/user_avatar.png",
-  verified: true,
-  rating: 4,
-}));
+import { useClients } from "@/hooks/users/use-users";
+import { useMyFavorites, useAddFavorite, useRemoveFavorite } from "@/hooks/favorites/use-favorites";
+import { toast } from "sonner";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
@@ -46,13 +31,37 @@ export default function ConnectPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const filtered = MOCK.filter(
+  const { data: clients = [], isLoading } = useClients();
+  const { data: favoritesData } = useMyFavorites();
+  const { mutate: addFavorite, isPending: isAdding } = useAddFavorite();
+  const { mutate: removeFavorite, isPending: isRemoving } = useRemoveFavorite();
+  const isFavPending = isAdding || isRemoving;
+
+  const favoritedIds = new Set(favoritesData?.favorites.map((f) => f.user.id) ?? []);
+
+  const handleToggleFavorite = (e: React.MouseEvent, clientId: number) => {
+    e.stopPropagation();
+    if (isFavPending) return;
+    if (favoritedIds.has(clientId)) {
+      removeFavorite(clientId, {
+        onSuccess: () => toast.success("Client removed from saved"),
+        onError: () => toast.error("Failed to remove client"),
+      });
+    } else {
+      addFavorite(clientId, {
+        onSuccess: () => toast.success("Client saved successfully"),
+        onError: () => toast.error("Failed to save client"),
+      });
+    }
+  };
+
+  const filtered = clients.filter(
     (c) =>
       c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.handle.toLowerCase().includes(search.toLowerCase()),
+      c.email.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const totalPages = Math.ceil(filtered.length / pageSize);
+  const totalPages = Math.ceil(filtered.length / pageSize) || 1;
   const paginated = filtered.slice(
     (currentPage - 1) * pageSize,
     currentPage * pageSize,
@@ -111,7 +120,7 @@ export default function ConnectPage() {
         />
         <input
           type="text"
-          placeholder="Maria Go|"
+          placeholder="Search by name or email"
           value={search}
           onChange={(e) => {
             setSearch(e.target.value);
@@ -144,7 +153,15 @@ export default function ConnectPage() {
           animate="visible"
           className="flex flex-col gap-4"
         >
-          {paginated.map((client, i) => (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <span className="font-work-sans text-sm text-[#414651]">Loading...</span>
+            </div>
+          ) : paginated.length === 0 ? (
+            <div className="flex items-center justify-center py-20">
+              <span className="font-work-sans text-sm text-[#414651]">No clients found.</span>
+            </div>
+          ) : paginated.map((client, i) => (
             <motion.div
               key={client.id}
               variants={rowVariants}
@@ -165,10 +182,12 @@ export default function ConnectPage() {
                 <div className="flex items-center gap-2">
                   <motion.button
                     whileTap={{ scale: 0.85 }}
-                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                    disabled={isFavPending}
+                    onClick={(e) => handleToggleFavorite(e, client.id)}
+                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50"
                     aria-label="Save Client"
                   >
-                    <svg viewBox="0 0 16 20" className="w-[14px] h-[14px] fill-[#181D27]">
+                    <svg viewBox="0 0 16 20" className={`w-[14px] h-[14px] ${favoritedIds.has(client.id) ? "fill-[#181D27]" : "fill-none stroke-[#181D27] stroke-[1.5]"}`}>
                       <path d="M2 0h12a2 2 0 012 2v18l-8-4-8 4V2a2 2 0 012-2z" />
                     </svg>
                   </motion.button>
@@ -177,29 +196,25 @@ export default function ConnectPage() {
 
               {/* Name + Info */}
               <div className="flex w-full items-center gap-4 lg:w-auto">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 shrink-0">
-                  <Image
-                    src={client.avatar}
-                    alt={client.name}
-                    width={40}
-                    height={40}
-                    className="object-cover w-full h-full"
-                  />
+                <div className="w-10 h-10 rounded-full bg-[#181D27] shrink-0 flex items-center justify-center">
+                  <span className="font-rozha text-lg text-white">
+                    {client.name.charAt(0).toUpperCase()}
+                  </span>
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1 mt-0.5">
                     <span className="font-work-sans text-[15px] font-bold text-[#181D27]">
                       {client.name}
                     </span>
-                    {client.verified && (
+                    {client.isIdentityVerified && (
                       <span className="flex items-center gap-1 font-work-sans text-[11px] font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full w-max">
-                        <Image src="/svg/crown.svg" alt="Verified" width={14} height={14} /> 
+                        <Image src="/svg/crown.svg" alt="Verified" width={14} height={14} />
                         Verified
                       </span>
                     )}
                   </div>
                   <p className="font-work-sans text-[13px] text-[#535862]">
-                    {client.handle}
+                    {client.email}
                   </p>
                 </div>
               </div>
@@ -208,11 +223,12 @@ export default function ConnectPage() {
               <div className="hidden lg:flex items-center justify-center">
                 <motion.button
                   whileTap={{ scale: 0.85 }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                  disabled={isFavPending}
+                  onClick={(e) => handleToggleFavorite(e, client.id)}
+                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50"
                   aria-label="Save Client"
                 >
-                  <svg viewBox="0 0 16 20" className="w-[14px] h-[14px] fill-[#181D27]">
+                  <svg viewBox="0 0 16 20" className={`w-[14px] h-[14px] ${favoritedIds.has(client.id) ? "fill-[#181D27]" : "fill-none stroke-[#181D27] stroke-[1.5]"}`}>
                     <path d="M2 0h12a2 2 0 012 2v18l-8-4-8 4V2a2 2 0 012-2z" />
                   </svg>
                 </motion.button>

@@ -11,8 +11,8 @@ function useToken() {
 export function useServiceItems() {
   const token = useToken()
   return useQuery({
-    queryKey: ["service-items"],
-    queryFn: () => serviceItemService.findAll(token),
+    queryKey: ["service-items", "my"],
+    queryFn: () => serviceItemService.findMy(token),
     enabled: !!token,
   })
 }
@@ -22,7 +22,7 @@ export function useCreateServiceItem() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateServiceItemData) => serviceItemService.create(data, token),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["service-items"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["service-items", "my"] }),
   })
 }
 
@@ -32,7 +32,7 @@ export function useUpdateServiceItem() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateServiceItemData }) =>
       serviceItemService.update(id, data, token),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["service-items"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["service-items", "my"] }),
   })
 }
 
@@ -41,7 +41,7 @@ export function useDeleteServiceItem() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: number) => serviceItemService.remove(id, token),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["service-items"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["service-items", "my"] }),
   })
 }
 
