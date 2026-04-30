@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { AiFillEdit, AiFillDelete } from "react-icons/ai";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AddServiceModal, type AddServiceForm } from "./_components/add-service-modal";
 import { useServiceItems, useCreateServiceItem, useUpdateServiceItem, useDeleteServiceItem } from "@/hooks/sp/use-sp";
+import { toast } from "sonner";
+import { createPortal } from "react-dom";
 import type { ServiceItem } from "@/types/sp";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
@@ -30,7 +32,8 @@ export default function MyServicesPage() {
   const { data: services = [], isLoading } = useServiceItems();
   const { mutate: createService, isPending: isCreating } = useCreateServiceItem();
   const { mutate: updateService, isPending: isUpdating } = useUpdateServiceItem();
-  const { mutate: deleteService } = useDeleteServiceItem();
+  const { mutate: deleteService, isPending: isDeleting } = useDeleteServiceItem();
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const totalPages = Math.ceil(services.length / pageSize) || 1;
   const paginated = services.slice(
@@ -58,7 +61,13 @@ export default function MyServicesPage() {
     return pages;
   };
 
-  const handleDelete = (id: number) => deleteService(id);
+  const handleDelete = () => {
+    if (deleteId === null) return;
+    deleteService(deleteId, {
+      onSuccess: () => { toast.success("Service deleted successfully"); setDeleteId(null); },
+      onError: () => { toast.error("Failed to delete service"); setDeleteId(null); },
+    });
+  };
 
   const handleModalSubmit = (data: AddServiceForm) => {
     if (editingService) {
@@ -148,7 +157,7 @@ export default function MyServicesPage() {
                     </motion.button>
                     <motion.button
                       whileTap={{ scale: 0.9 }}
-                      onClick={() => handleDelete(service.id)}
+                      onClick={() => setDeleteId(service.id)}
                       className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm text-red-500 hover:bg-red-50"
                     >
                       <AiFillDelete className="h-4 w-4" />
@@ -194,7 +203,7 @@ export default function MyServicesPage() {
                   </motion.button>
                   <motion.button
                     whileTap={{ scale: 0.9 }}
-                    onClick={() => handleDelete(service.id)}
+                    onClick={() => setDeleteId(service.id)}
                     className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] text-red-500 hover:bg-red-50"
                   >
                     <AiFillDelete className="h-4 w-4" />
@@ -300,6 +309,47 @@ export default function MyServicesPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* Delete Confirm Modal */}
+      {typeof window !== "undefined" && createPortal(
+        <AnimatePresence>
+          {deleteId !== null && (
+            <div className="fixed inset-0 z-[200] flex items-center justify-center">
+              <motion.div
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                onClick={() => setDeleteId(null)}
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              />
+              <motion.div
+                initial={{ opacity: 0, scale: 0.92, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.92, y: 20 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="relative z-10 w-full max-w-sm bg-white rounded-3xl p-8 shadow-2xl mx-4"
+              >
+                <h2 className="font-rozha text-2xl text-[#181D27] mb-2">Delete Service</h2>
+                <p className="font-work-sans text-sm text-[#535862] mb-6">Are you sure you want to delete this service? This action cannot be undone.</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setDeleteId(null)}
+                    className="flex-1 h-11 rounded-full border border-gray-200 font-work-sans text-sm font-semibold text-[#414651] hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 font-work-sans text-sm font-semibold text-white transition-colors disabled:opacity-60"
+                  >
+                    {isDeleting ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
 
       {/* Modal */}
       <AddServiceModal

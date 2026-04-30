@@ -5,6 +5,6 @@ import { verifService } from "@/services/verif/verif-service"
 export function useCreateVerifSession() {
   const token = useAuthStore((s) => s.accessToken) ?? ""
   return useMutation({
-    mutationFn: (file: File) => verifService.createSession(file, token),
+    mutationFn: () => verifService.createSessionOnly(token),
   })
 }

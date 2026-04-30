@@ -21,7 +21,19 @@ export function useCreateServiceItem() {
   const token = useToken()
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (data: CreateServiceItemData) => serviceItemService.create(data, token),
+    mutationFn: async (data: CreateServiceItemData) => {
+      // Auto-ensure SP profile exists before creating service
+      // Backend returns 409 Conflict if already exists — safe to ignore
+      await serviceProviderService.create({
+        Fullname: "Service Provider",
+        occupation: "Service Provider",
+        description: "Service Provider",
+        location: "-",
+        phoneNumber: "-",
+        payementDetails: "-",
+      }, token).catch(() => {})
+      return serviceItemService.create(data, token)
+    },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["service-items", "my"] }),
   })
 }

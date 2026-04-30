@@ -1,18 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SubscribeStep } from "./_components/subscribe-step";
-import { PaymentStep }   from "./_components/payment-step";
 import { WelcomeStep }   from "./_components/welcome-step";
 import { UploadStep }    from "./_components/upload-step";
 import { SuccessModal }  from "./_components/success-modal";
+import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
 
-type Step = "subscribe" | "payment" | "welcome" | "upload" | "success";
+type Step = "subscribe" | "welcome" | "upload" | "success";
 
-const STEPS: Step[] = ["subscribe", "payment", "welcome", "upload", "success"];
+const STEPS: Step[] = ["subscribe", "welcome", "upload", "success"];
 
 const slideVariants = {
   enter:  (dir: number) => ({ opacity: 0, x: dir > 0 ?  40 : -40 }),
@@ -24,6 +24,18 @@ export default function VerifyAccountPage() {
   const [step, setStep]           = useState<Step>("subscribe");
   const [direction, setDirection] = useState(1);
   const router = useRouter();
+
+  const { data: subscriptions = [], isLoading } = useMySubscriptions();
+  const hasActiveSub = subscriptions.some(
+    (s) => s.status === "ACTIVE" || s.status === "TRIALING"
+  );
+
+  // If user already subscribed (e.g. returned from Stripe), skip to welcome
+  useEffect(() => {
+    if (!isLoading && hasActiveSub && step === "subscribe") {
+      setStep("welcome");
+    }
+  }, [isLoading, hasActiveSub]);
 
   const goTo = (next: Step) => {
     setDirection(STEPS.indexOf(next) > STEPS.indexOf(step) ? 1 : -1);
@@ -81,7 +93,6 @@ export default function VerifyAccountPage() {
           transition={{ duration: 0.3, ease: "easeInOut" }}
         >
           {step === "subscribe" && <SubscribeStep onNext={goNext} />}
-          {step === "payment"   && <PaymentStep   onNext={goNext} />}
           {step === "welcome"   && <WelcomeStep   onNext={goNext} />}
           {step === "upload"    && <UploadStep    onNext={goNext} />}
         </motion.div>
