@@ -1,107 +1,95 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 export function HowItWorksSection() {
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2
-      }
-    }
-  };
-
-  const item = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.5 } }
-  };
-
   return (
-    <section className="bg-[#00D05A] text-white px-6 md:px-12 lg:px-24 py-16 lg:py-24 overflow-hidden">
-      <div className="max-w-7xl mx-auto">
-        <motion.p 
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-sm font-bold tracking-widest uppercase mb-4 opacity-90"
-        >
-          - HOW IT WORKS
-        </motion.p>
-        <motion.h2 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.1 }}
-          className="text-5xl lg:text-7xl font-bold leading-tight mb-16 tracking-tight max-w-2xl"
-        >
-          Three steps. <br />
-          Zero surprises.
-        </motion.h2>
+    <section className="bg-[#00D05A] text-white px-6 md:px-12 lg:px-24 py-20 lg:py-32 overflow-hidden">
+      <div className="max-w-[1400px] mx-auto">
+        <div className="flex flex-col lg:flex-row gap-16 lg:gap-20 items-start">
+          {/* Left Side - Content */}
+          <div className="flex-1">
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-[18px] font-bold tracking-tight mb-8 font-work-sans"
+            >
+              — HOW IT WORKS
+            </motion.p>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-[52px] md:text-[68px] lg:text-[84px] font-light font-rozha leading-[1.05] mb-20 tracking-tighter"
+            >
+              Three steps.<br />
+              Zero surprises.
+            </motion.h2>
 
-        <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-center">
-          {/* Steps List */}
-          <motion.div 
-            variants={container}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, margin: "-100px" }}
-            className="flex-1 space-y-12"
+            <div className="space-y-14 text-base">
+              {/* Step 1 */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+                className="flex gap-8 items-start group "
+              >
+                <span className="text-[72px] md:text-[96px] font-bold font-rozha leading-none -mt-4">1</span>
+                <p className="text-[18px] md:text-[20px] leading-[1.4] max-w-lg mt-3 font-light">
+                  <span className="font-bold">Send a proposal.</span> Set a price. Attach your contract. Request a signature with AristoAccess+
+                </p>
+              </motion.div>
+
+              {/* Step 2 */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="flex gap-8 items-start group"
+              >
+                <span className="text-[72px] md:text-[96px] font-bold font-rozha leading-none -mt-4">2</span>
+                <p className="text-[18px] md:text-[20px] leading-[1.4] max-w-lg mt-3">
+                  <span className="font-bold">Funds are secured</span> until both parties confirm delivery.
+                </p>
+              </motion.div>
+
+              {/* Step 3 */}
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+                className="flex gap-8 items-start group"
+              >
+                <span className="text-[72px] md:text-[96px] font-bold font-rozha leading-none -mt-4">3</span>
+                <p className="text-[18px] md:text-[20px] leading-[1.4] max-w-lg mt-3">
+                  <span className="font-bold">Deal is done.</span> Get paid or recieve your product/service. Release funds with one click. Both sides protected.
+                </p>
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Right Side - Laptop Image */}
+          <motion.div
+            initial={{ opacity: 0, x: 40, rotate: 0 }}
+            whileInView={{ opacity: 1, x: 0, rotate: -2 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex-1 w-full flex justify-center lg:justify-end items-center pt-20 lg:pt-40"
           >
-            {/* Step 1 */}
-            <motion.div variants={item} className="flex gap-6 items-start">
-              <span className="text-6xl font-black leading-none opacity-90">1</span>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Agree on terms</h3>
-                <p className="text-green-50 opacity-90 leading-relaxed max-w-sm">
-                  Set terms, attach your contract. Securely sign in with AristoPay.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Step 2 */}
-            <motion.div variants={item} className="flex gap-6 items-start">
-              <span className="text-6xl font-black leading-none opacity-90">2</span>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Fund the escrow</h3>
-                <p className="text-green-50 opacity-90 leading-relaxed max-w-sm">
-                  Fund the escrow safely to secure the services.
-                </p>
-              </div>
-            </motion.div>
-
-            {/* Step 3 */}
-            <motion.div variants={item} className="flex gap-6 items-start">
-              <span className="text-6xl font-black leading-none opacity-90">3</span>
-              <div>
-                <h3 className="text-xl font-bold mb-2">Work delivered</h3>
-                <p className="text-green-50 opacity-90 leading-relaxed max-w-sm">
-                  Get paid once the job is finished. Release funds with one click. Both are protected.
-                </p>
-              </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Visual Right */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9, rotate: 0 }}
-            whileInView={{ opacity: 1, scale: 1, rotate: -2 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
-            className="flex-1 w-full max-w-lg lg:max-w-none"
-          >
-            <div className="relative aspect-video bg-gray-200 rounded-t-xl rounded-b flex flex-col justify-end overflow-hidden shadow-2xl">
-              {/* Screen Content */}
-              <div className="absolute inset-2 top-4 bg-white rounded-t flex items-center justify-center">
-                <div className="text-center">
-                   <div className="w-24 h-24 mx-auto bg-black rounded flex items-center justify-center">
-                      <span className="text-white font-bold text-2xl">🤝</span>
-                   </div>
-                </div>
-              </div>
-              {/* Laptop base */}
-              <div className="h-4 bg-gray-400 w-full rounded-b relative z-10" />
+            <div className="relative w-full max-w-[700px] aspect-[4/3]">
+              <Image
+                src="/images/laptop.png"
+                alt="Laptop showing handshake"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
           </motion.div>
         </div>

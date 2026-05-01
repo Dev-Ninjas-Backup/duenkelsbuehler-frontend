@@ -53,7 +53,7 @@ export function NewTransactionTab({ onDone }: Props) {
   const [showDealMaker, setShowDealMaker] = useState(false);
   const [showRating, setShowRating]       = useState(false);
   const [showAddModal, setShowAddModal]   = useState(false);
-  const [contacts, setContacts]           = useState(MOCK_CONTACTS);
+  const [contacts, setContacts] = useState<Contact[]>([]);
   const [txError, setTxError]             = useState<string | null>(null);
 
   const { saveContract } = useSavedContracts();
@@ -89,11 +89,15 @@ export function NewTransactionTab({ onDone }: Props) {
       setShowKaChing(true);
       return;
     }
+    if (!data.contact.trustapUserId) {
+      setTxError("This client does not have a Trustap account yet. They need to register first.");
+      return;
+    }
     const priceInCents = Math.round(parseFloat(data.price || "0") * 100);
     createTransaction(
       {
         seller_id: user.trustapUserId,
-        buyer_id: String(data.contact.id),
+        buyer_id: data.contact.trustapUserId,
         creator_role: "seller",
         currency: "eur",
         description: data.invoiceTitle || data.notes || "Service transaction",

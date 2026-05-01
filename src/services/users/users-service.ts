@@ -11,11 +11,13 @@ async function request<T>(endpoint: string, token: string): Promise<T> {
 
 export interface ClientUser {
   id: number
+  dbId: string
   name: string
   email: string
   country: string | null
   isIdentityVerified: boolean
   role: string[]
+  trustapUserId: string | null
   createdAt: string
 }
 

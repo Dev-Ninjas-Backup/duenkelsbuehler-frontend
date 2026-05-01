@@ -1,24 +1,38 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 export interface VerifSessionResponse {
-  success: boolean
-  sessionId: string
-  userId: number
-  verificationUrl: string
-  media: unknown
+  url: string
+}
+
+export interface CreateVerifSessionData {
+  verification: {
+    callback: string
+    person: {
+      firstName: string
+      lastName: string
+      email: string
+      idNumber: string
+      dateOfBirth: string
+      gender: string
+    }
+    document: {
+      number: string
+      type: "PASSPORT" | "ID_CARD" | "DRIVERS_LICENSE" | "RESIDENCE_PERMIT"
+      country: string
+    }
+  }
 }
 
 export const verifService = {
-  createSession: async (file: File, token: string): Promise<VerifSessionResponse> => {
-    const formData = new FormData()
-    formData.append("image", file)
-
-    const res = await fetch(`${BASE_URL}/Verif/create-session`, {
+  createSession: async (data: CreateVerifSessionData, token: string): Promise<VerifSessionResponse> => {
+    const res = await fetch(`${BASE_URL}/veriff/session`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: formData,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
     })
-
     const json = await res.json()
     if (!res.ok) throw new Error(json?.message || "Verification failed")
     return json?.data !== undefined ? json.data : json
