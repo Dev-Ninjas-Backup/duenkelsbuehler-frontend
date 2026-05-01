@@ -67,7 +67,7 @@ export function QuoteSection() {
         </div>
 
         {/* Quote Section Area */}
-        <div className="max-w-6xl mx-auto px-6 md:px-12 py-16 md:py-24 relative z-10 mt-8">
+        <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-16 md:py-24 relative z-10 mt-8">
           <div className="flex flex-col md:flex-row items-center gap-8 md:gap-0">
             {/* Left Side - Mouth Graphic */}
             <motion.div
@@ -88,28 +88,29 @@ export function QuoteSection() {
             </motion.div>
 
             {/* Right Side - Quotes */}
-            <div className="flex-1 flex flex-col gap-10 md:gap-14">
+            <div className="flex-1 flex flex-col gap-12 md:gap-20 py-10">
               {/* 1st quote — right side */}
               <motion.h2
-                initial={{ opacity: 0, x: 30 }}
+                initial={{ opacity: 0, x: 40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-                className="text-2xl md:text-3xl lg:text-4xl font-black font-rozha text-black leading-snug text-center ml-auto w-[340px] md:w-[460px] lg:w-[520px]"
+                transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+                className="text-[24px] md:text-[32px] lg:text-[42px] font-black font-rozha text-black leading-[1.1] text-right ml-auto max-w-full md:max-w-[700px] lg:max-w-[850px] tracking-tight"
               >
-                “Clients always seem to dissapear when I send the invoice”
+                “Clients always seem to dissapear <br className="hidden md:block" />
+                when I send the invoice”
               </motion.h2>
 
               {/* 2nd quote — slightly left of 1st */}
               <motion.h2
-                initial={{ opacity: 0, x: 30 }}
+                initial={{ opacity: 0, x: -40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
-                className="text-2xl md:text-3xl lg:text-4xl font-black font-rozha text-black leading-snug text-center mx-auto w-[340px] md:w-[460px] lg:w-[520px]"
+                transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
+                className="text-[24px] md:text-[32px] lg:text-[38px] font-black font-rozha text-black leading-[1.1] text-left mr-auto max-w-full md:max-w-[800px] lg:max-w-[950px] tracking-tight md:pl-10"
               >
-                “The seller seemed trustworthy… Money lost and no progress to
-                show for it”
+                “The seller seemed trustworthy… Money  <br className="hidden md:block" />
+               lost and no progress to show for it”
               </motion.h2>
             </div>
           </div>

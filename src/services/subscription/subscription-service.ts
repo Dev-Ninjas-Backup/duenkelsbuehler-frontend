@@ -51,6 +51,17 @@ export interface SubscriptionPayment {
   user: { id: number; email: string; name: string }
 }
 
+export interface AdminSubscriber {
+  id: number
+  userId: number
+  planId: number
+  status: string
+  createdAt: string
+  currentPeriodStart: string | null
+  currentPeriodEnd: string | null
+  cancelAtPeriodEnd: boolean
+}
+
 export const subscriptionService = {
   // ─── Public ───────────────────────────────────────────────────
   getPlans: () =>
@@ -98,4 +109,7 @@ export const subscriptionService = {
 
   adminGetPayments: (token: string, limit = 50) =>
     request<SubscriptionPayment[]>(`/subscriptions/admin/finance/payments?limit=${limit}`, token),
+
+  adminGetTotalSubscribers: (token: string) =>
+    request<AdminSubscriber[]>(`/subscriptions/admin/total-subscribers`, token),
 }

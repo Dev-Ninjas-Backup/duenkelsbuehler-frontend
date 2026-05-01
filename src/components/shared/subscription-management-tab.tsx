@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useMySubscriptions, useCancelSubscription, useSubscriptionPlans, useCreateCheckoutSession } from "@/hooks/subscription/use-subscription";
 import { toast } from "sonner";
+import { FreePlanCard } from "@/components/shared/free-plan-card";
 
 function ConfirmCancelModal({ onConfirm, onClose }: { onConfirm: () => void; onClose: () => void }) {
   return (
@@ -152,19 +153,8 @@ export function SubscriptionManagementTab() {
             )}
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            <p className="font-work-sans text-sm text-[#535862]">You are currently on the <span className="font-semibold text-[#181D27]">Free</span> plan.</p>
-            <ul className="flex flex-col gap-1">
-              {[
-                "Messaging — free for all users",
-                "Browse & post services",
-                "Send proposals (SP only)",
-              ].map((f) => (
-                <li key={f} className="font-work-sans text-xs text-[#535862] flex items-start gap-1.5">
-                  <span className="text-[#16A34A] mt-0.5">✓</span> {f}
-                </li>
-              ))}
-            </ul>
+          <div className="flex flex-col gap-4">
+            <FreePlanCard />
           </div>
         )}
       </div>

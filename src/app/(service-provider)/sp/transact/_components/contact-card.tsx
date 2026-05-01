@@ -16,14 +16,12 @@ export function ContactCard({ contact, onClick }: Props) {
       className="bg-[#F5F5F5] rounded-2xl p-5 flex flex-col items-center gap-3 hover:bg-gray-100 transition-colors w-full cursor-pointer shadow-sm"
     >
       <div className="relative">
-        <div className="w-20 h-20 rounded-full overflow-hidden bg-gray-200">
-          <Image
-            src={contact.avatar}
-            alt={contact.name}
-            width={80}
-            height={80}
-            className="object-cover w-full h-full"
-          />
+        <div className="w-20 h-20 rounded-full overflow-hidden bg-[#181D27] flex items-center justify-center">
+          {contact.avatar ? (
+            <Image src={contact.avatar} alt={contact.name} width={80} height={80} className="object-cover w-full h-full" />
+          ) : (
+            <span className="font-rozha text-3xl text-white">{contact.name?.charAt(0).toUpperCase()}</span>
+          )}
         </div>
         {contact.badge && <BadgeIcon type={contact.badge} />}
       </div>

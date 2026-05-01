@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useAuthStore } from "@/stores/auth/use-auth-store"
-import { subscriptionService, CreatePlanData, UpdatePlanData } from "@/services/subscription/subscription-service"
+import { subscriptionService, CreatePlanData, UpdatePlanData, AdminSubscriber } from "@/services/subscription/subscription-service"
 
 function useToken() {
   return useAuthStore((s) => s.accessToken) ?? ""
@@ -96,6 +96,15 @@ export function useAdminPayments(limit = 50) {
   return useQuery({
     queryKey: ["admin-payments", limit],
     queryFn: () => subscriptionService.adminGetPayments(token, limit),
+    enabled: !!token,
+  })
+}
+
+export function useAdminTotalSubscribers() {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["admin-total-subscribers"],
+    queryFn: () => subscriptionService.adminGetTotalSubscribers(token),
     enabled: !!token,
   })
 }
