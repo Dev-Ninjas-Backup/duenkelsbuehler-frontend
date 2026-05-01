@@ -30,7 +30,7 @@ export function SubscribeStep({ onNext }: { onNext: () => void }) {
     createCheckout(
       {
         planId: plan.id,
-        successUrl: `${window.location.origin}/sp/verify-account`,
+        successUrl: `${window.location.origin}/sp/verify-account?from=stripe`,
         cancelUrl: `${window.location.origin}/sp/verify-account`,
       },
       {

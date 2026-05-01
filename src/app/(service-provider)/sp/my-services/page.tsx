@@ -5,8 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AiFillEdit, AiFillDelete } from "react-icons/ai";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { AddServiceModal, type AddServiceForm } from "./_components/add-service-modal";
-import { useServiceItems, useCreateServiceItem, useUpdateServiceItem, useDeleteServiceItem } from "@/hooks/sp/use-sp";
+import {
+  AddServiceModal,
+  type AddServiceForm,
+} from "./_components/add-service-modal";
+import {
+  useServiceItems,
+  useCreateServiceItem,
+  useUpdateServiceItem,
+  useDeleteServiceItem,
+} from "@/hooks/sp/use-sp";
 import { toast } from "sonner";
 import { createPortal } from "react-dom";
 import type { ServiceItem } from "@/types/sp";
@@ -20,25 +28,34 @@ const containerVariants = {
 
 const rowVariants = {
   hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" as const } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.35, ease: "easeOut" as const },
+  },
 };
 
 export default function MyServicesPage() {
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingService, setEditingService] = useState<ServiceItem | null>(null);
+  const [editingService, setEditingService] = useState<ServiceItem | null>(
+    null,
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
 
   const { data: services = [], isLoading } = useServiceItems();
-  const { mutate: createService, isPending: isCreating } = useCreateServiceItem();
-  const { mutate: updateService, isPending: isUpdating } = useUpdateServiceItem();
-  const { mutate: deleteService, isPending: isDeleting } = useDeleteServiceItem();
+  const { mutate: createService, isPending: isCreating } =
+    useCreateServiceItem();
+  const { mutate: updateService, isPending: isUpdating } =
+    useUpdateServiceItem();
+  const { mutate: deleteService, isPending: isDeleting } =
+    useDeleteServiceItem();
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   const totalPages = Math.ceil(services.length / pageSize) || 1;
   const paginated = services.slice(
     (currentPage - 1) * pageSize,
-    currentPage * pageSize
+    currentPage * pageSize,
   );
 
   const getPageNumbers = () => {
@@ -64,8 +81,14 @@ export default function MyServicesPage() {
   const handleDelete = () => {
     if (deleteId === null) return;
     deleteService(deleteId, {
-      onSuccess: () => { toast.success("Service deleted successfully"); setDeleteId(null); },
-      onError: () => { toast.error("Failed to delete service"); setDeleteId(null); },
+      onSuccess: () => {
+        toast.success("Service deleted successfully");
+        setDeleteId(null);
+      },
+      onError: () => {
+        toast.error("Failed to delete service");
+        setDeleteId(null);
+      },
     });
   };
 
@@ -73,13 +96,19 @@ export default function MyServicesPage() {
     if (editingService) {
       updateService(
         { id: editingService.id, data },
-        { onSuccess: () => { setModalOpen(false); setEditingService(null); } }
+        {
+          onSuccess: () => {
+            setModalOpen(false);
+            setEditingService(null);
+          },
+        },
       );
     } else {
-      createService(
-        data,
-        { onSuccess: () => { setModalOpen(false); } }
-      );
+      createService(data, {
+        onSuccess: () => {
+          setModalOpen(false);
+        },
+      });
     }
   };
 
@@ -96,19 +125,28 @@ export default function MyServicesPage() {
       </motion.h1>
 
       <div className="flex-1 w-full max-w-[1200px] mx-auto flex flex-col px-4 md:px-8 overflow-hidden">
-
         {/* Table Header */}
         <motion.div
-           initial={{ opacity: 0, y: -8 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ duration: 0.35, delay: 0.1 }}
-           className="hidden lg:grid grid-cols-[60px_2.5fr_1.5fr_1.5fr_100px] bg-[#181D27] rounded-xl px-10 py-5 mb-4 shadow-sm shrink-0 mr-2"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.1 }}
+          className="hidden lg:grid grid-cols-[60px_2.5fr_1.5fr_1.5fr_100px] bg-[#181D27] rounded-xl px-10 py-5 mb-4 shadow-sm shrink-0 mr-2"
         >
-          <span className="font-work-sans text-sm font-medium text-[#D1D5DB]">Sl</span>
-          <span className="font-work-sans text-sm font-medium text-[#D1D5DB]">Service Description</span>
-          <span className="font-work-sans text-sm font-medium text-[#D1D5DB]">Industry</span>
-          <span className="font-work-sans text-sm font-medium text-[#D1D5DB]">Location</span>
-          <span className="font-work-sans text-sm font-medium text-[#D1D5DB] text-center">Action</span>
+          <span className="font-work-sans text-sm font-medium text-[#D1D5DB]">
+            Sl
+          </span>
+          <span className="font-work-sans text-sm font-medium text-[#D1D5DB]">
+            Service Description
+          </span>
+          <span className="font-work-sans text-sm font-medium text-[#D1D5DB]">
+            Industry
+          </span>
+          <span className="font-work-sans text-sm font-medium text-[#D1D5DB]">
+            Location
+          </span>
+          <span className="font-work-sans text-sm font-medium text-[#D1D5DB] text-center">
+            Action
+          </span>
         </motion.div>
 
         {/* Table Rows */}
@@ -122,95 +160,110 @@ export default function MyServicesPage() {
           >
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
-                <span className="font-work-sans text-sm text-[#414651]">Loading...</span>
+                <span className="font-work-sans text-sm text-[#414651]">
+                  Loading...
+                </span>
               </div>
             ) : paginated.length === 0 ? (
               <div className="flex items-center justify-center py-20">
-                <span className="font-work-sans text-sm text-[#414651]">No services found. Add your first service!</span>
-              </div>
-            ) : paginated.map((service, index) => {
-              const rowSl = (currentPage - 1) * pageSize + index + 1;
-              return (
-              <motion.div
-                key={service.id}
-                variants={rowVariants}
-                layout
-                className="flex flex-col lg:grid lg:grid-cols-[60px_2.5fr_1.5fr_1.5fr_100px] bg-[#F5F5F5] lg:bg-[#F5F5F5] rounded-[24px] px-5 py-5 lg:px-10 lg:py-4 items-start lg:items-center border border-gray-100/80 hover:bg-[#EFEFEF] transition-colors gap-3 lg:gap-0"
-              >
-                {/* Desktop ID / Mobile Header */}
-                <span className="hidden lg:block font-work-sans text-base font-semibold text-[#181D27] lg:pl-2">
-                  {rowSl}
+                <span className="font-work-sans text-sm text-[#414651]">
+                  No services found. Add your first service!
                 </span>
-
-                <div className="flex w-full items-center justify-between lg:hidden mb-1 border-b border-gray-200 pb-3">
-                  <span className="font-work-sans text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">Service #{rowSl}</span>
-                  <div className="flex items-center gap-2">
-                    <motion.button 
-                      whileTap={{ scale: 0.9 }} 
-                      onClick={() => {
-                        setEditingService(service);
-                        setModalOpen(true);
-                      }}
-                      className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm text-[#414651] hover:text-[#181D27]"
-                    >
-                      <AiFillEdit className="h-4 w-4" />
-                    </motion.button>
-                    <motion.button
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => setDeleteId(service.id)}
-                      className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm text-red-500 hover:bg-red-50"
-                    >
-                      <AiFillDelete className="h-4 w-4" />
-                    </motion.button>
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div className="flex flex-col w-full lg:w-auto lg:pr-12">
-                  <span className="lg:hidden text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mb-1">Description</span>
-                  <span className="font-work-sans text-[13px] text-[#535862] leading-[1.6]">
-                    {service.description}
-                  </span>
-                </div>
-
-                {/* Industry */}
-                <div className="flex w-full items-center justify-between lg:justify-start lg:w-auto">
-                  <span className="lg:hidden text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">Industry</span>
-                  <span className="font-work-sans text-[14px] font-medium text-[#181D27] bg-white lg:bg-transparent px-3 py-1 rounded-full lg:p-0 lg:rounded-none shadow-sm lg:shadow-none">
-                    {service.industry}
-                  </span>
-                </div>
-
-                {/* Location */}
-                <div className="flex w-full items-center justify-between lg:justify-start lg:w-auto">
-                  <span className="lg:hidden text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">Location</span>
-                  <span className="font-work-sans text-[14px] font-medium text-[#181D27]">
-                    {service.location}
-                  </span>
-                </div>
-
-                {/* Desktop Actions */}
-                <div className="hidden lg:flex items-center justify-center gap-3">
-                  <motion.button 
-                    whileTap={{ scale: 0.9 }} 
-                    onClick={() => {
-                      setEditingService(service);
-                      setModalOpen(true);
-                    }}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] text-[#414651] hover:text-[#181D27]"
+              </div>
+            ) : (
+              paginated.map((service, index) => {
+                const rowSl = (currentPage - 1) * pageSize + index + 1;
+                return (
+                  <motion.div
+                    key={service.id}
+                    variants={rowVariants}
+                    layout
+                    className="flex flex-col lg:grid lg:grid-cols-[60px_2.5fr_1.5fr_1.5fr_100px] bg-[#F5F5F5] lg:bg-[#F5F5F5] rounded-3xl px-5 py-5 lg:px-10 lg:py-4 items-start lg:items-center border border-gray-100/80 hover:bg-[#EFEFEF] transition-colors gap-3 lg:gap-0"
                   >
-                    <AiFillEdit className="h-4 w-4" />
-                  </motion.button>
-                  <motion.button
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => setDeleteId(service.id)}
-                    className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] text-red-500 hover:bg-red-50"
-                  >
-                    <AiFillDelete className="h-4 w-4" />
-                  </motion.button>
-                </div>
-              </motion.div>
-            )})}
+                    {/* Desktop ID / Mobile Header */}
+                    <span className="hidden lg:block font-work-sans text-base font-semibold text-[#181D27] lg:pl-2">
+                      {rowSl}
+                    </span>
+
+                    <div className="flex w-full items-center justify-between lg:hidden mb-1 border-b border-gray-200 pb-3">
+                      <span className="font-work-sans text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">
+                        Service #{rowSl}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <motion.button
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => {
+                            setEditingService(service);
+                            setModalOpen(true);
+                          }}
+                          className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm text-[#414651] hover:text-[#181D27]"
+                        >
+                          <AiFillEdit className="h-4 w-4" />
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.9 }}
+                          onClick={() => setDeleteId(service.id)}
+                          className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm text-red-500 hover:bg-red-50"
+                        >
+                          <AiFillDelete className="h-4 w-4" />
+                        </motion.button>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="flex flex-col w-full lg:w-auto lg:pr-12">
+                      <span className="lg:hidden text-[10px] font-bold text-[#9CA3AF] uppercase tracking-wider mb-1">
+                        Description
+                      </span>
+                      <span className="font-work-sans text-[13px] text-[#535862] leading-[1.6]">
+                        {service.description}
+                      </span>
+                    </div>
+
+                    {/* Industry */}
+                    <div className="flex w-full items-center justify-between lg:justify-start lg:w-auto">
+                      <span className="lg:hidden text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">
+                        Industry
+                      </span>
+                      <span className="font-work-sans text-[14px] font-medium text-[#181D27] bg-white lg:bg-transparent px-3 py-1 rounded-full lg:p-0 lg:rounded-none shadow-sm lg:shadow-none">
+                        {service.industry}
+                      </span>
+                    </div>
+
+                    {/* Location */}
+                    <div className="flex w-full items-center justify-between lg:justify-start lg:w-auto">
+                      <span className="lg:hidden text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">
+                        Location
+                      </span>
+                      <span className="font-work-sans text-[14px] font-medium text-[#181D27]">
+                        {service.location}
+                      </span>
+                    </div>
+
+                    {/* Desktop Actions */}
+                    <div className="hidden lg:flex items-center justify-center gap-3">
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => {
+                          setEditingService(service);
+                          setModalOpen(true);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] text-[#414651] hover:text-[#181D27]"
+                      >
+                        <AiFillEdit className="h-4 w-4" />
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => setDeleteId(service.id)}
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] text-red-500 hover:bg-red-50"
+                      >
+                        <AiFillDelete className="h-4 w-4" />
+                      </motion.button>
+                    </div>
+                  </motion.div>
+                );
+              })
+            )}
           </motion.div>
         </div>
 
@@ -258,7 +311,9 @@ export default function MyServicesPage() {
                 </option>
               ))}
             </select>
-            <span className="font-work-sans text-sm text-[#414651]">entries</span>
+            <span className="font-work-sans text-sm text-[#414651]">
+              entries
+            </span>
           </div>
 
           {/* Page Numbers */}
@@ -311,45 +366,53 @@ export default function MyServicesPage() {
       </div>
 
       {/* Delete Confirm Modal */}
-      {typeof window !== "undefined" && createPortal(
-        <AnimatePresence>
-          {deleteId !== null && (
-            <div className="fixed inset-0 z-[200] flex items-center justify-center">
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                onClick={() => setDeleteId(null)}
-                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-              />
-              <motion.div
-                initial={{ opacity: 0, scale: 0.92, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.92, y: 20 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-                className="relative z-10 w-full max-w-sm bg-white rounded-3xl p-8 shadow-2xl mx-4"
-              >
-                <h2 className="font-rozha text-2xl text-[#181D27] mb-2">Delete Service</h2>
-                <p className="font-work-sans text-sm text-[#535862] mb-6">Are you sure you want to delete this service? This action cannot be undone.</p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setDeleteId(null)}
-                    className="flex-1 h-11 rounded-full border border-gray-200 font-work-sans text-sm font-semibold text-[#414651] hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    disabled={isDeleting}
-                    className="flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 font-work-sans text-sm font-semibold text-white transition-colors disabled:opacity-60"
-                  >
-                    {isDeleting ? "Deleting..." : "Delete"}
-                  </button>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
+      {typeof window !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {deleteId !== null && (
+              <div className="fixed inset-0 z-200 flex items-center justify-center">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setDeleteId(null)}
+                  className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.92, y: 20 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.92, y: 20 }}
+                  transition={{ duration: 0.25, ease: "easeOut" }}
+                  className="relative z-10 w-full max-w-sm bg-white rounded-3xl p-8 shadow-2xl mx-4"
+                >
+                  <h2 className="font-rozha text-2xl text-[#181D27] mb-2">
+                    Delete Service
+                  </h2>
+                  <p className="font-work-sans text-sm text-[#535862] mb-6">
+                    Are you sure you want to delete this service? This action
+                    cannot be undone.
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setDeleteId(null)}
+                      className="flex-1 h-11 rounded-full border border-gray-200 font-work-sans text-sm font-semibold text-[#414651] hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                      className="flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 font-work-sans text-sm font-semibold text-white transition-colors disabled:opacity-60"
+                    >
+                      {isDeleting ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
 
       {/* Modal */}
       <AddServiceModal

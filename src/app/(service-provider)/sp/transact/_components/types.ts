@@ -14,6 +14,7 @@ export interface Contact {
   name: string;
   avatar: string;
   badge?: "gold" | "warning";
+  trustapUserId?: string | null;
 }
 
 export interface TransactionData {
