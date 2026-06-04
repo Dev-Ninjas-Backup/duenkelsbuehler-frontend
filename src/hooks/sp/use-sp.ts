@@ -17,23 +17,29 @@ export function useServiceItems() {
   })
 }
 
+export function useAllServiceItems() {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["service-items", "all"],
+    queryFn: () => serviceItemService.findAll(token),
+    enabled: !!token,
+  })
+}
+
+export function useServiceItem(id: number | null) {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["service-item", id],
+    queryFn: () => serviceItemService.findOne(id!, token),
+    enabled: !!id && !!token,
+  })
+}
+
 export function useCreateServiceItem() {
   const token = useToken()
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (data: CreateServiceItemData) => {
-      // Auto-ensure SP profile exists before creating service
-      // Backend returns 409 Conflict if already exists — safe to ignore
-      await serviceProviderService.create({
-        Fullname: "Service Provider",
-        occupation: "Service Provider",
-        description: "Service Provider",
-        location: "-",
-        phoneNumber: "-",
-        payementDetails: "-",
-      }, token).catch(() => {})
-      return serviceItemService.create(data, token)
-    },
+    mutationFn: (data: CreateServiceItemData) => serviceItemService.create(data, token),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["service-items", "my"] }),
   })
 }
@@ -82,6 +88,15 @@ export function useServiceProvider(id: number | null) {
     queryKey: ["service-provider", id],
     queryFn: () => serviceProviderService.findOne(id!, token),
     enabled: !!id && !!token,
+  })
+}
+
+export function useServiceProviderProfileByUserId(userId: number | null) {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["service-provider-profile", userId],
+    queryFn: () => serviceProviderService.findByUserId(userId!, token),
+    enabled: !!userId && !!token,
   })
 }
 

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
-import { useServiceItems } from "@/hooks/sp/use-sp";
+import { useAllServiceItems } from "@/hooks/sp/use-sp";
 import { useAddFavorite, useMyFavorites } from "@/hooks/favorites/use-favorites";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
@@ -24,7 +24,7 @@ export default function DiscoverPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const { data: services = [], isLoading } = useServiceItems();
+  const { data: services = [], isLoading } = useAllServiceItems();
   const { data: favData } = useMyFavorites();
   const { mutate: addFavorite } = useAddFavorite();
 

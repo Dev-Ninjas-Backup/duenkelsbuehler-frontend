@@ -2,7 +2,7 @@
 
 import { useRouter, useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { useServiceProvider } from "@/hooks/sp/use-sp";
+import { useServiceItem, useServiceProviderProfileByUserId } from "@/hooks/sp/use-sp";
 
 const btnDark =
   "w-full max-w-xs h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors";
@@ -12,7 +12,13 @@ const btnOutline =
 export default function DiscoverProfilePage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
-  const { data: sp, isLoading } = useServiceProvider(Number(id));
+  
+  const { data: service, isLoading: isLoadingService } = useServiceItem(Number(id));
+  const { data: sp, isLoading: isLoadingSp } = useServiceProviderProfileByUserId(
+    service?.createdBy ?? null
+  );
+
+  const isLoading = isLoadingService || isLoadingSp;
 
   return (
     <div className="flex flex-col items-center min-h-full">

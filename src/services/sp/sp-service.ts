@@ -21,7 +21,7 @@ export const serviceItemService = {
     request<ServiceItem>("/services/provider/create", token, { method: "POST", body: JSON.stringify(data) }),
 
   findAll: (token: string) =>
-    request<ServiceItem[]>("/services", token),
+    request<ServiceItem[]>("/services/all-services", token),
 
   findMy: (token: string) =>
     request<ServiceItem[]>("/services/my", token),
@@ -49,6 +49,9 @@ export const serviceProviderService = {
 
   findOne: (id: number, token: string) =>
     request<ServiceProvider>(`/service-provider/${id}`, token),
+
+  findByUserId: (userId: number, token: string) =>
+    request<ServiceProvider>(`/service-provider/user/${userId}`, token),
 
   adminVerify: (id: number, token: string) =>
     request<ServiceProvider>(`/service-provider/service-providers/${id}`, token, {
