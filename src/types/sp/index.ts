@@ -6,6 +6,7 @@ export interface ServiceItem {
   location: string
   createdAt: string
   updatedAt: string
+  createdBy: number
 }
 
 export interface CreateServiceItemData {
