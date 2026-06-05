@@ -67,7 +67,7 @@ export function HeroSection() {
           </p>
           <div className="flex flex-wrap items-center gap-4 pt-2">
             <Link 
-              href="/signup" 
+              href="/sign-up" 
               className="px-8 py-3.5 bg-[#00D05A] text-white font-medium tracking-wide rounded-md hover:bg-[#00b34d] transition-colors inline-block"
             >
               GET STARTED FREE
