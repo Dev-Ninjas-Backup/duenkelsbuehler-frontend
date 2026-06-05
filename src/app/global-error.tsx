@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Link from "next/link";
 import "./globals.css"; 
 
 export default function GlobalError({
@@ -46,7 +47,7 @@ export default function GlobalError({
                  Try Again
               </button>
               
-              <a 
+              <Link
                 href="/"
                 className="flex items-center justify-center w-full sm:w-auto rounded-full border border-zinc-300 dark:border-zinc-800 bg-transparent h-14 px-8 text-base font-medium hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
               >
@@ -55,7 +56,7 @@ export default function GlobalError({
                     <polyline points="9 22 9 12 15 12 15 22"/>
                  </svg>
                  Go to Homepage
-              </a>
+              </Link>
             </div>
           </div>
         </div>

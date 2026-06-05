@@ -79,7 +79,7 @@ function VerifyAccountContent() {
     }
 
     if (!retrying) setReady(true);
-  }, [subsLoading, meLoading, subscriptions, me, fromStripe, retrying]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [subsLoading, meLoading, subscriptions, me, fromStripe, retrying]);
 
   const goTo = (next: Step) => {
     setDirection(STEPS.indexOf(next) > STEPS.indexOf(step) ? 1 : -1);
