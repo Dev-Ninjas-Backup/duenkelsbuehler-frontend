@@ -62,23 +62,21 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # ── 3. Deploy to server ───────────────────────────────────────────────────
-  # deploy:
-  #   name: Deploy
-  #   runs-on: ubuntu-latest
-  #   needs: build-push
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build-push
 
-  #   steps:
-  #     - name: SSH & deploy
-  #       uses: appleboy/ssh-action@v1
-  #       with:
-  #         host: ${{ secrets.SSH_HOST }}
-  #         username: ${{ secrets.SSH_USER }}
-  #         key: ${{ secrets.SSH_PRIVATE_KEY }}
-  #         port: ${{ secrets.SSH_PORT || '22' }}
-  #         script: |
-  #           set -e
-  #           docker pull softvence/duenkelsbuehler-frontend:latest
-  #           cd ${{ secrets.DEPLOY_PATH }}
-  #           docker compose --profile prod up -d --no-build
-  #           docker image prune -f
+    steps:
+      - name: SSH & deploy frontend
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd ~/project
+            sudo docker compose --profile prod pull frontend
+            sudo docker compose --profile prod up -d --no-build --force-recreate frontend
+            sudo docker image prune -f
