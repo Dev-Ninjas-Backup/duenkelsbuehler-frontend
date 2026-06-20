@@ -1,0 +1,16 @@
+name: ${COMPOSE_PROJECT_NAME:-alexis_local}
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: softvence/duenkelsbuehler-frontend:latest
+    restart: always
+    profiles:
+      - prod
+    ports:
+      - '${FRONTEND_PORT:-3000}:3000'
+    environment:
+      NODE_ENV: production
+      PORT: 3000
