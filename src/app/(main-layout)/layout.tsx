@@ -1,9 +1,12 @@
-import { ReactNode } from "react"
+import { ReactNode } from "react";
+import { SmoothScrollProvider } from "@/providers/smooth-scroll-provider";
 
-const MainLayout = ({children}:{children:ReactNode}) => {
+const MainLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <div>{children}</div>
-  )
-}
+    <SmoothScrollProvider>
+      <div>{children}</div>
+    </SmoothScrollProvider>
+  );
+};
 
-export default MainLayout
+export default MainLayout;

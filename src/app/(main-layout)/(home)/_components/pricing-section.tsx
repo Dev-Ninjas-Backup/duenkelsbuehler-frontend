@@ -60,11 +60,12 @@ export function PricingSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl">
           {/* Free Plan - Kept as a separate card as requested */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -45 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="border-[1.5px] border-black rounded-none p-10 lg:p-14 flex flex-col h-full bg-white shadow-sm"
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ type: "spring", stiffness: 70, damping: 14 }}
+            whileHover={{ y: -8, scale: 1.01 }}
+            className="border-[1.5px] border-black rounded-none p-10 lg:p-14 flex flex-col h-full bg-white shadow-md transition-all duration-300 hover:shadow-xl cursor-pointer"
           >
             <h3 className="text-[#A3A3A3] font-bold tracking-widest uppercase text-[18px] mb-6 font-work-sans">FREE</h3>
             <div className="flex items-start mb-6">
@@ -84,8 +85,15 @@ export function PricingSection() {
                 '5% seller - 3% buyer transaction fee',
                 '$150 minimum transaction'
               ].map((feature, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="text-[#00D05A] font-bold mt-0.5">✓</span>
+                <li key={i} className="flex items-start gap-3 group/item">
+                  <motion.span 
+                    initial={{ scale: 0.8 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    className="text-[#00D05A] font-bold mt-0.5 inline-block group-hover/item:scale-125 transition-transform duration-200"
+                  >
+                    ✓
+                  </motion.span>
                   <span className="text-[#414651] text-[16px] font-medium font-work-sans tracking-tight">{feature}</span>
                 </li>
               ))}
@@ -93,7 +101,7 @@ export function PricingSection() {
 
             <Link
               href={buttonHref}
-              className="w-full sm:w-auto inline-flex justify-center px-10 py-4 bg-black text-white font-bold rounded-sm hover:bg-gray-900 transition-colors uppercase tracking-wider text-[14px] font-work-sans"
+              className="w-full sm:w-auto inline-flex justify-center px-10 py-4 bg-black text-white font-bold rounded-sm hover:bg-gray-900 transition-all uppercase tracking-wider text-[14px] font-work-sans text-center transform hover:scale-102 duration-200"
             >
               START FREE
             </Link>
@@ -101,13 +109,14 @@ export function PricingSection() {
 
           {/* Premium Plan - Dynamic from API */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 45 }}
             whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="bg-black rounded-none p-10 lg:p-14 flex flex-col h-full shadow-2xl relative overflow-hidden text-white"
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ type: "spring", stiffness: 70, damping: 14, delay: 0.15 }}
+            whileHover={{ y: -8, scale: 1.01 }}
+            className="bg-black rounded-none p-10 lg:p-14 flex flex-col h-full shadow-2xl relative overflow-hidden text-white transition-all duration-300 hover:shadow-[#00D05A]/15 hover:shadow-3xl cursor-pointer"
           >
-            <div className="absolute top-10 right-10 w-16 h-16">
+            <div className="absolute top-10 right-10 w-16 h-16 transition-transform duration-300 hover:scale-110 hover:rotate-6">
               <Image src="/svg/crown.svg" alt="Crown badge" fill className="object-contain" />
             </div>
             <h3 className="text-white font-bold tracking-widest uppercase text-[18px] mb-6 font-work-sans">
@@ -133,8 +142,15 @@ export function PricingSection() {
                 'Priority email support within 24 hrs',
                 'Additional contracts at $2 each'
               ].map((feature, i) => (
-                <li key={i} className="flex items-start gap-3">
-                  <span className="text-[#00D05A] font-bold mt-0.5">✓</span>
+                <li key={i} className="flex items-start gap-3 group/item">
+                  <motion.span 
+                    initial={{ scale: 0.8 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    className="text-[#00D05A] font-bold mt-0.5 inline-block group-hover/item:scale-125 transition-transform duration-200"
+                  >
+                    ✓
+                  </motion.span>
                   <span className="text-white/90 text-[16px] font-medium font-work-sans tracking-tight">{feature}</span>
                 </li>
               ))}
@@ -142,7 +158,7 @@ export function PricingSection() {
 
             <Link
               href={buttonHref}
-              className="w-full sm:w-auto inline-flex justify-center px-10 py-4 bg-[#00D05A] text-white font-bold rounded-sm hover:bg-[#00b34d] transition-colors uppercase tracking-wider text-[14px]"
+              className="w-full sm:w-auto inline-flex justify-center px-10 py-4 bg-[#00D05A] text-white font-bold rounded-sm hover:bg-[#00b34d] transition-all uppercase tracking-wider text-[14px] text-center transform hover:scale-102 duration-200 shadow-md hover:shadow-[#00D05A]/30"
             >
               {loading ? "PLEASE WAIT" : "GO PREMIUM"}
             </Link>

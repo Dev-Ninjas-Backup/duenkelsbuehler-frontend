@@ -18,16 +18,17 @@ export function WhyWeBuiltSection() {
         <div className="relative mb-12">
           {/* Top Quote Icon */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.5, x: -30, rotate: -15 }}
+            whileInView={{ opacity: 1, scale: 1, x: 0, rotate: 0 }}
             viewport={{ once: true }}
+            transition={{ type: "spring", stiffness: 100, damping: 10 }}
             className="text-[#00D05A] text-[64px] leading-none font-bold absolute -top-8 -left-10 select-none"
           >
             “
           </motion.div>
 
           <motion.h2
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -38,10 +39,10 @@ export function WhyWeBuiltSection() {
 
           {/* Bottom Quote Icon */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.5, x: 30, rotate: 15 }}
+            whileInView={{ opacity: 1, scale: 1, x: 0, rotate: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
+            transition={{ type: "spring", stiffness: 100, damping: 10, delay: 0.2 }}
             className="text-[#00D05A] text-[64px] leading-none font-bold absolute -bottom-10 -right-4 select-none"
           >
             ”
@@ -49,10 +50,10 @@ export function WhyWeBuiltSection() {
         </div>
 
         <motion.p
-          initial={{ opacity: 0, x: -20 }}
+          initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
+          transition={{ type: "spring", stiffness: 60, damping: 12, delay: 0.4 }}
           className="text-[28px] md:text-[36px] font-bold font-rozha text-black mt-16"
         >
           -The AristoPay Team

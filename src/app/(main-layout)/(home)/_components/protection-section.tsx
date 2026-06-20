@@ -46,11 +46,15 @@ export function ProtectionSection() {
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8"
         >
           {/* Feature 1 */}
-          <motion.div variants={item} className="flex flex-col items-center text-center">
-            <div className="mb-6 relative w-12 h-12">
+          <motion.div 
+            variants={item} 
+            whileHover={{ y: -8, scale: 1.02 }}
+            className="flex flex-col items-center text-center p-8 bg-white/[0.03] border border-white/[0.05] rounded-3xl transition-all duration-300 hover:bg-white/[0.08] hover:border-[#00D05A]/30 hover:shadow-2xl hover:shadow-[#00D05A]/5 group cursor-pointer"
+          >
+            <div className="mb-6 relative w-12 h-12 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
               <Image 
                 src="/svg/crown.svg" 
                 alt="Crown icon" 
@@ -58,30 +62,38 @@ export function ProtectionSection() {
                 className="object-contain" 
               />
             </div>
-            <h3 className="text-[28px] md:text-[32px] font-bold font-rozha mb-4 tracking-tight">Verified Identities</h3>
-            <p className="text-white/80 text-[16px] leading-relaxed max-w-[240px]">
+            <h3 className="text-[24px] md:text-[28px] font-bold font-rozha mb-4 tracking-tight">Verified Identities</h3>
+            <p className="text-white/70 text-[15px] leading-relaxed max-w-[240px] font-work-sans">
               ID verification on every premium transaction.
             </p>
           </motion.div>
 
           {/* Feature 2 */}
-          <motion.div variants={item} className="flex flex-col items-center text-center">
-            <div className="mb-6">
+          <motion.div 
+            variants={item} 
+            whileHover={{ y: -8, scale: 1.02 }}
+            className="flex flex-col items-center text-center p-8 bg-white/[0.03] border border-white/[0.05] rounded-3xl transition-all duration-300 hover:bg-white/[0.08] hover:border-[#00D05A]/30 hover:shadow-2xl hover:shadow-[#00D05A]/5 group cursor-pointer"
+          >
+            <div className="mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
               <Handshake className="w-12 h-12 text-[#00D05A]" strokeWidth={1.5} />
             </div>
-            <h3 className="text-[28px] md:text-[32px] font-bold font-rozha mb-4 tracking-tight">Signed Agreements</h3>
-            <p className="text-white/80 text-[16px] leading-relaxed max-w-[240px]">
+            <h3 className="text-[24px] md:text-[28px] font-bold font-rozha mb-4 tracking-tight">Signed Agreements</h3>
+            <p className="text-white/70 text-[15px] leading-relaxed max-w-[240px] font-work-sans">
               DocuSign contracts built into premium proposals.
             </p>
           </motion.div>
 
           {/* Feature 3 */}
-          <motion.div variants={item} className="flex flex-col items-center text-center">
-            <div className="mb-6">
+          <motion.div 
+            variants={item} 
+            whileHover={{ y: -8, scale: 1.02 }}
+            className="flex flex-col items-center text-center p-8 bg-white/[0.03] border border-white/[0.05] rounded-3xl transition-all duration-300 hover:bg-white/[0.08] hover:border-[#00D05A]/30 hover:shadow-2xl hover:shadow-[#00D05A]/5 group cursor-pointer"
+          >
+            <div className="mb-6 transition-transform duration-300 group-hover:scale-110 group-hover:scale-110">
               <LockKeyhole className="w-12 h-12 text-[#00D05A]" strokeWidth={1.5} />
             </div>
-            <h3 className="text-[28px] md:text-[32px] font-bold font-rozha mb-4 tracking-tight">Protected Payments</h3>
-            <p className="text-white/80 text-[16px] leading-relaxed max-w-[240px]">
+            <h3 className="text-[24px] md:text-[28px] font-bold font-rozha mb-4 tracking-tight">Protected Payments</h3>
+            <p className="text-white/70 text-[15px] leading-relaxed max-w-[240px] font-work-sans">
               Escrow-style payment protection on every transaction.
             </p>
           </motion.div>
