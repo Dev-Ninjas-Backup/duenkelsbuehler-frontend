@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Rozha_One, Work_Sans } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "@/providers/query-provider";
-import { SmoothScrollProvider } from "@/providers/smooth-scroll-provider";
 import { Toaster } from "sonner";
 
 const workSans = Work_Sans({
@@ -33,10 +32,8 @@ export default function RootLayout({
         className={`${workSans.variable} ${rozhaOne.variable} font-work-sans antialiased`}
       >
         <QueryProvider>
-          <SmoothScrollProvider>
-            {children}
-            <Toaster position="top-right" richColors />
-          </SmoothScrollProvider>
+          {children}
+          <Toaster position="top-right" richColors />
         </QueryProvider>
       </body>
     </html>

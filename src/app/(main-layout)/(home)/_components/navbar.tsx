@@ -39,8 +39,8 @@ export function Navbar() {
   return (
     <nav
       className={cn(
-        "sticky top-0 z-50 w-full bg-[#FAFAFA] transition-all duration-300",
-        scrolled && "shadow-md",
+        "sticky top-0 z-50 w-full bg-[#FAFAFA]/75 backdrop-blur-md border-b border-gray-100/50 transition-all duration-300",
+        scrolled && "bg-[#FAFAFA]/90 shadow-sm border-gray-200/80",
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

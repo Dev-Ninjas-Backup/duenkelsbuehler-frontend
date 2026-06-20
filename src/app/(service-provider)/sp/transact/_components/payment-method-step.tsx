@@ -49,8 +49,12 @@ export function PaymentMethodStep({ contact, selected, onSelect, onNext }: Props
         transition={{ duration: 0.3, delay: 0.08 }}
         className="bg-[#F5F5F5] rounded-2xl px-5 py-4 flex items-center gap-4"
       >
-        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 shrink-0">
-          <Image src={contact.avatar} alt={contact.name} width={48} height={48} className="object-cover w-full h-full" />
+        <div className="w-12 h-12 rounded-full overflow-hidden bg-[#181D27] flex items-center justify-center shrink-0">
+          {contact.avatar ? (
+            <Image src={contact.avatar} alt={contact.name} width={48} height={48} className="object-cover w-full h-full" />
+          ) : (
+            <span className="font-rozha text-lg text-white">{contact.name?.charAt(0).toUpperCase()}</span>
+          )}
         </div>
         <div>
           <p className="font-work-sans text-sm font-bold text-[#181D27]">{contact.name}</p>
