@@ -8,7 +8,7 @@ export function CrownSVG({ className }: { className?: string }) {
 
 export function BrandLabel() {
   return (
-    <p className="font-work-sans font-bold text-lg text-[#181D27] mt-2 mb-6">
+    <p className="font-work-sans font-bold text-lg text-[#181D27] mt-2">
       AristoAccess<span className="text-[#181D27]">+</span>
     </p>
   );

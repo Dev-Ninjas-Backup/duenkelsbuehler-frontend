@@ -75,8 +75,17 @@ export function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors font-work-sans text-sm text-[#181D27]">
-                    <div className="w-7 h-7 rounded-full bg-[#181D27] flex items-center justify-center text-white text-xs font-semibold shrink-0">
-                      {user?.name?.charAt(0).toUpperCase() ?? "U"}
+                    <div className="w-7 h-7 rounded-full bg-[#181D27] flex items-center justify-center text-white text-xs font-semibold shrink-0 relative overflow-hidden">
+                      {user?.imageUrl ? (
+                        <Image
+                          src={user.imageUrl}
+                          alt="Profile"
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        user?.name?.charAt(0).toUpperCase() ?? "U"
+                      )}
                     </div>
                     <span className="max-w-[120px] truncate">{user?.name}</span>
                     <ChevronDown size={14} className="text-[#414651]" />
@@ -127,8 +136,17 @@ export function Navbar() {
                   {isAuthenticated ? (
                     <>
                       <div className="flex items-center gap-3 px-2 pb-3 border-b">
-                        <div className="w-9 h-9 rounded-full bg-[#181D27] flex items-center justify-center text-white text-sm font-semibold shrink-0">
-                          {user?.name?.charAt(0).toUpperCase() ?? "U"}
+                        <div className="w-9 h-9 rounded-full bg-[#181D27] flex items-center justify-center text-white text-sm font-semibold shrink-0 relative overflow-hidden">
+                          {user?.imageUrl ? (
+                            <Image
+                              src={user.imageUrl}
+                              alt="Profile"
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            user?.name?.charAt(0).toUpperCase() ?? "U"
+                          )}
                         </div>
                         <span className="font-work-sans text-sm font-medium text-[#181D27] truncate">{user?.name}</span>
                       </div>

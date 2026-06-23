@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
+import { useAuthStore } from "@/stores/auth/use-auth-store";
 import {
   Briefcase,
   Users,
@@ -30,6 +31,7 @@ interface SPSidebarProps {
 
 export function SPSidebar({ isOpen, onToggle }: SPSidebarProps) {
   const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
 
   return (
     <>
@@ -77,14 +79,24 @@ export function SPSidebar({ isOpen, onToggle }: SPSidebarProps) {
                   />
                 </div>
                 {/* Avatar */}
-                <div className="mt-4 w-[110px] h-[110px] rounded-full overflow-hidden shadow-sm">
-                  <Image
-                    src="/images/user/user_avatar.png"
-                    alt="Profile"
-                    width={110}
-                    height={110}
-                    className="object-cover w-full h-full"
-                  />
+                <div className="mt-4 w-[110px] h-[110px] rounded-full overflow-hidden shadow-sm relative flex items-center justify-center bg-[#181D27]">
+                  {user?.imageUrl ? (
+                    <Image
+                      src={user.imageUrl}
+                      alt="Profile"
+                      width={110}
+                      height={110}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <Image
+                      src="/images/user/user_avatar.png"
+                      alt="Profile"
+                      width={110}
+                      height={110}
+                      className="object-cover w-full h-full"
+                    />
+                  )}
                 </div>
               </div>
 

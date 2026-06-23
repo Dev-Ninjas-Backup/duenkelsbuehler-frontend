@@ -45,14 +45,24 @@ export function AdminHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <div className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 sm:pr-3 rounded-full transition-colors outline-none">
-              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-100 shadow-sm shrink-0">
-                <Image
-                  src="/images/user/user_avatar.png"
-                  alt="Admin avatar"
-                  width={40}
-                  height={40}
-                  className="object-cover w-full h-full"
-                />
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-100 shadow-sm shrink-0 relative flex items-center justify-center bg-[#181D27]">
+                {user?.imageUrl ? (
+                  <Image
+                    src={user.imageUrl}
+                    alt="Admin avatar"
+                    width={40}
+                    height={40}
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  <Image
+                    src="/images/user/user_avatar.png"
+                    alt="Admin avatar"
+                    width={40}
+                    height={40}
+                    className="object-cover w-full h-full"
+                  />
+                )}
               </div>
               <div className="hidden sm:flex flex-col">
                 <span className="font-work-sans text-sm font-semibold text-[#181D27] leading-tight">
