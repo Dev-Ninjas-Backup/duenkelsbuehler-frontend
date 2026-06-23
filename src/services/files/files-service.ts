@@ -11,7 +11,10 @@ export const filesService = {
 
     const res = await fetch(`${BASE_URL}/files/upload-image`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "true",
+      },
       body: formData,
     })
 
@@ -26,7 +29,10 @@ export const filesService = {
 
     const res = await fetch(`${BASE_URL}/files/upload-document`, {
       method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "true",
+      },
       body: formData,
     })
 

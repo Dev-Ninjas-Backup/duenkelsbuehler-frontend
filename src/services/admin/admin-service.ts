@@ -9,11 +9,13 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 async function request<T>(endpoint: string, token: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
+    ...options,
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
+      "ngrok-skip-browser-warning": "true",
+      ...options?.headers,
     },
-    ...options,
   })
   const json = await res.json()
   if (!res.ok) throw new Error(json?.message || "Something went wrong")
@@ -22,7 +24,10 @@ async function request<T>(endpoint: string, token: string, options?: RequestInit
 
 async function publicRequest<T>(endpoint: string): Promise<T> {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+    },
   })
   const json = await res.json()
   if (!res.ok) throw new Error(json?.message || "Something went wrong")

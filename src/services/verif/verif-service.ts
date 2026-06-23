@@ -1,12 +1,20 @@
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 export interface VerifSessionResponse {
-  url: string
+  status: string
+  verification: {
+    id: string
+    url: string
+    vendorData: string | null
+    host: string
+    status: string
+    sessionToken: string
+  }
 }
 
 export interface CreateVerifSessionData {
   verification: {
-    callback: string
+    callback?: string
     person: {
       firstName: string
       lastName: string
@@ -30,6 +38,7 @@ export const verifService = {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "ngrok-skip-browser-warning": "true",
       },
       body: JSON.stringify(data),
     })
