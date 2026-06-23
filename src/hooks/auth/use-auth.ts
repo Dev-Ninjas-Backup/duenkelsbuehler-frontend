@@ -1,6 +1,7 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { authService } from "@/services/auth/auth-service"
+import { filesService } from "@/services/files/files-service"
 import { useAuthStore } from "@/stores/auth/use-auth-store"
 import type {
   LoginFormData,
@@ -151,4 +152,24 @@ export function useLogout() {
     clearAuth()
     router.push("/login")
   }
+}
+
+// ─── Update Profile Picture ───────────────────────────────────────
+export function useUpdateProfilePicture() {
+  const accessToken = useAuthStore((s) => s.accessToken)
+  const updateUser = useAuthStore((s) => s.updateUser)
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (file: File) => {
+      if (!accessToken) throw new Error("No access token found")
+      const uploadRes = await filesService.uploadImage(file, accessToken)
+      await authService.changeProfilePicture(uploadRes.url, accessToken)
+      return uploadRes.url
+    },
+    onSuccess: (imageUrl) => {
+      updateUser({ imageUrl })
+      queryClient.invalidateQueries({ queryKey: ["auth", "me"] })
+    },
+  })
 }

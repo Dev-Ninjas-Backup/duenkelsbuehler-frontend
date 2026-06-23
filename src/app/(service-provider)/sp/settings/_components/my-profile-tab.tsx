@@ -2,9 +2,12 @@
 
 import { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useGetMe } from "@/hooks/auth/use-auth";
+import { useGetMe, useUpdateProfilePicture } from "@/hooks/auth/use-auth";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
-import { useCreateServiceProvider, useAllServiceProviders } from "@/hooks/sp/use-sp";
+import { useCreateServiceProvider, useServiceProviderProfileByUserId } from "@/hooks/sp/use-sp";
+import Image from "next/image";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const inputCls = "w-full h-11 border border-gray-200 rounded-xl px-4 font-work-sans text-[13px] text-[#181D27] placeholder:text-gray-400 focus:outline-none focus:border-[#181D27] bg-white transition-colors";
 const readonlyCls = "w-full h-11 border border-gray-100 rounded-xl px-4 font-work-sans text-[13px] text-[#9CA3AF] bg-gray-50 cursor-not-allowed";
@@ -13,15 +16,30 @@ export function MyProfileTab() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: user, isLoading } = useGetMe();
   const { clearAuth } = useAuthStore();
-  const { data: allSPs = [] } = useAllServiceProviders();
+  const { data: spProfile, isLoading: isSpProfileLoading } = useServiceProviderProfileByUserId(user?.id ?? null);
   const { mutate: createSP, isPending: isCreating } = useCreateServiceProvider();
 
   const nameParts = user?.name?.split(" ") ?? [];
   const firstName = nameParts[0] ?? "";
   const lastName = nameParts.slice(1).join(" ") ?? "";
 
+  const { mutate: updateProfilePicture, isPending: isUploading } = useUpdateProfilePicture();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    updateProfilePicture(file, {
+      onSuccess: () => {
+        toast.success("Profile picture updated successfully!");
+      },
+      onError: (err) => {
+        toast.error(err.message || "Failed to upload profile picture");
+      },
+    });
+  };
+
   // Check if SP profile exists
-  const spProfile = allSPs.find((sp) => sp.userId === user?.id);
   const hasSpProfile = !!spProfile;
 
   // SP profile form state
@@ -43,7 +61,7 @@ export function MyProfileTab() {
     createSP(spForm);
   };
 
-  if (isLoading) {
+  if (isLoading || isSpProfileLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <span className="font-work-sans text-sm text-[#414651]">Loading...</span>
@@ -62,18 +80,46 @@ export function MyProfileTab() {
         <div className="flex flex-col items-center w-full lg:w-[260px] shrink-0 lg:border-r border-gray-100 pb-6 lg:pb-0 lg:pr-10 border-b lg:border-b-0">
           <h3 className="font-rozha text-xl text-[#181D27] mb-4 hidden lg:block text-center">Profile Picture</h3>
           <div className="relative mb-5 w-28 h-28 lg:w-32 lg:h-32">
-            <div className="w-full h-full rounded-full overflow-hidden border-4 border-gray-50 shadow-sm bg-[#181D27] flex items-center justify-center">
-              <span className="font-rozha text-4xl text-white">{user?.name?.charAt(0).toUpperCase() ?? "?"}</span>
+            <div className="w-full h-full rounded-full overflow-hidden border-4 border-gray-50 shadow-sm bg-[#181D27] flex items-center justify-center relative">
+              {isUploading && (
+                <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white backdrop-blur-[1px] z-10">
+                  <Loader2 className="w-8 h-8 animate-spin" />
+                </div>
+              )}
+              {user?.imageUrl ? (
+                <Image
+                  src={user.imageUrl}
+                  alt="Profile"
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <span className="font-rozha text-4xl text-white">
+                  {user?.name?.charAt(0).toUpperCase() ?? "?"}
+                </span>
+              )}
             </div>
-            <input ref={fileInputRef} type="file" accept="image/*" title="Upload profile picture" className="hidden" />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              title="Upload profile picture"
+              onChange={handleFileChange}
+              disabled={isUploading}
+              className="hidden"
+            />
           </div>
           <p className="font-work-sans text-[13px] text-[#535862] mb-5 text-center">
             This is your identity on AristoAccess.
           </p>
           <div className="flex flex-col gap-3 w-full">
-            <button type="button" onClick={() => fileInputRef.current?.click()}
-              className="h-10 px-5 rounded-full bg-[#181D27] text-white font-work-sans text-[13px] font-semibold hover:bg-[#181D27]/90 transition-colors w-full">
-              Upload new photo
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="h-10 px-5 rounded-full bg-[#181D27] text-white font-work-sans text-[13px] font-semibold hover:bg-[#181D27]/90 disabled:opacity-60 transition-colors w-full flex items-center justify-center gap-2"
+            >
+              {isUploading ? "Uploading..." : "Upload new photo"}
             </button>
             <button type="button" onClick={() => clearAuth()}
               className="h-10 px-5 rounded-full border border-red-200 text-red-500 font-work-sans text-[13px] font-semibold hover:bg-red-50 transition-colors w-full">

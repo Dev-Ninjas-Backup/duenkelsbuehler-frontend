@@ -5,100 +5,12 @@ import { AiFillWarning } from "react-icons/ai";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { MoreVertical, X, Trash2 } from "lucide-react";
+import { MoreVertical, Trash2 } from "lucide-react";
 import { useAdminUsers, useDeleteAdminUser } from "@/hooks/admin/use-admin";
 import { ProviderIcon } from "@/components/shared/provider-icons";
 import type { AdminUser } from "@/types/admin";
 import { toast } from "sonner";
-
-function UserDetailsModal({
-  user,
-  onClose,
-}: {
-  user: AdminUser;
-  onClose: () => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-        transition={{ duration: 0.2 }}
-        onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-md flex flex-col gap-5 shadow-xl"
-      >
-        <div className="flex items-center justify-between">
-          <h2 className="font-rozha text-2xl text-[#181D27]">User Details</h2>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="text-gray-400 hover:text-[#181D27]"
-          >
-            <X size={20} />
-          </button>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-[#181D27] flex items-center justify-center shrink-0">
-            <span className="font-rozha text-2xl text-white">
-              {user.name?.charAt(0).toUpperCase()}
-            </span>
-          </div>
-          <div>
-            <p className="font-rozha text-xl text-[#181D27]">{user.name}</p>
-            <p className="font-work-sans text-sm text-[#9CA3AF]">
-              {user.email}
-            </p>
-          </div>
-        </div>
-        <div className="h-px bg-gray-100" />
-        <div className="flex flex-col gap-3">
-          {[
-            { label: "Role", value: user.role?.join(", ") },
-            {
-              label: "Email Verified",
-              value: user.isEmailVerified ? "✅ Yes" : "❌ No",
-            },
-            {
-              label: "Identity Verified",
-              value: user.isIdentityVerified ? "✅ Yes" : "❌ No",
-            },
-            {
-              label: "Sign In",
-              value: user.firebaseUid ? "Google / Apple" : "Email",
-            },
-            {
-              label: "Member Since",
-              value: new Date(user.createdAt).toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              }),
-            },
-          ].map(({ label, value }) => (
-            <div
-              key={label}
-              className="flex items-center justify-between gap-4"
-            >
-              <span className="font-work-sans text-sm text-[#9CA3AF] shrink-0">
-                {label}
-              </span>
-              <span className="font-work-sans text-sm font-medium text-[#181D27] text-right">
-                {value}
-              </span>
-            </div>
-          ))}
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
+import { UserDetailsModal } from "@/components/shared/dashboard/user-details-modal";
 
 const containerVariants = {
   hidden: { opacity: 0 },

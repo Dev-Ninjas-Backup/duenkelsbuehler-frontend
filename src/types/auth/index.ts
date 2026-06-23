@@ -75,6 +75,7 @@ export interface AuthUser {
   isEmailVerified: boolean
   isIdentityVerified: boolean
   trustapUserId: string | null
+  imageUrl?: string | null
   createdAt: string
   updatedAt: string
 }
@@ -96,4 +97,5 @@ export interface AuthState {
   isAuthenticated: boolean
   setAuth: (user: AuthUser, accessToken: string, role: UserRole) => void
   clearAuth: () => void
+  updateUser: (user: Partial<AuthUser>) => void
 }

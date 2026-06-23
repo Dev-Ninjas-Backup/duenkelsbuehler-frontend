@@ -2,11 +2,20 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Plus, Pencil, X, ToggleLeft, ToggleRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useAdminPlans, useAdminCreatePlan, useAdminUpdatePlan, useAdminTotalSubscribers } from "@/hooks/subscription/use-subscription";
 import { useAdminUsers } from "@/hooks/admin/use-admin";
 import type { CreatePlanData, UpdatePlanData } from "@/services/subscription/subscription-service";
 import { toast } from "sonner";
+
+function parseFeatures(description: string): string[] {
+  if (!description) return [];
+  return description
+    .split(/✓|•|\n/)
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+}
 
 const inputCls = "w-full border border-gray-200 rounded-xl px-4 py-3 font-work-sans text-sm text-[#181D27] placeholder:text-gray-400 focus:outline-none focus:border-[#181D27] transition-colors";
 
@@ -192,36 +201,136 @@ export default function SubscriptionManagementPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {plans.map((plan) => (
-              <motion.div key={plan.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                className="bg-[#F9F9F9] rounded-2xl p-6 flex flex-col gap-3">
-                <div className="flex items-start justify-between">
+            {plans.map((plan) => {
+              const isPremium = plan.name.toLowerCase().includes("access") || plan.amount > 0;
+              const features = parseFeatures(plan.description);
+
+              return (
+                <motion.div
+                  key={plan.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`rounded-3xl p-6 flex flex-col justify-between min-h-[360px] shadow-sm transition-all duration-300 relative border ${
+                    isPremium
+                      ? "bg-[#181D27] text-white border-transparent hover:shadow-lg"
+                      : "bg-white text-[#181D27] border-gray-100 hover:shadow-md hover:border-gray-200"
+                  }`}
+                >
                   <div>
-                    <p className="font-rozha text-xl text-[#181D27]">{plan.name}</p>
-                    <p className="font-work-sans text-xs text-[#9CA3AF] mt-0.5">{plan.description}</p>
+                    {/* Header: Plan Name, Crown, and Actions */}
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex flex-col gap-1.5 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="font-rozha text-xl tracking-wide font-semibold truncate">
+                            {plan.name}
+                          </p>
+                          {isPremium && (
+                            <div className="relative w-5 h-5 shrink-0">
+                              <Image
+                                src="/svg/crown.svg"
+                                alt="Premium Plan"
+                                fill
+                                className="object-contain"
+                              />
+                            </div>
+                          )}
+                        </div>
+                        <span
+                          className={`w-fit px-2.5 py-0.5 rounded-full font-work-sans text-[10px] font-semibold uppercase tracking-wider ${
+                            plan.isActive
+                              ? isPremium
+                                ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                                : "bg-green-50 text-green-600 border border-green-100"
+                              : isPremium
+                                ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                                : "bg-red-50 text-red-500 border border-red-100"
+                          }`}
+                        >
+                          {plan.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <motion.button
+                          whileTap={{ scale: 0.85 }}
+                          title={plan.isActive ? "Deactivate" : "Activate"}
+                          onClick={() => handleToggleActive(plan)}
+                          className={`w-8 h-8 flex items-center justify-center rounded-full border transition-all shadow-sm ${
+                            isPremium
+                              ? "bg-white/10 border-white/10 hover:bg-white/20 text-white"
+                              : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-600"
+                          }`}
+                        >
+                          {plan.isActive ? (
+                            <ToggleRight size={16} className={isPremium ? "text-green-400" : "text-green-600"} />
+                          ) : (
+                            <ToggleLeft size={16} className={isPremium ? "text-gray-400" : "text-gray-400"} />
+                          )}
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.85 }}
+                          onClick={() => {
+                            setEditingPlan(plan);
+                            setModalOpen(true);
+                          }}
+                          className={`w-8 h-8 flex items-center justify-center rounded-full border transition-all shadow-sm ${
+                            isPremium
+                              ? "bg-white/10 border-white/10 hover:bg-white/20 text-white"
+                              : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-400 hover:text-[#181D27]"
+                          }`}
+                        >
+                          <Pencil size={13} />
+                        </motion.button>
+                      </div>
+                    </div>
+
+                    {/* Features Checklist */}
+                    <div className={`mt-5 pt-5 border-t ${isPremium ? "border-white/10" : "border-slate-100"}`}>
+                      <ul className="flex flex-col gap-2.5">
+                        {features.map((feat, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-xs font-work-sans">
+                            <span className="text-green-500 font-semibold shrink-0 mt-0.5">✓</span>
+                            <span className={isPremium ? "text-gray-300" : "text-slate-600"}>
+                              {feat}
+                            </span>
+                          </li>
+                        ))}
+                        {features.length === 0 && (
+                          <span className={`text-xs italic ${isPremium ? "text-gray-400" : "text-slate-400"}`}>
+                            No features listed
+                          </span>
+                        )}
+                      </ul>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <motion.button whileTap={{ scale: 0.85 }} title={plan.isActive ? "Deactivate" : "Activate"}
-                      onClick={() => handleToggleActive(plan)}
-                      className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-200 hover:border-gray-300 transition-colors shadow-sm">
-                      {plan.isActive ? <ToggleRight size={16} className="text-green-600" /> : <ToggleLeft size={16} className="text-gray-400" />}
-                    </motion.button>
-                    <motion.button whileTap={{ scale: 0.85 }}
-                      onClick={() => { setEditingPlan(plan); setModalOpen(true); }}
-                      className="w-8 h-8 flex items-center justify-center text-gray-400 bg-white border border-gray-200 rounded-full hover:text-[#181D27] transition-colors shadow-sm">
-                      <Pencil size={13} />
-                    </motion.button>
+
+                  {/* Price info at bottom */}
+                  <div className={`mt-6 pt-4 border-t flex items-end justify-between ${
+                    isPremium ? "border-white/10" : "border-slate-100"
+                  }`}>
+                    <span className={`text-[10px] font-work-sans font-bold uppercase tracking-wider ${
+                      isPremium ? "text-gray-400" : "text-slate-400"
+                    }`}>
+                      Price
+                    </span>
+                    <div className="flex items-baseline gap-0.5">
+                      <span className="font-work-sans text-xs font-semibold mr-0.5">
+                        {plan.currency}
+                      </span>
+                      <span className="font-rozha text-3xl font-semibold leading-none">
+                        {plan.amount}
+                      </span>
+                      <span className={`font-work-sans text-[10px] font-medium ml-0.5 ${
+                        isPremium ? "text-gray-400" : "text-slate-400"
+                      }`}>
+                        /{plan.interval === "MONTH" ? "mo" : "yr"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-end gap-1">
-                  <p className="font-rozha text-3xl text-[#181D27]">{plan.currency} {plan.amount}</p>
-                  <p className="font-work-sans text-sm text-[#9CA3AF] mb-1">/{plan.interval === "MONTH" ? "mo" : "yr"}</p>
-                </div>
-                <span className={`w-fit px-3 py-1 rounded-full font-work-sans text-xs font-medium ${plan.isActive ? "bg-green-50 text-green-600" : "bg-red-50 text-red-500"}`}>
-                  {plan.isActive ? "Active" : "Inactive"}
-                </span>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         )
       )}

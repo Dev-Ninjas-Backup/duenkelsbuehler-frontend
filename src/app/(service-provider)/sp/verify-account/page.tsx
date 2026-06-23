@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { LandingStep }   from "./_components/landing-step";
 import { SubscribeStep } from "./_components/subscribe-step";
-import { WelcomeStep }   from "./_components/welcome-step";
 import { UploadStep }    from "./_components/upload-step";
 import { SuccessModal }  from "./_components/success-modal";
 import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
@@ -13,9 +13,9 @@ import { useGetMe } from "@/hooks/auth/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { Suspense } from "react";
 
-type Step = "subscribe" | "welcome" | "upload" | "success";
+type Step = "landing" | "subscribe" | "upload" | "success";
 
-const STEPS: Step[] = ["subscribe", "welcome", "upload", "success"];
+const STEPS: Step[] = ["landing", "subscribe", "upload", "success"];
 
 const slideVariants = {
   enter:  (dir: number) => ({ opacity: 0, x: dir > 0 ?  40 : -40 }),
@@ -24,7 +24,7 @@ const slideVariants = {
 };
 
 function VerifyAccountContent() {
-  const [step, setStep]           = useState<Step>("subscribe");
+  const [step, setStep]           = useState<Step>("landing");
   const [direction, setDirection] = useState(1);
   const [ready, setReady]         = useState(false);
   const [retrying, setRetrying]   = useState(false);
@@ -73,9 +73,15 @@ function VerifyAccountContent() {
       setStep("success");
     } else if (activeSub) {
       setStep("upload");
-    } else if (!fromStripe || retryCount.current >= 6) {
-      // TODO: change "upload" back to "subscribe" when webhook is fixed
-      setStep("upload");
+    } else {
+      // If there is no active subscription, we default to "landing"
+      // but we shouldn't force them back to "landing" if they are currently in the middle of "subscribe" (plans selection)
+      setStep((prev) => {
+        if (prev === "upload" || prev === "success") {
+          return "landing";
+        }
+        return prev;
+      });
     }
 
     if (!retrying) setReady(true);
@@ -89,7 +95,7 @@ function VerifyAccountContent() {
   const goNext = () => goTo(STEPS[STEPS.indexOf(step) + 1]);
   const goBack = () => goTo(STEPS[STEPS.indexOf(step) - 1]);
 
-  const showBack = step !== "subscribe" && step !== "success" && step !== "upload";
+  const showBack = step !== "landing" && step !== "success" && step !== "upload";
 
   if (!ready || retrying) {
     return (
@@ -105,12 +111,12 @@ function VerifyAccountContent() {
   }
 
   return (
-    <div className="flex flex-col h-full px-2 py-6 lg:px-8">
+    <div className="flex flex-col h-full px-2 py-2 lg:px-8">
       <motion.h1
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
-        className="font-rozha text-4xl lg:text-5xl text-[#181D27] text-center mb-2"
+        className="font-rozha text-3xl lg:text-4xl text-[#181D27] text-center mb-1 mt-8"
       >
         Verify Account
       </motion.h1>
@@ -119,7 +125,7 @@ function VerifyAccountContent() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.1 }}
-        className="font-work-sans text-sm text-[#414651] text-center mb-8"
+        className="font-work-sans text-sm text-[#414651] text-center mb-4"
       >
         For verifying your identity you will have to subscribe to AristoAccess +
       </motion.p>
@@ -132,7 +138,7 @@ function VerifyAccountContent() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
             onClick={goBack}
-            className="flex items-center gap-1.5 font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors mb-6 self-start"
+            className="flex items-center gap-1.5 font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors mb-3 self-start"
           >
             <ChevronLeft size={16} /> Back
           </motion.button>
@@ -150,8 +156,8 @@ function VerifyAccountContent() {
           transition={{ duration: 0.3, ease: "easeInOut" }}
           className="flex-1 overflow-y-auto pb-6"
         >
+          {step === "landing"   && <LandingStep   onNext={goNext} />}
           {step === "subscribe" && <SubscribeStep onNext={goNext} />}
-          {step === "welcome"   && <WelcomeStep   onNext={goNext} />}
           {step === "upload"    && <UploadStep    onNext={goNext} />}
         </motion.div>
       </AnimatePresence>

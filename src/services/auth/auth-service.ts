@@ -120,4 +120,15 @@ export const authService = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  // PATCH /auth/change-profile-picture
+  changeProfilePicture: (url: string, accessToken: string) =>
+    request<MessageResponse>("/auth/change-profile-picture", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ url }),
+    }),
 }

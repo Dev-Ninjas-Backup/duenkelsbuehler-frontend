@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight, Bookmark, Star, Settings } from "lucide-react";
 import Image from "next/image";
+import { useAuthStore } from "@/stores/auth/use-auth-store";
 
 const navItems = [
   { label: "Saved S.P's", href: "/client/my-services", icon: Bookmark },
@@ -19,6 +20,7 @@ interface ClientSidebarProps {
 
 export function ClientSidebar({ isOpen, onToggle }: ClientSidebarProps) {
   const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
 
   return (
     <>
@@ -57,14 +59,24 @@ export function ClientSidebar({ isOpen, onToggle }: ClientSidebarProps) {
                 <div className="mt-4 mb-3">
                   <Image src="/svg/crown.svg" alt="Crown" width={40} height={32} />
                 </div>
-                <div className="mt-4 w-[110px] h-[110px] rounded-full overflow-hidden shadow-sm">
-                  <Image
-                    src="/images/user/user_avatar.png"
-                    alt="Profile"
-                    width={110}
-                    height={110}
-                    className="object-cover w-full h-full"
-                  />
+                <div className="mt-4 w-[110px] h-[110px] rounded-full overflow-hidden shadow-sm relative flex items-center justify-center bg-[#181D27]">
+                  {user?.imageUrl ? (
+                    <Image
+                      src={user.imageUrl}
+                      alt="Profile"
+                      width={110}
+                      height={110}
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    <Image
+                      src="/images/user/user_avatar.png"
+                      alt="Profile"
+                      width={110}
+                      height={110}
+                      className="object-cover w-full h-full"
+                    />
+                  )}
                 </div>
               </div>
 
