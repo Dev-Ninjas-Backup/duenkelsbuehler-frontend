@@ -3,13 +3,14 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight, Bookmark, Star, Settings } from "lucide-react";
+import { ChevronLeft, ChevronRight, Bookmark, Star, Settings, ShieldCheck } from "lucide-react";
 import Image from "next/image";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
 
 const navItems = [
   { label: "Saved S.P's", href: "/client/my-services", icon: Bookmark },
   { label: "Rating & Badges", href: "/client/ratings-rewards", icon: Star },
+  { label: "Verify Account", href: "/client/verify-account", icon: ShieldCheck },
   { label: "Settings", href: "/client/settings", icon: Settings },
 ];
 

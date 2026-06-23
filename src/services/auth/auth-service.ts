@@ -20,8 +20,12 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE_URL}${endpoint}`, {
-    headers: { "Content-Type": "application/json" },
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      "ngrok-skip-browser-warning": "true",
+      ...options?.headers,
+    },
   })
 
   const json = await res.json()

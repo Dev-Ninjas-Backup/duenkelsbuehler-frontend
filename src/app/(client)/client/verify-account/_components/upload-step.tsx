@@ -31,7 +31,7 @@ export function UploadStep({ onNext }: { onNext: () => void }) {
     createSession(
       {
         verification: {
-          // callback: `${window.location.origin}/sp/verify-account`,
+          // callback: `${window.location.origin}/client/verify-account`,
           person: { firstName, lastName, email, idNumber, dateOfBirth, gender },
           document: { number: docNumber, type: docType, country },
         },
