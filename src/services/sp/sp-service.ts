@@ -25,8 +25,19 @@ export const serviceItemService = {
   create: (data: CreateServiceItemData, token: string) =>
     request<ServiceItem>("/services/provider/create", token, { method: "POST", body: JSON.stringify(data) }),
 
-  findAll: (token: string) =>
-    request<ServiceItem[]>("/services/all-services", token),
+  findAll: (
+    token: string,
+    params?: { name?: string; industry?: string; location?: string; page?: number; limit?: number }
+  ) => {
+    const query = new URLSearchParams()
+    if (params?.name) query.append("name", params.name)
+    if (params?.industry) query.append("industry", params.industry)
+    if (params?.location) query.append("location", params.location)
+    if (params?.page) query.append("page", String(params.page))
+    if (params?.limit) query.append("limit", String(params.limit))
+    const qs = query.toString()
+    return request<any>(`/services/all-services${qs ? `?${qs}` : ""}`, token)
+  },
 
   findMy: (token: string) =>
     request<ServiceItem[]>("/services/my", token),
