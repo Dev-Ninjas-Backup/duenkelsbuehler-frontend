@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Bookmark, ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import { Bookmark, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import { AiFillMessage } from "react-icons/ai";
 import { useMyFavorites, useRemoveFavorite } from "@/hooks/favorites/use-favorites";
+import { toast } from "sonner";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
@@ -51,9 +53,10 @@ export default function ClientMyServicesPage() {
       </motion.h1>
 
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.1 }}
-        className="hidden lg:grid grid-cols-[40px_1fr_100px] bg-[#181D27] text-white rounded-[16px] px-6 py-3.5 mb-3">
+        className="hidden lg:grid grid-cols-[40px_280px_1fr_100px] bg-[#181D27] text-white rounded-[16px] px-6 py-3.5 mb-3">
         <span className="font-work-sans text-sm font-medium">Sl</span>
         <span className="font-work-sans text-sm font-medium">Name</span>
+        <span className="font-work-sans text-sm font-medium">Badge</span>
         <span className="font-work-sans text-sm font-medium text-center">Action</span>
       </motion.div>
 
@@ -69,7 +72,7 @@ export default function ClientMyServicesPage() {
             </div>
           ) : paginated.map((fav, index) => (
             <motion.div key={fav.favoriteId} variants={rowVariants}
-              className="flex flex-col lg:grid lg:grid-cols-[40px_1fr_100px] bg-[#F9F9F9] rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 items-start lg:items-center border border-gray-100/80 hover:bg-[#EFEFEF] transition-colors gap-3 lg:gap-0 mt-1">
+              className="flex flex-col lg:grid lg:grid-cols-[40px_280px_1fr_100px] bg-[#F9F9F9] rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 items-start lg:items-center border border-gray-100/80 hover:bg-[#EFEFEF] transition-colors gap-3 lg:gap-0 mt-1">
               <span className="hidden lg:block font-work-sans text-sm text-[#414651]">
                 {(currentPage - 1) * pageSize + index + 1}
               </span>
@@ -86,9 +89,27 @@ export default function ClientMyServicesPage() {
                 </div>
               </div>
 
+              {/* Badge */}
+              <div className="flex items-center">
+                {(fav.user as any).isIdentityVerified ? (
+                  <span className="flex items-center gap-1.5 font-work-sans text-xs font-semibold text-green-600 bg-green-50 border border-green-200 px-3 py-1.5 rounded-full w-max">
+                    <Image src="/svg/crown.svg" alt="Verified Crown" width={14} height={11} className="w-3.5 h-3.5 shrink-0 object-contain" />
+                    Verified
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 font-work-sans text-xs font-semibold text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full w-max">
+                    <AlertTriangle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                    Unverified
+                  </span>
+                )}
+              </div>
+
               <div className="flex items-center justify-center gap-3">
                 <motion.button whileTap={{ scale: 0.85 }}
-                  onClick={() => removeFavorite(fav.user.id)}
+                  onClick={() => removeFavorite(fav.user.id, {
+                    onSuccess: () => toast.success("Removed from favorites"),
+                    onError: (err: any) => toast.error(err?.message || "Failed to remove from favorites")
+                  })}
                   className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-red-50 hover:text-red-500 transition-colors"
                   aria-label="Remove from saved">
                   <Bookmark className="h-[14px] w-[14px] fill-[#181D27]" />

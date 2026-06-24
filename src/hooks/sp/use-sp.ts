@@ -17,11 +17,11 @@ export function useServiceItems() {
   })
 }
 
-export function useAllServiceItems() {
+export function useAllServiceItems(params?: { name?: string; industry?: string; location?: string; page?: number; limit?: number }) {
   const token = useToken()
   return useQuery({
-    queryKey: ["service-items", "all"],
-    queryFn: () => serviceItemService.findAll(token),
+    queryKey: ["service-items", "all", params],
+    queryFn: () => serviceItemService.findAll(token, params),
     enabled: !!token,
   })
 }

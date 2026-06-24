@@ -34,6 +34,9 @@ export interface ServiceProvider {
   isVerifiedFromAdmin: boolean
   createdAt: string
   updatedAt: string
+  user?: {
+    imageUrl?: string | null
+  }
 }
 
 export interface CreateServiceProviderData {
