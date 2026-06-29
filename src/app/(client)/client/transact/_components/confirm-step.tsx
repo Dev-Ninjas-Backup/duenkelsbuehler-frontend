@@ -5,20 +5,13 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { AiFillWarning } from "react-icons/ai";
-import { SP } from "./types";
+import { useTransactStore } from "@/stores/transact/use-transact-store";
 
-export function ConfirmStep({
-  sp,
-  contractFile,
-  onNext,
-  onRemoveFile,
-}: {
-  sp: SP;
-  contractFile: File | null;
-  onNext: (docuSign: boolean) => void;
-  onRemoveFile: () => void;
-}) {
-  const [docuSign, setDocuSign] = useState(false);
+export function ConfirmStep() {
+  const { data, updateData, setStep } = useTransactStore();
+  const sp = data.sp!;
+  const contractFile = data.contractFile;
+  const [docuSign, setDocuSign] = useState(data.docuSign);
 
   return (
     <motion.div
@@ -40,8 +33,8 @@ export function ConfirmStep({
 
       {/* SP Card */}
       <div className="w-full bg-[#F9F9F9] rounded-2xl px-5 py-4 flex items-center gap-4 mb-4">
-        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
-          <Image src={sp.avatar} alt={sp.name} width={48} height={48} className="object-cover w-full h-full" />
+        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 relative">
+          <Image src={sp.avatar} alt={sp.name} fill className="object-cover" />
         </div>
         <div>
           <p className="font-rozha text-lg text-[#181D27]">{sp.name}</p>
@@ -62,7 +55,7 @@ export function ConfirmStep({
             </svg>
           </div>
           <p className="font-rozha text-base text-[#181D27] flex-1">{contractFile.name}</p>
-          <button onClick={onRemoveFile} className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center">
+          <button onClick={() => updateData({ contractFile: null })} className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center">
             <X size={14} className="text-white" />
           </button>
         </div>
@@ -81,13 +74,27 @@ export function ConfirmStep({
         </span>
       </label>
 
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        onClick={() => onNext(docuSign)}
-        className="px-8 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
-      >
-        Next
-      </motion.button>
+      <div className="flex items-center gap-6">
+        <button
+          onClick={() => {
+            updateData({ docuSign });
+            setStep("contract");
+          }}
+          className="font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors"
+        >
+          Back
+        </button>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            updateData({ docuSign });
+            setStep("proposal-details");
+          }}
+          className="px-8 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
+        >
+          Next
+        </motion.button>
+      </div>
     </motion.div>
   );
 }

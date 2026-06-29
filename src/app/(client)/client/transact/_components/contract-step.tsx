@@ -5,19 +5,13 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Upload } from "lucide-react";
 import { AiFillWarning } from "react-icons/ai";
-import { SP } from "./types";
+import { useTransactStore } from "@/stores/transact/use-transact-store";
 
-export function ContractStep({
-  sp,
-  onNext,
-  onSkip,
-}: {
-  sp: SP;
-  onNext: (file: File | null) => void;
-  onSkip: () => void;
-}) {
+export function ContractStep() {
+  const { data, updateData, setStep } = useTransactStore();
+  const sp = data.sp!;
   const fileRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(data.contractFile);
 
   return (
     <motion.div
@@ -39,8 +33,8 @@ export function ContractStep({
 
       {/* SP Card */}
       <div className="w-full bg-[#F9F9F9] rounded-2xl px-5 py-4 flex items-center gap-4 mb-8">
-        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
-          <Image src={sp.avatar} alt={sp.name} width={48} height={48} className="object-cover w-full h-full" />
+        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 relative">
+          <Image src={sp.avatar} alt={sp.name} fill className="object-cover" />
         </div>
         <div>
           <p className="font-rozha text-lg text-[#181D27]">{sp.name}</p>
@@ -77,12 +71,30 @@ export function ContractStep({
       </p>
 
       <div className="flex items-center gap-6">
-        <button onClick={onSkip} className="font-work-sans text-sm text-[#414651] underline underline-offset-2">
+        <button
+          onClick={() => {
+            updateData({ contractFile: file });
+            setStep("search");
+          }}
+          className="font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors"
+        >
+          Back
+        </button>
+        <button
+          onClick={() => {
+            updateData({ contractFile: null });
+            setStep("confirm");
+          }}
+          className="font-work-sans text-sm text-[#414651] underline underline-offset-2"
+        >
           Skip
         </button>
         <motion.button
           whileTap={{ scale: 0.95 }}
-          onClick={() => onNext(file)}
+          onClick={() => {
+            updateData({ contractFile: file });
+            setStep("confirm");
+          }}
           className="px-8 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
         >
           Next

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { AiFillWarning } from "react-icons/ai";
+import { useTransactStore } from "@/stores/transact/use-transact-store";
 
 const MOCK_SPS = Array.from({ length: 6 }, (_, i) => ({
   id: i + 1,
@@ -27,8 +28,9 @@ const cardVariants = {
   },
 };
 
-export function TrackStep({ onBack }: { onBack: () => void }) {
+export function TrackStep() {
   const [selected, setSelected] = useState<number | null>(null);
+  const { setStep } = useTransactStore();
   const activeStep = 0;
 
   return (
@@ -100,6 +102,16 @@ export function TrackStep({ onBack }: { onBack: () => void }) {
                 </motion.div>
               ))}
             </motion.div>
+          </div>
+
+          <div className="flex justify-center mt-6 shrink-0">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setStep(null)}
+              className="px-8 h-10 rounded-full border border-gray-200 font-work-sans text-sm text-[#414651] font-medium hover:bg-gray-50 transition-colors"
+            >
+              ← Back
+            </motion.button>
           </div>
         </>
       ) : (

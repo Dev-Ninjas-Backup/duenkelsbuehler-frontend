@@ -2,19 +2,18 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useTransactStore } from "@/stores/transact/use-transact-store";
 
 const inputCls = "w-full h-12 border border-gray-200 rounded-xl px-4 font-work-sans text-sm text-[#181D27] placeholder:text-gray-400 focus:outline-none focus:border-[#181D27] bg-white transition-colors";
 const labelCls = "font-work-sans text-sm font-medium text-[#181D27]";
 
-export function ProposalDetailsStep({
-  onNext,
-}: {
-  onNext: (data: { title: string; issueDate: string; dueDate: string; price: string }) => void;
-}) {
-  const [title, setTitle] = useState("");
-  const [issueDate, setIssueDate] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [price, setPrice] = useState("");
+export function ProposalDetailsStep() {
+  const { data, updateData, setStep } = useTransactStore();
+
+  const [title, setTitle] = useState(data.title);
+  const [issueDate, setIssueDate] = useState(data.issueDate);
+  const [dueDate, setDueDate] = useState(data.dueDate);
+  const [price, setPrice] = useState(data.price);
 
   const canNext = title && issueDate && dueDate && price;
 
@@ -54,10 +53,22 @@ export function ProposalDetailsStep({
           <input value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Enter Price" className={inputCls} />
         </div>
 
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center items-center gap-6 pt-2">
+          <button
+            onClick={() => {
+              updateData({ title, issueDate, dueDate, price });
+              setStep("confirm");
+            }}
+            className="font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors"
+          >
+            Back
+          </button>
           <motion.button
             whileTap={{ scale: 0.95 }}
-            onClick={() => onNext({ title, issueDate, dueDate, price })}
+            onClick={() => {
+              updateData({ title, issueDate, dueDate, price });
+              setStep("final-remarks");
+            }}
             disabled={!canNext}
             className="px-8 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
