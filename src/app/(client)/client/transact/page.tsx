@@ -1,37 +1,44 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { Suspense } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { SearchStep } from "./_components/search-step";
-import { ContractStep } from "./_components/contract-step";
-import { ConfirmStep } from "./_components/confirm-step";
 import { ProposalDetailsStep } from "./_components/proposal-details-step";
 import { FinalRemarksStep } from "./_components/final-remarks-step";
 import { ReadyStep } from "./_components/ready-step";
 import { TrackStep } from "./_components/track-step";
-import { SP, SubStep, ProposalData } from "./_components/types";
+import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
+import { useTransactStore } from "@/stores/transact/use-transact-store";
 
 function CrownSVG() {
   return <Image src="/svg/black_crown.svg" alt="Crown" width={56} height={40} className="object-contain" />;
 }
 
-const EMPTY_DATA: ProposalData = {
-  sp: null, contractFile: null, docuSign: false,
-  title: "", issueDate: "", dueDate: "", price: "",
-  notes: "", terms: "", confirmSP: false, confirmUnverified: false,
-};
-
 function TransactContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [subscribed] = useState(() => searchParams.get("subscribed") === "true");
-  const [step, setStep] = useState<SubStep | null>(null);
-  const [data, setData] = useState<ProposalData>(EMPTY_DATA);
+  
+  const { data: subscriptions = [], isLoading: isSubLoading } = useMySubscriptions();
+  const hasActiveSubscription = subscriptions.some((s) => s.status === "ACTIVE" || s.status === "TRIALING");
+  const subscribed = hasActiveSubscription || searchParams.get("subscribed") === "true";
+
+  const { step, setStep, data } = useTransactStore();
 
   const btnDark = "w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors";
   const btnGreen = "w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold transition-colors hover:text-[#16A34A]";
+
+  if (isSubLoading) {
+    return (
+      <div className="flex flex-col h-full items-center justify-center">
+        <svg className="animate-spin h-8 w-8 text-[#181D27]" viewBox="0 0 24 24" fill="none">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      </div>
+    );
+  }
 
   // ── Unsubscribed landing ──
   if (!subscribed && step === null) {
@@ -118,50 +125,19 @@ function TransactContent() {
     <div className="flex flex-col h-full px-2 py-6 lg:px-8 overflow-y-auto">
       <AnimatePresence mode="wait">
         {step === "track" && (
-          <TrackStep key="track" onBack={() => setStep(null)} />
+          <TrackStep key="track" />
         )}
         {step === "search" && (
-          <SearchStep
-            key="search"
-            onSelect={(sp: SP) => { setData((d) => ({ ...d, sp })); setStep("contract"); }}
-          />
-        )}
-        {step === "contract" && data.sp && (
-          <ContractStep
-            key="contract"
-            sp={data.sp}
-            onNext={(file) => { setData((d) => ({ ...d, contractFile: file })); setStep("confirm"); }}
-            onSkip={() => { setData((d) => ({ ...d, contractFile: null })); setStep("confirm"); }}
-          />
-        )}
-        {step === "confirm" && data.sp && (
-          <ConfirmStep
-            key="confirm"
-            sp={data.sp}
-            contractFile={data.contractFile}
-            onNext={(docuSign) => { setData((d) => ({ ...d, docuSign })); setStep("proposal-details"); }}
-            onRemoveFile={() => setData((d) => ({ ...d, contractFile: null }))}
-          />
+          <SearchStep key="search" />
         )}
         {step === "proposal-details" && (
-          <ProposalDetailsStep
-            key="proposal-details"
-            onNext={(pd) => { setData((d) => ({ ...d, ...pd })); setStep("final-remarks"); }}
-          />
+          <ProposalDetailsStep key="proposal-details" />
         )}
         {step === "final-remarks" && (
-          <FinalRemarksStep
-            key="final-remarks"
-            onNext={(rd) => { setData((d) => ({ ...d, ...rd })); setStep("ready"); }}
-            onSkip={() => setStep("ready")}
-          />
+          <FinalRemarksStep key="final-remarks" />
         )}
         {step === "ready" && data.sp && (
-          <ReadyStep
-            key="ready"
-            sp={data.sp}
-            onDone={() => { setData(EMPTY_DATA); setStep(null); }}
-          />
+          <ReadyStep key="ready" />
         )}
       </AnimatePresence>
     </div>

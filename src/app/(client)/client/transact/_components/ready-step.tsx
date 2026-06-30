@@ -5,7 +5,9 @@ import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { AiFillWarning } from "react-icons/ai";
-import { SP } from "./types";
+import { useTransactStore } from "@/stores/transact/use-transact-store";
+import { useSendDirectProposal } from "@/hooks/sp/use-sp";
+import { toast } from "sonner";
 
 function KaChingModal({ onClose }: { onClose: () => void }) {
   const [mounted, setMounted] = useState(false);
@@ -40,10 +42,34 @@ function KaChingModal({ onClose }: { onClose: () => void }) {
   return createPortal(content, document.body);
 }
 
-export function ReadyStep({ sp, onDone }: { sp: SP; onDone: () => void }) {
-  const [confirmSP, setConfirmSP] = useState(false);
-  const [confirmUnverified, setConfirmUnverified] = useState(false);
+function toIsoDate(dateStr: string): string {
+  if (!dateStr) return new Date().toISOString();
+  if (dateStr.includes("T")) return dateStr;
+  const parts = dateStr.split("/");
+  if (parts.length === 3) {
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1;
+    const year = parseInt(parts[2], 10);
+    if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+      return new Date(Date.UTC(year, month, day, 10, 0, 0)).toISOString();
+    }
+  }
+  const parsed = Date.parse(dateStr);
+  if (!isNaN(parsed)) {
+    return new Date(parsed).toISOString();
+  }
+  return new Date().toISOString();
+}
+
+export function ReadyStep() {
+  const { data, updateData, resetTransact, setStep } = useTransactStore();
+  const sp = data.sp!;
+
+  const [confirmSP, setConfirmSP] = useState(data.confirmSP);
+  const [confirmUnverified, setConfirmUnverified] = useState(data.confirmUnverified);
   const [showModal, setShowModal] = useState(false);
+
+  const { mutate: sendProposal, isPending } = useSendDirectProposal();
 
   useEffect(() => {
     if (!showModal) return;
@@ -55,8 +81,38 @@ export function ReadyStep({ sp, onDone }: { sp: SP; onDone: () => void }) {
   const canSubmit = confirmSP && (!sp.verified ? confirmUnverified : true);
 
   const handleSubmit = () => {
-    setShowModal(true);
-    setTimeout(() => { setShowModal(false); onDone(); }, 2500);
+    const isoIssueDate = toIsoDate(data.issueDate);
+    const isoDueDate = toIsoDate(data.dueDate);
+    const numericPrice = Number(data.price);
+
+    sendProposal(
+      {
+        providerId: sp.id,
+        data: {
+          proposalTitle: data.title,
+          serviceDescription: data.serviceDescription,
+          issueDate: isoIssueDate,
+          dueDate: isoDueDate,
+          proposedPrice: numericPrice,
+          currency: data.currency,
+          paymentMethod: data.paymentMethod,
+          notes: data.notes || undefined,
+          terms: data.terms || undefined,
+        },
+      },
+      {
+        onSuccess: () => {
+          setShowModal(true);
+          setTimeout(() => {
+            setShowModal(false);
+            resetTransact();
+          }, 2500);
+        },
+        onError: (err: any) => {
+          toast.error(err?.message || "Failed to send proposal. Please try again.");
+        },
+      }
+    );
   };
 
   return (
@@ -80,8 +136,8 @@ export function ReadyStep({ sp, onDone }: { sp: SP; onDone: () => void }) {
 
         {/* SP Card */}
         <div className="w-full bg-[#F9F9F9] rounded-2xl px-5 py-4 flex items-center gap-4 mb-6">
-          <div className="w-12 h-12 rounded-full overflow-hidden shrink-0">
-            <Image src={sp.avatar} alt={sp.name} width={48} height={48} className="object-cover w-full h-full" />
+          <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 relative">
+            <Image src={sp.avatar} alt={sp.name} fill className="object-cover" />
           </div>
           <div>
             <p className="font-rozha text-lg text-[#181D27]">{sp.name}</p>
@@ -96,29 +152,68 @@ export function ReadyStep({ sp, onDone }: { sp: SP; onDone: () => void }) {
         {/* Checkboxes */}
         <div className="flex flex-col gap-4 w-full mb-8">
           <label className="flex items-start gap-3 cursor-pointer">
-            <input type="checkbox" checked={confirmSP} onChange={(e) => setConfirmSP(e.target.checked)} className="w-4 h-4 mt-0.5 accent-[#181D27]" />
+            <input
+              type="checkbox"
+              checked={confirmSP}
+              onChange={(e) => {
+                setConfirmSP(e.target.checked);
+                updateData({ confirmSP: e.target.checked });
+              }}
+              className="w-4 h-4 mt-0.5 accent-[#181D27]"
+            />
             <span className="font-work-sans text-sm text-[#414651]">Click this box to confirm you are requesting the correct S.P</span>
           </label>
           {!sp.verified && (
             <label className="flex items-start gap-3 cursor-pointer">
-              <input type="checkbox" checked={confirmUnverified} onChange={(e) => setConfirmUnverified(e.target.checked)} className="w-4 h-4 mt-0.5 accent-[#181D27]" />
+              <input
+                type="checkbox"
+                checked={confirmUnverified}
+                onChange={(e) => {
+                  setConfirmUnverified(e.target.checked);
+                  updateData({ confirmUnverified: e.target.checked });
+                }}
+                className="w-4 h-4 mt-0.5 accent-[#181D27]"
+              />
               <span className="font-work-sans text-sm text-[#414651]">By clicking here you acknowledge that you are making a transaction with an unverified user.</span>
             </label>
           )}
         </div>
 
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={handleSubmit}
-          disabled={!canSubmit}
-          className="px-8 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          Submit
-        </motion.button>
+        <div className="flex justify-center items-center gap-6 mt-4">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              updateData({ confirmSP, confirmUnverified });
+              setStep("final-remarks");
+            }}
+            disabled={isPending}
+            className="w-36 h-12 rounded-full border border-gray-200 font-work-sans text-sm text-[#414651] font-medium hover:bg-gray-50 transition-colors disabled:opacity-40"
+          >
+            ← Back
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSubmit}
+            disabled={!canSubmit || isPending}
+            className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isPending ? (
+              <>
+                <svg className="animate-spin h-4 w-4 text-white animate-infinite" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Submitting...
+              </>
+            ) : (
+              "Submit"
+            )}
+          </motion.button>
+        </div>
       </motion.div>
 
       <AnimatePresence>
-        {showModal && <KaChingModal onClose={() => { setShowModal(false); onDone(); }} />}
+        {showModal && <KaChingModal onClose={() => { setShowModal(false); resetTransact(); }} />}
       </AnimatePresence>
     </>
   );

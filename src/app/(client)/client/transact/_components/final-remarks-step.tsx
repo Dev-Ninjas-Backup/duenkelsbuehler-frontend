@@ -2,19 +2,16 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useTransactStore } from "@/stores/transact/use-transact-store";
 
 const textareaCls = "w-full border border-gray-200 rounded-xl px-4 py-3 font-work-sans text-sm text-[#181D27] placeholder:text-gray-400 focus:outline-none focus:border-[#181D27] bg-white transition-colors resize-none";
 const labelCls = "font-work-sans text-sm font-medium text-[#181D27]";
 
-export function FinalRemarksStep({
-  onNext,
-  onSkip,
-}: {
-  onNext: (data: { notes: string; terms: string }) => void;
-  onSkip: () => void;
-}) {
-  const [notes, setNotes] = useState("");
-  const [terms, setTerms] = useState("");
+export function FinalRemarksStep() {
+  const { data, updateData, setStep } = useTransactStore();
+
+  const [notes, setNotes] = useState(data.notes);
+  const [terms, setTerms] = useState(data.terms);
 
   return (
     <motion.div
@@ -58,13 +55,32 @@ export function FinalRemarksStep({
         </div>
 
         <div className="flex justify-center items-center gap-6 pt-2">
-          <button onClick={onSkip} className="font-work-sans text-sm text-[#414651] underline underline-offset-2">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              updateData({ notes, terms });
+              setStep("proposal-details");
+            }}
+            className="w-36 h-12 rounded-full border border-gray-200 font-work-sans text-sm text-[#414651] font-medium hover:bg-gray-50 transition-colors"
+          >
+            ← Back
+          </motion.button>
+          <button
+            onClick={() => {
+              updateData({ notes: "", terms: "" });
+              setStep("ready");
+            }}
+            className="font-work-sans text-sm text-[#414651] underline underline-offset-2"
+          >
             Skip
           </button>
           <motion.button
             whileTap={{ scale: 0.95 }}
-            onClick={() => onNext({ notes, terms })}
-            className="px-8 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
+            onClick={() => {
+              updateData({ notes, terms });
+              setStep("ready");
+            }}
+            className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
           >
             Next
           </motion.button>

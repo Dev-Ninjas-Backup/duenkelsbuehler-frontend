@@ -77,3 +77,33 @@ export const serviceProviderService = {
   remove: (id: number, token: string) =>
     request<void>(`/service-provider/${id}`, token, { method: "DELETE" }),
 }
+
+export interface CreateDirectProposalData {
+  proposalTitle: string;
+  serviceDescription: string;
+  issueDate: string;
+  dueDate: string;
+  proposedPrice: number;
+  currency: string;
+  paymentMethod: "TRUST_APP" | "BANK_TRANSFER" | "CARD";
+  notes?: string;
+  terms?: string;
+}
+
+export const proposalService = {
+  sendDirectProposal: (providerId: number, data: CreateDirectProposalData, token: string) =>
+    request<any>(`/services/${providerId}/send-proposal`, token, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  getMySentProposals: (token: string) =>
+    request<any[]>("/services/proposals/my-sent", token),
+  getClientReceivedProposals: (token: string) =>
+    request<any[]>("/services/proposals/client-received", token),
+  getReceivedProposals: (token: string) =>
+    request<any[]>("/services/proposals/received", token),
+  acceptProposal: (proposalId: number, token: string) =>
+    request<any>(`/services/proposals/${proposalId}/accept`, token, { method: "PATCH" }),
+  declineProposal: (proposalId: number, token: string) =>
+    request<any>(`/services/proposals/${proposalId}/decline`, token, { method: "PATCH" }),
+}

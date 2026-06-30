@@ -1,12 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
-import { AiFillWarning } from "react-icons/ai";
-import { MOCK_SPS } from "./data";
+import { Search, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import { SP } from "./types";
+import { useAllServiceItems } from "@/hooks/sp/use-sp";
+import { useAddFavorite, useRemoveFavorite, useMyFavorites } from "@/hooks/favorites/use-favorites";
+import { useTransactStore } from "@/stores/transact/use-transact-store";
+import { toast } from "sonner";
+
+interface DiscoverUser {
+  id: number;
+  name: string;
+  role: string[];
+  imageUrl: string | null;
+  isIdentityVerified: boolean;
+}
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
@@ -23,21 +33,47 @@ const rowVariants = {
   },
 };
 
-export function SearchStep({ onSelect }: { onSelect: (sp: SP) => void }) {
+export function SearchStep() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  const filtered = MOCK_SPS.filter(
-    (s) =>
-      s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.handle.toLowerCase().includes(search.toLowerCase()),
-  );
-  const totalPages = Math.ceil(filtered.length / pageSize);
-  const paginated = filtered.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
+  const { data = [], isLoading } = useAllServiceItems({ limit: 100 });
+  const { data: favData } = useMyFavorites();
+  const { mutate: addFavorite } = useAddFavorite();
+  const { mutate: removeFavorite } = useRemoveFavorite();
+  const { updateData, setStep } = useTransactStore();
+
+  const favoritedIds = useMemo(() => new Set(favData?.favorites.map((f) => f.user.id) ?? []), [favData]);
+
+  const serviceProviders = useMemo(() => {
+    const rawServices = (data as unknown as DiscoverUser[]) || [];
+    return rawServices
+      .filter((user) => user.role?.includes("SERVICE_PROVIDER"))
+      .map((user) => ({
+        id: user.id,
+        name: user.name,
+        handle: `@${user.name.toLowerCase().replace(/\s+/g, "")}`,
+        avatar: user.imageUrl || "/images/user/user_avatar.png",
+        verified: user.isIdentityVerified,
+      }));
+  }, [data]);
+
+  const filtered = useMemo(() => {
+    return serviceProviders.filter(
+      (s) =>
+        s.name.toLowerCase().includes(search.toLowerCase()) ||
+        s.handle.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [serviceProviders, search]);
+
+  const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+  const paginated = useMemo(() => {
+    return filtered.slice(
+      (currentPage - 1) * pageSize,
+      currentPage * pageSize
+    );
+  }, [filtered, currentPage, pageSize]);
 
   const getPageNumbers = () => {
     const pages: (number | "...")[] = [];
@@ -56,6 +92,21 @@ export function SearchStep({ onSelect }: { onSelect: (sp: SP) => void }) {
       pages.push(totalPages);
     }
     return pages;
+  };
+
+  const handleFavoriteToggle = (spId: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (favoritedIds.has(spId)) {
+      removeFavorite(spId, {
+        onSuccess: () => toast.success("Removed from favorites"),
+        onError: (err: any) => toast.error(err?.message || "Failed to remove from favorites")
+      });
+    } else {
+      addFavorite(spId, {
+        onSuccess: () => toast.success("Saved to favorites"),
+        onError: (err: any) => toast.error(err?.message || "Failed to save to favorites")
+      });
+    }
   };
 
   return (
@@ -131,102 +182,114 @@ export function SearchStep({ onSelect }: { onSelect: (sp: SP) => void }) {
           animate="visible"
           className="flex flex-col gap-4"
         >
-          {paginated.map((sp, i) => (
-            <motion.div
-              key={sp.id}
-              variants={rowVariants}
-              whileTap={{ scale: 0.99 }}
-              onClick={() => onSelect(sp)}
-              className="flex flex-col lg:grid lg:grid-cols-[40px_1fr_80px] items-start lg:items-center bg-[#F9F9F9] lg:bg-[#F9F9F9] rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 cursor-pointer hover:bg-[#EFEFEF] transition-colors gap-3 lg:gap-0 border border-gray-100/80"
-            >
-              {/* Desktop Sl */}
-              <span className="hidden lg:block font-work-sans text-sm text-[#414651]">
-                {(currentPage - 1) * pageSize + i + 1}
-              </span>
-
-              {/* Mobile Header with ID & Action */}
-              <div className="flex w-full items-center justify-between lg:hidden mb-1 border-b border-gray-200 pb-3">
-                <span className="font-work-sans text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">
-                  Provider #{(currentPage - 1) * pageSize + i + 1}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-20">
+              <span className="font-work-sans text-sm text-[#414651]">Loading...</span>
+            </div>
+          ) : paginated.length === 0 ? (
+            <div className="flex items-center justify-center py-20">
+              <span className="font-work-sans text-sm text-[#414651]">No service providers found</span>
+            </div>
+          ) : (
+            paginated.map((sp, i) => (
+              <motion.div
+                key={sp.id}
+                variants={rowVariants}
+                whileTap={{ scale: 0.99 }}
+                onClick={() => {
+                  updateData({ sp });
+                  setStep("proposal-details");
+                }}
+                className="flex flex-col lg:grid lg:grid-cols-[40px_1fr_80px] items-start lg:items-center bg-[#F9F9F9] lg:bg-[#F9F9F9] rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 cursor-pointer hover:bg-[#EFEFEF] transition-colors gap-3 lg:gap-0 border border-gray-100/80"
+              >
+                {/* Desktop Sl */}
+                <span className="hidden lg:block font-work-sans text-sm text-[#414651]">
+                  {(currentPage - 1) * pageSize + i + 1}
                 </span>
-                <div className="flex items-center gap-2">
+
+                {/* Mobile Header with ID & Action */}
+                <div className="flex w-full items-center justify-between lg:hidden mb-1 border-b border-gray-200 pb-3">
+                  <span className="font-work-sans text-[11px] font-bold text-[#9CA3AF] uppercase tracking-wider">
+                    Provider #{(currentPage - 1) * pageSize + i + 1}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <motion.button
+                      whileTap={{ scale: 0.85 }}
+                      onClick={(e) => handleFavoriteToggle(sp.id, e)}
+                      className={`w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center transition-colors ${favoritedIds.has(sp.id) ? "text-[#181D27]" : "text-gray-400 hover:text-[#181D27]"}`}
+                      aria-label="Save Provider"
+                    >
+                      <svg
+                        viewBox="0 0 16 20"
+                        className={`w-[14px] h-[14px] ${favoritedIds.has(sp.id) ? "fill-[#181D27]" : "fill-none stroke-current stroke-[1.5]"}`}
+                      >
+                        <path d="M2 0h12a2 2 0 012 2v18l-8-4-8 4V2a2 2 0 012-2z" />
+                      </svg>
+                    </motion.button>
+                  </div>
+                </div>
+
+                {/* Name + Info */}
+                <div className="flex w-full items-center gap-4 lg:w-auto">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 shrink-0 relative">
+                    <Image
+                      src={sp.avatar}
+                      alt={sp.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1 mt-0.5 flex-wrap">
+                      <span className="font-work-sans text-[15px] font-bold text-[#181D27]">
+                        {sp.name}
+                      </span>
+                      {sp.verified ? (
+                        <span className="flex items-center gap-1 font-work-sans text-[11px] font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full w-max">
+                          <Image
+                            src="/svg/crown.svg"
+                            alt="Verified"
+                            width={14}
+                            height={14}
+                          />
+                          Verified
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 font-work-sans text-[11px] font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded-full w-max">
+                          <AlertTriangle className="h-3 w-3 text-red-500 shrink-0" />
+                          Unverified
+                        </span>
+                      )}
+                    </div>
+                    <p className="font-work-sans text-[13px] text-[#535862]">
+                      {sp.handle}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Desktop Action */}
+                <div className="hidden lg:flex items-center justify-center">
                   <motion.button
                     whileTap={{ scale: 0.85 }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                    onClick={(e) => handleFavoriteToggle(sp.id, e)}
+                    className={`w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center transition-colors ${favoritedIds.has(sp.id) ? "text-[#181D27]" : "text-gray-400 hover:text-[#181D27]"}`}
                     aria-label="Save Provider"
                   >
                     <svg
                       viewBox="0 0 16 20"
-                      className="w-[14px] h-[14px] fill-[#181D27]"
+                      className={`w-[14px] h-[14px] ${favoritedIds.has(sp.id) ? "fill-[#181D27]" : "fill-none stroke-current stroke-[1.5]"}`}
                     >
                       <path d="M2 0h12a2 2 0 012 2v18l-8-4-8 4V2a2 2 0 012-2z" />
                     </svg>
                   </motion.button>
                 </div>
-              </div>
-
-              {/* Name + Info */}
-              <div className="flex w-full items-center gap-4 lg:w-auto">
-                <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 shrink-0">
-                  <Image
-                    src={sp.avatar}
-                    alt={sp.name}
-                    width={40}
-                    height={40}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2 mb-1 mt-0.5 flex-wrap">
-                    <span className="font-work-sans text-[15px] font-bold text-[#181D27]">
-                      {sp.name}
-                    </span>
-                    {sp.verified ? (
-                      <span className="flex items-center gap-1 font-work-sans text-[11px] font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full w-max">
-                        <Image
-                          src="/svg/crown.svg"
-                          alt="Verified"
-                          width={14}
-                          height={14}
-                        />
-                        Verified
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1 font-work-sans text-[11px] font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded-full w-max">
-                        <AiFillWarning className="h-3 w-3" />
-                        Unverified
-                      </span>
-                    )}
-                  </div>
-                  <p className="font-work-sans text-[13px] text-[#535862]">
-                    {sp.handle}
-                  </p>
-                </div>
-              </div>
-
-              {/* Desktop Action */}
-              <div className="hidden lg:flex items-center justify-center">
-                <motion.button
-                  whileTap={{ scale: 0.85 }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
-                  aria-label="Save Provider"
-                >
-                  <svg
-                    viewBox="0 0 16 20"
-                    className="w-[14px] h-[14px] fill-[#181D27]"
-                  >
-                    <path d="M2 0h12a2 2 0 012 2v18l-8-4-8 4V2a2 2 0 012-2z" />
-                  </svg>
-                </motion.button>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))
+          )}
         </motion.div>
       </div>
 
-      {/* Pagination */}
+      {/* Pagination & Back Button */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -299,6 +362,17 @@ export function SearchStep({ onSelect }: { onSelect: (sp: SP) => void }) {
           </motion.button>
         </div>
       </motion.div>
+
+      {/* Back to landing button */}
+      <div className="flex justify-center mt-4 shrink-0">
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setStep(null)}
+          className="px-8 h-10 rounded-full border border-gray-200 font-work-sans text-sm text-[#414651] font-medium hover:bg-gray-50 transition-colors"
+        >
+          ← Back
+        </motion.button>
+      </div>
     </motion.div>
   );
 }
