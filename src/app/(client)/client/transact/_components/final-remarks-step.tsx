@@ -55,15 +55,16 @@ export function FinalRemarksStep() {
         </div>
 
         <div className="flex justify-center items-center gap-6 pt-2">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.95 }}
             onClick={() => {
               updateData({ notes, terms });
               setStep("proposal-details");
             }}
-            className="font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors"
+            className="w-36 h-12 rounded-full border border-gray-200 font-work-sans text-sm text-[#414651] font-medium hover:bg-gray-50 transition-colors"
           >
-            Back
-          </button>
+            ← Back
+          </motion.button>
           <button
             onClick={() => {
               updateData({ notes: "", terms: "" });
@@ -79,7 +80,7 @@ export function FinalRemarksStep() {
               updateData({ notes, terms });
               setStep("ready");
             }}
-            className="px-8 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
+            className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
           >
             Next
           </motion.button>

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useAuthStore } from "@/stores/auth/use-auth-store"
-import { serviceItemService, serviceProviderService } from "@/services/sp/sp-service"
+import { serviceItemService, serviceProviderService, proposalService, CreateDirectProposalData } from "@/services/sp/sp-service"
 import type { CreateServiceItemData, UpdateServiceItemData, CreateServiceProviderData } from "@/types/sp"
 
 function useToken() {
@@ -115,5 +115,67 @@ export function useDeleteServiceProvider() {
   return useMutation({
     mutationFn: (id: number) => serviceProviderService.remove(id, token),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["service-provider"] }),
+  })
+}
+
+export function useSendDirectProposal() {
+  const token = useToken()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ providerId, data }: { providerId: number; data: CreateDirectProposalData }) =>
+      proposalService.sendDirectProposal(providerId, data, token),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-proposals"] })
+      qc.invalidateQueries({ queryKey: ["my-sent-proposals"] })
+    }
+  })
+}
+
+export function useMySentProposals() {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["my-sent-proposals"],
+    queryFn: () => proposalService.getMySentProposals(token),
+    enabled: !!token,
+  })
+}
+
+export function useClientReceivedProposals() {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["client-received-proposals"],
+    queryFn: () => proposalService.getClientReceivedProposals(token),
+    enabled: !!token,
+  })
+}
+
+export function useReceivedProposals() {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["received-proposals"],
+    queryFn: () => proposalService.getReceivedProposals(token),
+    enabled: !!token,
+  })
+}
+
+export function useAcceptProposal() {
+  const token = useToken()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (proposalId: number) => proposalService.acceptProposal(proposalId, token),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["received-proposals"] })
+    },
+  })
+}
+
+export function useDeclineProposal() {
+  const token = useToken()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (proposalId: number) => proposalService.declineProposal(proposalId, token),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["received-proposals"] })
+    },
   })
 }

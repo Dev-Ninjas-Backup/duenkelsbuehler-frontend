@@ -5,8 +5,6 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { SearchStep } from "./_components/search-step";
-import { ContractStep } from "./_components/contract-step";
-import { ConfirmStep } from "./_components/confirm-step";
 import { ProposalDetailsStep } from "./_components/proposal-details-step";
 import { FinalRemarksStep } from "./_components/final-remarks-step";
 import { ReadyStep } from "./_components/ready-step";
@@ -131,12 +129,6 @@ function TransactContent() {
         )}
         {step === "search" && (
           <SearchStep key="search" />
-        )}
-        {step === "contract" && data.sp && (
-          <ContractStep key="contract" />
-        )}
-        {step === "confirm" && data.sp && (
-          <ConfirmStep key="confirm" />
         )}
         {step === "proposal-details" && (
           <ProposalDetailsStep key="proposal-details" />

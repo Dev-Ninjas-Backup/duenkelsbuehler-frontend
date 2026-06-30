@@ -13,10 +13,12 @@ import {
   ShieldCheck,
   Settings,
   Bookmark,
+  FileText,
 } from "lucide-react";
 
 const navItems = [
   { label: "My Services", href: "/sp/my-services", icon: Briefcase },
+  { label: "My Proposals", href: "/sp/my-proposals", icon: FileText },
   { label: "Saved Clients", href: "/sp/saved-clients", icon: Users },
   { label: "Saved Contracts", href: "/sp/saved-contracts", icon: Bookmark },
   { label: "Rating & Badges", href: "/sp/ratings-rewards", icon: Star },

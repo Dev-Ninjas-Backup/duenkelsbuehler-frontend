@@ -1,7 +1,5 @@
 export type SubStep =
   | "search"
-  | "contract"
-  | "confirm"
   | "proposal-details"
   | "final-remarks"
   | "ready"
@@ -17,12 +15,13 @@ export interface SP {
 
 export interface ProposalData {
   sp: SP | null;
-  contractFile: File | null;
-  docuSign: boolean;
   title: string;
+  serviceDescription: string;
   issueDate: string;
   dueDate: string;
   price: string;
+  currency: string;
+  paymentMethod: "TRUST_APP" | "BANK_TRANSFER" | "CARD";
   notes: string;
   terms: string;
   confirmSP: boolean;

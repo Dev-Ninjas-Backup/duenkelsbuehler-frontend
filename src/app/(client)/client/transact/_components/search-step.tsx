@@ -198,7 +198,7 @@ export function SearchStep() {
                 whileTap={{ scale: 0.99 }}
                 onClick={() => {
                   updateData({ sp });
-                  setStep("contract");
+                  setStep("proposal-details");
                 }}
                 className="flex flex-col lg:grid lg:grid-cols-[40px_1fr_80px] items-start lg:items-center bg-[#F9F9F9] lg:bg-[#F9F9F9] rounded-[20px] px-5 py-5 lg:px-6 lg:py-4 cursor-pointer hover:bg-[#EFEFEF] transition-colors gap-3 lg:gap-0 border border-gray-100/80"
               >
