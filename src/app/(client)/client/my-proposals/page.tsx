@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import { Calendar, DollarSign, Send, User, X, AlertCircle } from "lucide-react";
-import { useMySentProposals, useClientReceivedProposals } from "@/hooks/sp/use-sp";
+import { Calendar, DollarSign, Send, X, AlertCircle, FileText } from "lucide-react";
+import { useMySentProposals, useClientReceivedProposals, useDocusignRequests, useDocusignSignUrl } from "@/hooks/sp/use-sp";
+import { toast } from "sonner";
 
 interface Provider {
   id: number;
@@ -67,32 +68,22 @@ function StatusBadge({ status }: { status: ServiceProposal["status"] }) {
   );
 }
 
-function getAvatarColor(name: string) {
-  const colors = [
-    "bg-blue-600 text-white",
-    "bg-emerald-600 text-white",
-    "bg-indigo-600 text-white",
-    "bg-violet-600 text-white",
-    "bg-amber-600 text-white",
-    "bg-rose-600 text-white",
-    "bg-cyan-600 text-white",
-  ];
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  const index = Math.abs(hash) % colors.length;
-  return colors[index];
-}
-
 function ProposalDetailsModal({
   proposal,
+  matchedDoc,
   onClose,
   isSentByClient,
+  onSignContract,
+  isSigningLoading,
+  onPayViaTrustap,
 }: {
   proposal: ServiceProposal;
+  matchedDoc: any | null;
   onClose: () => void;
   isSentByClient: boolean;
+  onSignContract: (documentId: string) => void;
+  isSigningLoading: boolean;
+  onPayViaTrustap: (proposal: ServiceProposal) => void;
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -166,7 +157,7 @@ function ProposalDetailsModal({
           </p>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 flex-1">
           {/* Service Provider */}
           <div className="flex items-center gap-3 bg-gray-50 rounded-2xl p-4 border border-gray-100">
             <div className="w-10 h-10 rounded-full shrink-0 flex items-center justify-center font-semibold text-sm bg-[#181D27] text-white">
@@ -180,6 +171,28 @@ function ProposalDetailsModal({
               <p className="font-work-sans text-xs text-gray-500">{proposal.provider.email}</p>
             </div>
           </div>
+
+          {/* DocuSign contract details */}
+          {matchedDoc && (
+            <div className="flex flex-col gap-1.5 bg-gray-50 border border-gray-100 rounded-2xl p-4">
+              <div className="flex items-center justify-between">
+                <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                  <FileText size={12} /> Contract Title
+                </span>
+                <span className="font-work-sans text-xs font-semibold text-[#181D27]">{matchedDoc.title}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  Signature Status
+                </span>
+                <span className={`font-work-sans text-xs font-bold ${
+                  matchedDoc.status === "SIGNED" ? "text-emerald-600" : "text-amber-600"
+                }`}>
+                  {matchedDoc.status}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           {proposal.serviceDescription && (
@@ -256,6 +269,31 @@ function ProposalDetailsModal({
               </p>
             </div>
           )}
+
+          {/* Action Row for DocuSign signing */}
+          {matchedDoc && matchedDoc.status !== "SIGNED" && (
+            <div className="flex items-center justify-center gap-4 pt-6 border-t border-gray-100 mt-auto">
+              <button
+                onClick={() => onSignContract(matchedDoc.dbId)}
+                disabled={isSigningLoading}
+                className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {isSigningLoading ? "Loading..." : "Sign Contract"}
+              </button>
+            </div>
+          )}
+
+          {/* Action Row for Trustap escrow payment */}
+          {matchedDoc && matchedDoc.status === "SIGNED" && (
+            <div className="flex items-center justify-center gap-4 pt-6 border-t border-gray-100 mt-auto">
+              <button
+                onClick={() => onPayViaTrustap(proposal)}
+                className="w-48 h-12 rounded-full bg-[#16A34A] text-white font-work-sans text-sm font-semibold hover:bg-[#16A34A]/90 transition-colors flex items-center justify-center gap-2"
+              >
+                Pay via Trustap
+              </button>
+            </div>
+          )}
         </div>
       </motion.div>
     </div>
@@ -269,9 +307,11 @@ export default function MyProposalsPage() {
   const [filter, setFilter] = useState<"ALL" | "PENDING" | "ACCEPTED" | "REJECTED">("ALL");
   const [selectedProposal, setSelectedProposal] = useState<ServiceProposal | null>(null);
 
-  // Queries
+  // Queries & Mutations
   const sentProposalsQuery = useMySentProposals();
   const receivedProposalsQuery = useClientReceivedProposals();
+  const { data: docusignDocs = [] } = useDocusignRequests();
+  const signUrlMutation = useDocusignSignUrl();
 
   const isLoading = activeCategory === "SENT" ? sentProposalsQuery.isLoading : receivedProposalsQuery.isLoading;
   const error = activeCategory === "SENT" ? sentProposalsQuery.error : receivedProposalsQuery.error;
@@ -304,6 +344,34 @@ export default function MyProposalsPage() {
       default:
         return method;
     }
+  };
+
+  const handleSignContract = async (dbId: string) => {
+    try {
+      const res = await signUrlMutation.mutateAsync(dbId);
+      if (res?.url) {
+        window.location.href = res.url;
+      } else {
+        toast.error("Failed to generate embedded signing URL");
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to retrieve signing session");
+    }
+  };
+
+  const handlePayViaTrustap = (proposal: ServiceProposal) => {
+    toast.promise(
+      new Promise((resolve, reject) => {
+        setTimeout(() => {
+          reject(new Error("Trustap configuration is pending. Backend API keys are being set up by the developer."));
+        }, 1500);
+      }),
+      {
+        loading: "Initiating Trustap secure payment session...",
+        success: "Payment completed successfully!",
+        error: (err: any) => err.message,
+      }
+    );
   };
 
   return (
@@ -412,75 +480,116 @@ export default function MyProposalsPage() {
             animate="visible"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {filteredProposals.map((proposal) => (
-              <motion.div
-                key={proposal.id}
-                variants={itemVariants}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setSelectedProposal(proposal)}
-                className="bg-white hover:bg-[#FDFDFD] transition-all duration-300 border border-gray-200/80 hover:border-[#181D27]/10 hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-[24px] p-6 cursor-pointer flex flex-col justify-between min-h-[240px] relative overflow-hidden"
-              >
-                <div>
-                  {/* Top Meta Info */}
-                  <div className="flex items-start justify-between gap-4 mb-3">
-                    <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                      ID: #{proposal.id}
-                    </span>
-                    <StatusBadge status={proposal.status} />
-                  </div>
-
-                  {/* Proposal Title */}
-                  <h3 className="font-rozha text-[19px] text-[#181D27] line-clamp-2 leading-snug mb-2">
-                    {proposal.proposalTitle}
-                  </h3>
-
-                  {/* Service Description preview */}
-                  <p className="font-work-sans text-xs text-[#535862] line-clamp-3 mb-4 leading-relaxed">
-                    {proposal.serviceDescription || "No description provided."}
-                  </p>
-
-                  {/* Dynamic Meta Info Row */}
-                  <div className="flex items-center gap-3 text-gray-400 font-work-sans text-[11px] mb-4 shrink-0">
-                    <span className="flex items-center gap-1">
-                      <Calendar size={12} className="text-gray-400" />
-                      {formatDate(proposal.createdAt)}
-                    </span>
-                    <span className="w-1 h-1 rounded-full bg-gray-300" />
-                    <span className="flex items-center gap-1 text-gray-500 font-medium">
-                      via {getPaymentLabel(proposal.paymentMethod)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Footer Section */}
-                <div className="border-t border-gray-100 pt-4 mt-auto">
-                  <div className="flex items-center justify-between">
-                    {/* Provider Info */}
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-semibold text-xs bg-[#181D27] text-white">
-                        {proposal.provider.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-work-sans text-[10px] text-gray-400 uppercase tracking-wider">
-                          {activeCategory === "SENT" ? "To Provider" : "From Provider"}
-                        </p>
-                        <p className="font-rozha text-sm text-[#181D27] leading-tight truncate max-w-[100px]">
-                          {proposal.provider.name}
-                        </p>
-                      </div>
+            {filteredProposals.map((proposal) => {
+              const matchedDoc = docusignDocs.find((doc: any) => doc.proposalId === proposal.id);
+              return (
+                <motion.div
+                  key={proposal.id}
+                  variants={itemVariants}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedProposal(proposal)}
+                  className="bg-white hover:bg-[#FDFDFD] transition-all duration-300 border border-gray-200/80 hover:border-[#181D27]/10 hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-[24px] p-6 cursor-pointer flex flex-col justify-between min-h-[260px] relative overflow-hidden"
+                >
+                  <div>
+                    {/* Top Meta Info */}
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                        ID: #{proposal.id}
+                      </span>
+                      <StatusBadge status={proposal.status} />
                     </div>
 
-                    {/* Price details */}
-                    <div className="text-right">
-                      <p className="font-work-sans text-[10px] text-gray-400 uppercase tracking-wider">Proposed Budget</p>
-                      <p className="font-work-sans text-[15px] font-bold text-[#16A34A] mt-0.5">
-                        {proposal.proposedPrice} {proposal.currency}
-                      </p>
+                    {/* Proposal Title */}
+                    <h3 className="font-rozha text-[19px] text-[#181D27] line-clamp-2 leading-snug mb-2">
+                      {proposal.proposalTitle}
+                    </h3>
+
+                    {/* Service Description preview */}
+                    <p className="font-work-sans text-xs text-[#535862] line-clamp-3 mb-3 leading-relaxed">
+                      {proposal.serviceDescription || "No description provided."}
+                    </p>
+
+                    {/* DocuSign contract status widget */}
+                    {matchedDoc && (
+                      <div className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-3 py-1 rounded-xl mb-3">
+                        <FileText size={11} className="text-gray-400" />
+                        <span className="font-work-sans text-[10px] text-gray-500">Contract:</span>
+                        <span className={`font-work-sans text-[10px] font-bold ${
+                          matchedDoc.status === "SIGNED" ? "text-emerald-600" : "text-amber-600"
+                        }`}>{matchedDoc.status}</span>
+                      </div>
+                    )}
+
+                    {/* Dynamic Meta Info Row */}
+                    <div className="flex items-center gap-3 text-gray-400 font-work-sans text-[11px] mb-4 shrink-0">
+                      <span className="flex items-center gap-1">
+                        <Calendar size={12} className="text-gray-400" />
+                        {formatDate(proposal.createdAt)}
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-gray-300" />
+                      <span className="flex items-center gap-1 text-gray-500 font-medium">
+                        via {getPaymentLabel(proposal.paymentMethod)}
+                      </span>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+
+                  {/* Footer Section */}
+                  <div className="border-t border-gray-100 pt-4 mt-auto">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        {/* Provider Info */}
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-semibold text-xs bg-[#181D27] text-white">
+                            {proposal.provider.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-work-sans text-[10px] text-gray-400 uppercase tracking-wider">
+                              {activeCategory === "SENT" ? "To Provider" : "From Provider"}
+                            </p>
+                            <p className="font-rozha text-sm text-[#181D27] leading-tight truncate max-w-[100px]">
+                              {proposal.provider.name}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Price details */}
+                        <div className="text-right">
+                          <p className="font-work-sans text-[10px] text-gray-400 uppercase tracking-wider">Proposed Budget</p>
+                          <p className="font-work-sans text-[15px] font-bold text-[#16A34A] mt-0.5">
+                            {proposal.proposedPrice} {proposal.currency}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Sign contract action on card */}
+                      {matchedDoc && matchedDoc.status !== "SIGNED" && (
+                        <div className="flex pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => handleSignContract(matchedDoc.dbId)}
+                            disabled={signUrlMutation.isPending}
+                            className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                          >
+                            {signUrlMutation.isPending ? "Loading..." : "Sign Contract"}
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Trustap escrow payment action on card */}
+                      {matchedDoc && matchedDoc.status === "SIGNED" && (
+                        <div className="flex pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => handlePayViaTrustap(proposal)}
+                            className="w-full h-9 rounded-full bg-[#16A34A] text-white font-work-sans text-xs font-semibold hover:bg-[#16A34A]/90 transition-colors flex items-center justify-center gap-1.5"
+                          >
+                            Pay via Trustap
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </motion.div>
         )}
       </div>
@@ -490,8 +599,12 @@ export default function MyProposalsPage() {
         {selectedProposal && (
           <ProposalDetailsModal
             proposal={selectedProposal}
+            matchedDoc={docusignDocs.find((doc: any) => doc.proposalId === selectedProposal.id)}
             isSentByClient={activeCategory === "SENT"}
             onClose={() => setSelectedProposal(null)}
+            onSignContract={handleSignContract}
+            isSigningLoading={signUrlMutation.isPending}
+            onPayViaTrustap={handlePayViaTrustap}
           />
         )}
       </AnimatePresence>
