@@ -81,9 +81,9 @@ function CallbackContent() {
 
   const dashboardPath =
     role === "SERVICE_PROVIDER"
-      ? "/sp/transact"
+      ? "/sp/my-proposals"
       : role === "CLIENT"
-      ? "/client/transact"
+      ? "/client/my-proposals"
       : "/login";
 
   useEffect(() => {

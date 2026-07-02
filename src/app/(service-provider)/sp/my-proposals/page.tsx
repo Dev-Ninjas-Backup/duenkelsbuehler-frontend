@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import { Calendar, DollarSign, Send, User, X, AlertCircle } from "lucide-react";
-import { useReceivedProposals, useAcceptProposal, useDeclineProposal } from "@/hooks/sp/use-sp";
+import { Calendar, DollarSign, Send, X, AlertCircle, FileText } from "lucide-react";
+import { useReceivedProposals, useAcceptProposal, useDeclineProposal, useDocusignRequests, useUploadAndSendDocusign } from "@/hooks/sp/use-sp";
 import { toast } from "sonner";
 
 interface Client {
@@ -68,18 +68,148 @@ function StatusBadge({ status }: { status: ServiceProposal["status"] }) {
   );
 }
 
+function UploadContractModal({
+  proposal,
+  onClose,
+  onSuccess,
+}: {
+  proposal: ServiceProposal;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [mounted, setMounted] = useState(false);
+  const [title, setTitle] = useState(`Service Agreement - ${proposal.proposalTitle}`);
+  const [file, setFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadMutation = useUploadAndSendDocusign();
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  const handleUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file) {
+      toast.error("Please upload a contract file");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("title", title);
+    formData.append("clientId", String(proposal.client.id));
+    formData.append("proposalId", String(proposal.id));
+
+    try {
+      await uploadMutation.mutateAsync(formData);
+      toast.success("Contract successfully uploaded and sent!");
+      onSuccess();
+      onClose();
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to send contract");
+    }
+  };
+
+  const content = (
+    <div className="fixed inset-0 z-[1001] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative border border-gray-100 flex flex-col gap-5"
+      >
+        <button onClick={onClose} className="absolute right-6 top-6 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors">
+          <X size={16} />
+        </button>
+        
+        <div>
+          <h3 className="font-rozha text-xl sm:text-2xl text-[#181D27] leading-tight">Send DocuSign Contract</h3>
+          <p className="font-work-sans text-xs text-[#535862] mt-1">Upload a PDF or Word agreement document to link with this proposal.</p>
+        </div>
+
+        <form onSubmit={handleUpload} className="flex flex-col gap-4">
+          <div>
+            <label className="block font-work-sans text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Contract Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="w-full h-11 px-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[#181D27] font-work-sans text-sm"
+            />
+          </div>
+
+          <div>
+            <label className="block font-work-sans text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Agreement File (PDF/Word)</label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.doc,.docx"
+              className="hidden"
+              onChange={(e) => setFile(e.target.files?.[0] || null)}
+            />
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="border-2 border-dashed border-gray-200 hover:border-[#181D27] transition-colors rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer text-center"
+            >
+              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-2">
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              {file ? (
+                <p className="font-work-sans text-sm text-[#16A34A] font-semibold truncate max-w-xs">{file.name}</p>
+              ) : (
+                <>
+                  <p className="font-work-sans text-sm text-gray-700 font-medium">Click to select contract file</p>
+                  <p className="font-work-sans text-xs text-gray-400 mt-0.5">Supports PDF or DOCX up to 25MB</p>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 justify-center pt-4 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-36 h-12 rounded-full border border-gray-200 text-gray-600 font-work-sans text-sm font-semibold hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={uploadMutation.isPending}
+              className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2"
+            >
+              {uploadMutation.isPending ? "Sending..." : "Send Contract"}
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+
+  if (!mounted) return null;
+
+  return createPortal(content, document.body);
+}
+
 function ProposalDetailsModal({
   proposal,
+  matchedDoc,
   onClose,
   onAccept,
   onDecline,
   isActionPending,
+  onUploadContract,
 }: {
   proposal: ServiceProposal;
+  matchedDoc: any | null;
   onClose: () => void;
   onAccept: () => void;
   onDecline: () => void;
   isActionPending: boolean;
+  onUploadContract: () => void;
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -169,6 +299,28 @@ function ProposalDetailsModal({
               </p>
             </div>
           </div>
+
+          {/* DocuSign Contract Widget */}
+          {matchedDoc && (
+            <div className="flex flex-col gap-1.5 bg-gray-50 border border-gray-100 rounded-2xl p-4">
+              <div className="flex items-center justify-between">
+                <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                  <FileText size={12} /> Contract Title
+                </span>
+                <span className="font-work-sans text-xs font-semibold text-[#181D27]">{matchedDoc.title}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  DocuSign Status
+                </span>
+                <span className={`font-work-sans text-xs font-bold ${
+                  matchedDoc.status === "SIGNED" ? "text-emerald-600" : "text-amber-600"
+                }`}>
+                  {matchedDoc.status}
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           {proposal.serviceDescription && (
@@ -265,6 +417,17 @@ function ProposalDetailsModal({
               </button>
             </div>
           )}
+
+          {proposal.status === "ACCEPTED" && !matchedDoc && (
+            <div className="flex items-center justify-center gap-4 pt-6 border-t border-gray-100 mt-auto">
+              <button
+                onClick={onUploadContract}
+                className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2"
+              >
+                <FileText size={16} /> Send DocuSign Contract
+              </button>
+            </div>
+          )}
         </div>
       </motion.div>
     </div>
@@ -277,9 +440,11 @@ export default function ReceivedProposalsPage() {
   const [activeCategory, setActiveCategory] = useState<"RECEIVED" | "SENT">("RECEIVED");
   const [filter, setFilter] = useState<"ALL" | "PENDING" | "ACCEPTED" | "REJECTED">("ALL");
   const [selectedProposal, setSelectedProposal] = useState<ServiceProposal | null>(null);
+  const [uploadProposal, setUploadProposal] = useState<ServiceProposal | null>(null);
 
   // Mutations & Queries
   const { data: proposals = [], isLoading, error } = useReceivedProposals();
+  const { data: docusignDocs = [], refetch: refetchDocs } = useDocusignRequests();
   const acceptMutation = useAcceptProposal();
   const declineMutation = useDeclineProposal();
 
@@ -441,95 +606,121 @@ export default function ReceivedProposalsPage() {
             animate="visible"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {filteredProposals.map((proposal) => (
-              <motion.div
-                key={proposal.id}
-                variants={itemVariants}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setSelectedProposal(proposal)}
-                className="bg-white hover:bg-[#FDFDFD] transition-all duration-300 border border-gray-200/80 hover:border-[#181D27]/10 hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-[24px] p-6 cursor-pointer flex flex-col justify-between min-h-[260px] relative overflow-hidden"
-              >
-                <div>
-                  {/* Header Meta */}
-                  <div className="flex items-start justify-between gap-4 mb-3">
-                    <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                      ID: #{proposal.id}
-                    </span>
-                    <StatusBadge status={proposal.status} />
+            {filteredProposals.map((proposal) => {
+              const matchedDoc = docusignDocs.find((doc: any) => doc.proposalId === proposal.id);
+              return (
+                <motion.div
+                  key={proposal.id}
+                  variants={itemVariants}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedProposal(proposal)}
+                  className="bg-white hover:bg-[#FDFDFD] transition-all duration-300 border border-gray-200/80 hover:border-[#181D27]/10 hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] rounded-[24px] p-6 cursor-pointer flex flex-col justify-between min-h-[280px] relative overflow-hidden"
+                >
+                  <div>
+                    {/* Header Meta */}
+                    <div className="flex items-start justify-between gap-4 mb-3">
+                      <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                        ID: #{proposal.id}
+                      </span>
+                      <StatusBadge status={proposal.status} />
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="font-rozha text-[19px] text-[#181D27] line-clamp-2 leading-snug mb-2">
+                      {proposal.proposalTitle}
+                    </h3>
+
+                    {/* Scope Preview */}
+                    <p className="font-work-sans text-xs text-[#535862] line-clamp-3 mb-3 leading-relaxed">
+                      {proposal.serviceDescription || "No description provided."}
+                    </p>
+
+                    {/* DocuSign status badge inside list */}
+                    {matchedDoc && (
+                      <div className="inline-flex items-center gap-1.5 bg-gray-50 border border-gray-200 px-3 py-1 rounded-xl mb-3">
+                        <FileText size={11} className="text-gray-400" />
+                        <span className="font-work-sans text-[10px] text-gray-500">Contract:</span>
+                        <span className={`font-work-sans text-[10px] font-bold ${
+                          matchedDoc.status === "SIGNED" ? "text-emerald-600" : "text-amber-600"
+                        }`}>{matchedDoc.status}</span>
+                      </div>
+                    )}
+
+                    {/* Received details */}
+                    <div className="flex items-center gap-3 text-gray-400 font-work-sans text-[11px] mb-4 shrink-0">
+                      <span className="flex items-center gap-1">
+                        <Calendar size={12} className="text-gray-400" />
+                        {formatDate(proposal.createdAt)}
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-gray-300" />
+                      <span className="flex items-center gap-1 text-gray-500 font-medium">
+                        via {getPaymentLabel(proposal.paymentMethod)}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Title */}
-                  <h3 className="font-rozha text-[19px] text-[#181D27] line-clamp-2 leading-snug mb-2">
-                    {proposal.proposalTitle}
-                  </h3>
-
-                  {/* Scope Preview */}
-                  <p className="font-work-sans text-xs text-[#535862] line-clamp-3 mb-4 leading-relaxed">
-                    {proposal.serviceDescription || "No description provided."}
-                  </p>
-
-                  {/* Received details */}
-                  <div className="flex items-center gap-3 text-gray-400 font-work-sans text-[11px] mb-4 shrink-0">
-                    <span className="flex items-center gap-1">
-                      <Calendar size={12} className="text-gray-400" />
-                      {formatDate(proposal.createdAt)}
-                    </span>
-                    <span className="w-1 h-1 rounded-full bg-gray-300" />
-                    <span className="flex items-center gap-1 text-gray-500 font-medium">
-                      via {getPaymentLabel(proposal.paymentMethod)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Footer and action row */}
-                <div className="border-t border-gray-100 pt-4 mt-auto">
-                  <div className="flex flex-col gap-4">
-                    <div className="flex items-center justify-between">
-                      {/* Client Info */}
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-semibold text-xs bg-[#181D27] text-white">
-                          {proposal.client.name.charAt(0).toUpperCase()}
+                  {/* Footer and action row */}
+                  <div className="border-t border-gray-100 pt-4 mt-auto">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex items-center justify-between">
+                        {/* Client Info */}
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-semibold text-xs bg-[#181D27] text-white">
+                            {proposal.client.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-work-sans text-[10px] text-gray-400 uppercase tracking-wider">From Client</p>
+                            <p className="font-rozha text-sm text-[#181D27] leading-tight truncate max-w-[100px]">
+                              {proposal.client.name}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-work-sans text-[10px] text-gray-400 uppercase tracking-wider">From Client</p>
-                          <p className="font-rozha text-sm text-[#181D27] leading-tight truncate max-w-[100px]">
-                            {proposal.client.name}
+
+                        {/* Price */}
+                        <div className="text-right">
+                          <p className="font-work-sans text-[10px] text-gray-400 uppercase tracking-wider">Proposed Price</p>
+                          <p className="font-work-sans text-[15px] font-bold text-[#16A34A] mt-0.5">
+                            {proposal.proposedPrice} {proposal.currency}
                           </p>
                         </div>
                       </div>
 
-                      {/* Price */}
-                      <div className="text-right">
-                        <p className="font-work-sans text-[10px] text-gray-400 uppercase tracking-wider">Proposed Price</p>
-                        <p className="font-work-sans text-[15px] font-bold text-[#16A34A] mt-0.5">
-                          {proposal.proposedPrice} {proposal.currency}
-                        </p>
-                      </div>
-                    </div>
+                      {/* Quick Action buttons on card */}
+                      {proposal.status === "PENDING" && (
+                        <div className="flex items-center gap-2 pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            disabled={isActionPending}
+                            onClick={() => handleDecline(proposal.id)}
+                            className="flex-1 h-9 rounded-full border border-red-100 text-red-600 font-work-sans text-xs font-semibold hover:bg-red-50 transition-colors disabled:opacity-40"
+                          >
+                            Decline
+                          </button>
+                          <button
+                            disabled={isActionPending}
+                            onClick={() => handleAccept(proposal.id)}
+                            className="flex-1 h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors disabled:opacity-40"
+                          >
+                            Accept
+                          </button>
+                        </div>
+                      )}
 
-                    {/* Quick Action buttons on card */}
-                    {proposal.status === "PENDING" && (
-                      <div className="flex items-center gap-2 pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
-                        <button
-                          disabled={isActionPending}
-                          onClick={() => handleDecline(proposal.id)}
-                          className="flex-1 h-9 rounded-full border border-red-100 text-red-600 font-work-sans text-xs font-semibold hover:bg-red-50 transition-colors disabled:opacity-40"
-                        >
-                          Decline
-                        </button>
-                        <button
-                          disabled={isActionPending}
-                          onClick={() => handleAccept(proposal.id)}
-                          className="flex-1 h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors disabled:opacity-40"
-                        >
-                          Accept
-                        </button>
-                      </div>
-                    )}
+                      {/* Upload contract action on card */}
+                      {proposal.status === "ACCEPTED" && !matchedDoc && (
+                        <div className="flex pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => setUploadProposal(proposal)}
+                            className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5"
+                          >
+                            <FileText size={12} /> Send DocuSign Contract
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </motion.div>
         )}
       </div>
@@ -539,10 +730,28 @@ export default function ReceivedProposalsPage() {
         {selectedProposal && (
           <ProposalDetailsModal
             proposal={selectedProposal}
+            matchedDoc={docusignDocs.find((doc: any) => doc.proposalId === selectedProposal.id)}
             isActionPending={isActionPending}
             onClose={() => setSelectedProposal(null)}
             onAccept={() => handleAccept(selectedProposal.id)}
             onDecline={() => handleDecline(selectedProposal.id)}
+            onUploadContract={() => {
+              setUploadProposal(selectedProposal);
+              setSelectedProposal(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Upload Contract Dialog Modal */}
+      <AnimatePresence>
+        {uploadProposal && (
+          <UploadContractModal
+            proposal={uploadProposal}
+            onClose={() => setUploadProposal(null)}
+            onSuccess={() => {
+              refetchDocs();
+            }}
           />
         )}
       </AnimatePresence>

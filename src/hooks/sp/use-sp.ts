@@ -179,3 +179,32 @@ export function useDeclineProposal() {
     },
   })
 }
+
+export function useDocusignRequests() {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["docusign-requests"],
+    queryFn: () => proposalService.getDocusignRequests(token),
+    enabled: !!token,
+  })
+}
+
+export function useUploadAndSendDocusign() {
+  const token = useToken()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (formData: FormData) => proposalService.uploadAndSendDocusign(formData, token),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["docusign-requests"] })
+      qc.invalidateQueries({ queryKey: ["received-proposals"] })
+      qc.invalidateQueries({ queryKey: ["my-sent-proposals"] })
+    },
+  })
+}
+
+export function useDocusignSignUrl() {
+  const token = useToken()
+  return useMutation({
+    mutationFn: (documentId: string) => proposalService.getDocusignSignUrl(documentId, token),
+  })
+}
