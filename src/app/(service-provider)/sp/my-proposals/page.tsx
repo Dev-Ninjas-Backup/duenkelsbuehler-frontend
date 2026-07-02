@@ -77,10 +77,16 @@ function UploadContractModal({
   onClose: () => void;
   onSuccess: () => void;
 }) {
+  const [mounted, setMounted] = useState(false);
   const [title, setTitle] = useState(`Service Agreement - ${proposal.proposalTitle}`);
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadMutation = useUploadAndSendDocusign();
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +110,7 @@ function UploadContractModal({
     }
   };
 
-  return (
+  const content = (
     <div className="fixed inset-0 z-[1001] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
       <motion.div
         initial={{ scale: 0.95, opacity: 0 }}
@@ -182,6 +188,10 @@ function UploadContractModal({
       </motion.div>
     </div>
   );
+
+  if (!mounted) return null;
+
+  return createPortal(content, document.body);
 }
 
 function ProposalDetailsModal({
