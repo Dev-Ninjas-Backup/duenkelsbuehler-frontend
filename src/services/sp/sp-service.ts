@@ -6,14 +6,19 @@ import type {
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
 async function request<T>(endpoint: string, token: string, options?: RequestInit): Promise<T> {
+  const headers: HeadersInit = {
+    Authorization: `Bearer ${token}`,
+    "ngrok-skip-browser-warning": "true",
+    ...options?.headers,
+  }
+
+  if (!(options?.body instanceof FormData) && !headers.hasOwnProperty("Content-Type")) {
+    (headers as any)["Content-Type"] = "application/json"
+  }
+
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      "ngrok-skip-browser-warning": "true",
-      ...options?.headers,
-    },
+    headers,
   })
   const json = await res.json()
   if (!res.ok) throw new Error(json?.message || "Something went wrong")
@@ -106,4 +111,13 @@ export const proposalService = {
     request<any>(`/services/proposals/${proposalId}/accept`, token, { method: "PATCH" }),
   declineProposal: (proposalId: number, token: string) =>
     request<any>(`/services/proposals/${proposalId}/decline`, token, { method: "PATCH" }),
+  uploadAndSendDocusign: (formData: FormData, token: string) =>
+    request<any>("/docusign_2/create", token, {
+      method: "POST",
+      body: formData,
+    }),
+  getDocusignSignUrl: (documentId: string, token: string) =>
+    request<{ url: string }>(`/docusign_2/sign-url/${documentId}`, token),
+  getDocusignRequests: (token: string) =>
+    request<any[]>("/docusign_2/my-requests", token),
 }
