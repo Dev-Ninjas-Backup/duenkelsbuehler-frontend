@@ -2,10 +2,11 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ChevronLeft, ChevronRight, ArrowLeftRight } from "lucide-react";
 import Image from "next/image";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
+import { authService } from "@/services/auth/auth-service";
 import {
   Briefcase,
   Users,
@@ -33,7 +34,27 @@ interface SPSidebarProps {
 
 export function SPSidebar({ isOpen, onToggle }: SPSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const user = useAuthStore((s) => s.user);
+  const accessToken = useAuthStore((s) => s.accessToken);
+
+  const handleSwitchProfile = async () => {
+    if (!accessToken) return;
+    try {
+      const res = await authService.switchRole("CLIENT", accessToken);
+      
+      // Update active token and role in Zustand store (persisted synchronously in localStorage)
+      useAuthStore.setState({
+        accessToken: res.accessToken,
+        role: "CLIENT"
+      });
+
+      // Redirect directly via window.location to avoid client-side Next.js route guard race condition
+      window.location.href = "/client/settings";
+    } catch (err) {
+      console.error("Failed to switch profile", err);
+    }
+  };
 
   return (
     <>
@@ -64,53 +85,67 @@ export function SPSidebar({ isOpen, onToggle }: SPSidebarProps) {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="w-[320px] h-full flex flex-col px-6 py-12"
+              className="w-[320px] h-full flex flex-col px-6 py-6 lg:py-8"
             >
               {/* Logo */}
-              <div className="flex flex-col items-center mb-10">
-                <span className="font-rozha text-[32px] text-[#181D27]">
+              <div className="flex flex-col items-center mb-4 lg:mb-6">
+                <span className="font-rozha text-[26px] lg:text-[28px] text-[#181D27]">
                   AristoPay
                 </span>
+                <span className="mt-1 px-2.5 py-0.5 text-[9px] uppercase tracking-wider font-bold font-work-sans text-[#D97706] bg-[#FEF3C7] rounded-full">
+                  Provider Mode
+                </span>
                 {/* Crown badge */}
-                <div className="mt-4 mb-3">
+                <div className="mt-2 mb-2">
                   <Image
                     src="/svg/crown.svg"
                     alt="Crown"
-                    width={40}
-                    height={32}
+                    width={32}
+                    height={26}
                   />
                 </div>
                 {/* Avatar */}
-                <div className="mt-4 w-[110px] h-[110px] rounded-full overflow-hidden shadow-sm relative flex items-center justify-center bg-[#181D27]">
+                <div className="mt-2 w-[85px] h-[85px] rounded-full overflow-hidden shadow-sm relative flex items-center justify-center bg-[#181D27]">
                   {user?.imageUrl ? (
                     <Image
                       src={user.imageUrl}
                       alt="Profile"
-                      width={110}
-                      height={110}
+                      width={85}
+                      height={85}
                       className="object-cover w-full h-full"
                     />
                   ) : (
                     <Image
                       src="/images/user/user_avatar.png"
                       alt="Profile"
-                      width={110}
-                      height={110}
+                      width={85}
+                      height={85}
                       className="object-cover w-full h-full"
                     />
                   )}
                 </div>
+                {user?.role?.includes("CLIENT") && (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleSwitchProfile}
+                    className="mt-4 flex items-center justify-between gap-2.5 px-4 py-2 w-44 rounded-xl bg-white border border-gray-200 text-[#181D27] hover:bg-[#181D27] hover:text-white transition-all shadow-xs shrink-0 font-work-sans text-xs font-semibold cursor-pointer"
+                  >
+                    <span>Switch to Client</span>
+                    <ArrowLeftRight size={14} className="opacity-70" />
+                  </motion.button>
+                )}
               </div>
 
               {/* Nav Items */}
-              <nav className="flex flex-col gap-2 flex-1 w-full px-6 mt-4">
+              <nav className="flex flex-col gap-1 lg:gap-1.5 flex-1 w-full px-4 mt-2 lg:mt-3">
                 {navItems.map(({ label, href,  icon: Icon }) => {
                   const isActive = pathname === href || pathname.startsWith(href);
                   return (
                     <Link key={href} href={href} className="w-full">
                       <motion.div
                         whileTap={{ scale: 0.97 }}
-                        className={`flex items-center px-8 py-4 rounded-full font-work-sans text-[15px] font-medium transition-colors ${
+                        className={`flex items-center px-5 py-2.5 rounded-full font-work-sans text-[13.5px] lg:text-[14px] font-medium transition-colors ${
                           isActive
                             ? "bg-[#181D27] text-white"
                             : "text-[#535862] hover:bg-[#E5E5E5]/50"

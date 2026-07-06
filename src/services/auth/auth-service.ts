@@ -135,4 +135,15 @@ export const authService = {
       },
       body: JSON.stringify({ url }),
     }),
+
+  // POST /auth/switch-role
+  switchRole: (role: string, accessToken: string) =>
+    request<AuthTokenResponse>("/auth/switch-role", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({ role }),
+    }),
 }

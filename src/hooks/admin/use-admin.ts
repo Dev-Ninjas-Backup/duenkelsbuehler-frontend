@@ -5,6 +5,7 @@ import {
   blogService,
   badgeService,
   userService,
+  dealManagementService,
 } from "@/services/admin/admin-service";
 import type {
   CreateBannerData,
@@ -172,5 +173,24 @@ export function useDeleteBadge() {
   return useMutation({
     mutationFn: (id: number) => badgeService.remove(id, token),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["badges"] }),
+  });
+}
+
+// ─── Deal Management Hooks ────────────────────────────────────────
+export function useAdminDeals(params: { page: number; limit: number; status?: string; isPaymented?: string; wokringStatus?: string }) {
+  const token = useToken();
+  return useQuery({
+    queryKey: ["admin-deals", params],
+    queryFn: () => dealManagementService.findAll(token, params),
+    enabled: !!token,
+  });
+}
+
+export function useAdminDeal(id: number | null) {
+  const token = useToken();
+  return useQuery({
+    queryKey: ["admin-deals", id],
+    queryFn: () => dealManagementService.findOne(id!, token),
+    enabled: !!id && !!token,
   });
 }
