@@ -19,6 +19,9 @@ async function request<T>(endpoint: string, token: string, options?: RequestInit
   })
   const json = await res.json()
   if (!res.ok) throw new Error(json?.message || "Something went wrong")
+  if (json?.meta !== undefined && json?.meta !== null) {
+    return { data: json.data, meta: json.meta } as any
+  }
   return (json?.data !== undefined ? json.data : json) as T
 }
 
@@ -102,3 +105,24 @@ export const badgeService = {
   remove: (id: number, token: string) =>
     request<void>(`/badge/${id}`, token, { method: "DELETE" }),
 }
+
+// ─── Deal Management ──────────────────────────────────────────────
+export const dealManagementService = {
+  findAll: (
+    token: string,
+    params?: { page?: number; limit?: number; status?: string; isPaymented?: string; wokringStatus?: string }
+  ) => {
+    const query = new URLSearchParams();
+    if (params?.page) query.append("page", String(params.page));
+    if (params?.limit) query.append("limit", String(params.limit));
+    if (params?.status) query.append("status", params.status);
+    if (params?.isPaymented) query.append("isPaymented", params.isPaymented);
+    if (params?.wokringStatus) query.append("wokringStatus", params.wokringStatus);
+    const qs = query.toString();
+    return request<any>(`/deal-management${qs ? `?${qs}` : ""}`, token);
+  },
+
+  findOne: (id: number, token: string) =>
+    request<any>(`/deal-management/${id}`, token),
+}
+

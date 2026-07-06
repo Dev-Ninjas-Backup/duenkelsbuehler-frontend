@@ -86,6 +86,7 @@ function ProposalDetailsModal({
   onPayViaTrustap: (proposal: ServiceProposal) => void;
 }) {
   const [mounted, setMounted] = useState(false);
+  const isClientSender = matchedDoc?.senderRole === "CLIENT";
 
   useEffect(() => {
     setMounted(true);
@@ -174,7 +175,7 @@ function ProposalDetailsModal({
 
           {/* DocuSign contract details */}
           {matchedDoc && (
-            <div className="flex flex-col gap-1.5 bg-gray-50 border border-gray-100 rounded-2xl p-4">
+            <div className="flex flex-col gap-2 bg-gray-50 border border-gray-100 rounded-2xl p-4">
               <div className="flex items-center justify-between">
                 <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
                   <FileText size={12} /> Contract Title
@@ -183,12 +184,33 @@ function ProposalDetailsModal({
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  Signature Status
+                  Overall Status
                 </span>
                 <span className={`font-work-sans text-xs font-bold ${
                   matchedDoc.status === "SIGNED" ? "text-emerald-600" : "text-amber-600"
                 }`}>
                   {matchedDoc.status}
+                </span>
+              </div>
+              <div className="h-px bg-gray-200/60 my-1" />
+              <div className="flex items-center justify-between">
+                <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  Sender ({matchedDoc.senderRole === "CLIENT" ? "You" : "Provider"})
+                </span>
+                <span className={`font-work-sans text-xs font-bold ${
+                  matchedDoc.senderStatus === "SIGNED" ? "text-emerald-600" : "text-amber-600"
+                }`}>
+                  {matchedDoc.senderStatus}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  Receiver ({matchedDoc.senderRole === "CLIENT" ? "Provider" : "You"})
+                </span>
+                <span className={`font-work-sans text-xs font-bold ${
+                  matchedDoc.receiverStatus === "SIGNED" ? "text-emerald-600" : "text-amber-600"
+                }`}>
+                  {matchedDoc.receiverStatus}
                 </span>
               </div>
             </div>
@@ -272,14 +294,36 @@ function ProposalDetailsModal({
 
           {/* Action Row for DocuSign signing */}
           {matchedDoc && matchedDoc.status !== "SIGNED" && (
-            <div className="flex items-center justify-center gap-4 pt-6 border-t border-gray-100 mt-auto">
-              <button
-                onClick={() => onSignContract(matchedDoc.dbId)}
-                disabled={isSigningLoading}
-                className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {isSigningLoading ? "Loading..." : "Sign Contract"}
-              </button>
+            <div className="flex flex-col items-center gap-3 pt-6 border-t border-gray-100 mt-auto w-full">
+              {isClientSender ? (
+                matchedDoc.senderStatus !== "SIGNED" ? (
+                  <button
+                    onClick={() => onSignContract(matchedDoc.dbId)}
+                    disabled={isSigningLoading}
+                    className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isSigningLoading ? "Loading..." : "Sign Contract"}
+                  </button>
+                ) : (
+                  <p className="font-work-sans text-xs text-amber-600 font-semibold bg-amber-50 border border-amber-200/60 px-4 py-2.5 rounded-2xl w-full text-center">
+                    Waiting for Provider signature...
+                  </p>
+                )
+              ) : (
+                matchedDoc.senderStatus !== "SIGNED" ? (
+                  <p className="font-work-sans text-xs text-amber-600 font-semibold bg-amber-50 border border-amber-200/60 px-4 py-2.5 rounded-2xl w-full text-center">
+                    Waiting for Provider to sign first...
+                  </p>
+                ) : matchedDoc.receiverStatus !== "SIGNED" ? (
+                  <button
+                    onClick={() => onSignContract(matchedDoc.dbId)}
+                    disabled={isSigningLoading}
+                    className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isSigningLoading ? "Loading..." : "Sign Contract"}
+                  </button>
+                ) : null
+              )}
             </div>
           )}
 
@@ -482,6 +526,7 @@ export default function MyProposalsPage() {
           >
             {filteredProposals.map((proposal) => {
               const matchedDoc = docusignDocs.find((doc: any) => doc.proposalId === proposal.id);
+              const isClientSender = matchedDoc?.senderRole === "CLIENT";
               return (
                 <motion.div
                   key={proposal.id}
@@ -564,13 +609,35 @@ export default function MyProposalsPage() {
                       {/* Sign contract action on card */}
                       {matchedDoc && matchedDoc.status !== "SIGNED" && (
                         <div className="flex pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            onClick={() => handleSignContract(matchedDoc.dbId)}
-                            disabled={signUrlMutation.isPending}
-                            className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
-                          >
-                            {signUrlMutation.isPending ? "Loading..." : "Sign Contract"}
-                          </button>
+                          {isClientSender ? (
+                            matchedDoc.senderStatus !== "SIGNED" ? (
+                              <button
+                                onClick={() => handleSignContract(matchedDoc.dbId)}
+                                disabled={signUrlMutation.isPending}
+                                className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                              >
+                                {signUrlMutation.isPending ? "Loading..." : "Sign Contract"}
+                              </button>
+                            ) : (
+                              <div className="w-full text-center py-2 bg-amber-50 border border-amber-200/50 rounded-xl">
+                                <span className="font-work-sans text-[10px] text-amber-600 font-bold">Waiting for Provider...</span>
+                              </div>
+                            )
+                          ) : (
+                            matchedDoc.senderStatus !== "SIGNED" ? (
+                              <div className="w-full text-center py-2 bg-amber-50 border border-amber-200/50 rounded-xl">
+                                <span className="font-work-sans text-[10px] text-amber-600 font-bold">Waiting for Provider first...</span>
+                              </div>
+                            ) : matchedDoc.receiverStatus !== "SIGNED" ? (
+                              <button
+                                onClick={() => handleSignContract(matchedDoc.dbId)}
+                                disabled={signUrlMutation.isPending}
+                                className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                              >
+                                {signUrlMutation.isPending ? "Loading..." : "Sign Contract"}
+                              </button>
+                            ) : null
+                          )}
                         </div>
                       )}
 

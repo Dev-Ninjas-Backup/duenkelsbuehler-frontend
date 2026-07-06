@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
-import { Calendar, DollarSign, Send, X, AlertCircle, FileText } from "lucide-react";
-import { useReceivedProposals, useAcceptProposal, useDeclineProposal, useDocusignRequests, useUploadAndSendDocusign } from "@/hooks/sp/use-sp";
+import { Calendar, DollarSign, Send, X, AlertCircle, FileText, ArrowLeftRight } from "lucide-react";
+import { useReceivedProposals, useAcceptProposal, useDeclineProposal, useDocusignRequests, useUploadAndSendDocusign, useDocusignSignUrl } from "@/hooks/sp/use-sp";
 import { toast } from "sonner";
 
 interface Client {
@@ -82,6 +82,7 @@ function UploadContractModal({
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadMutation = useUploadAndSendDocusign();
+  const signUrlMutation = useDocusignSignUrl();
 
   useEffect(() => {
     setMounted(true);
@@ -101,10 +102,16 @@ function UploadContractModal({
     formData.append("proposalId", String(proposal.id));
 
     try {
-      await uploadMutation.mutateAsync(formData);
-      toast.success("Contract successfully uploaded and sent!");
-      onSuccess();
-      onClose();
+      const res = await uploadMutation.mutateAsync(formData);
+      toast.success("Contract successfully uploaded! Redirecting to sign...");
+      const signUrlRes = await signUrlMutation.mutateAsync(res.dbId || String(res.id));
+      if (signUrlRes && signUrlRes.url) {
+        window.location.href = signUrlRes.url;
+      } else {
+        toast.error("Failed to retrieve signing URL.");
+        onSuccess();
+        onClose();
+      }
     } catch (err: any) {
       toast.error(err?.message || "Failed to send contract");
     }
@@ -178,10 +185,10 @@ function UploadContractModal({
             </button>
             <button
               type="submit"
-              disabled={uploadMutation.isPending}
+              disabled={uploadMutation.isPending || signUrlMutation.isPending}
               className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2"
             >
-              {uploadMutation.isPending ? "Sending..." : "Send Contract"}
+              {uploadMutation.isPending ? "Sending..." : signUrlMutation.isPending ? "Redirecting..." : "Send Contract"}
             </button>
           </div>
         </form>
@@ -202,6 +209,8 @@ function ProposalDetailsModal({
   onDecline,
   isActionPending,
   onUploadContract,
+  onSignContract,
+  isSigningLoading,
 }: {
   proposal: ServiceProposal;
   matchedDoc: any | null;
@@ -210,8 +219,11 @@ function ProposalDetailsModal({
   onDecline: () => void;
   isActionPending: boolean;
   onUploadContract: () => void;
+  onSignContract: (documentId: string) => void;
+  isSigningLoading: boolean;
 }) {
   const [mounted, setMounted] = useState(false);
+  const isSPSender = matchedDoc?.senderRole === "PROVIDER";
 
   useEffect(() => {
     setMounted(true);
@@ -302,7 +314,7 @@ function ProposalDetailsModal({
 
           {/* DocuSign Contract Widget */}
           {matchedDoc && (
-            <div className="flex flex-col gap-1.5 bg-gray-50 border border-gray-100 rounded-2xl p-4">
+            <div className="flex flex-col gap-2 bg-gray-50 border border-gray-100 rounded-2xl p-4">
               <div className="flex items-center justify-between">
                 <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
                   <FileText size={12} /> Contract Title
@@ -311,12 +323,33 @@ function ProposalDetailsModal({
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  DocuSign Status
+                  Overall Status
                 </span>
                 <span className={`font-work-sans text-xs font-bold ${
                   matchedDoc.status === "SIGNED" ? "text-emerald-600" : "text-amber-600"
                 }`}>
                   {matchedDoc.status}
+                </span>
+              </div>
+              <div className="h-px bg-gray-200/60 my-1" />
+              <div className="flex items-center justify-between">
+                <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  Sender ({matchedDoc.senderRole === "PROVIDER" ? "You" : "Client"})
+                </span>
+                <span className={`font-work-sans text-xs font-bold ${
+                  matchedDoc.senderStatus === "SIGNED" ? "text-emerald-600" : "text-amber-600"
+                }`}>
+                  {matchedDoc.senderStatus}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  Receiver ({matchedDoc.senderRole === "PROVIDER" ? "Client" : "You"})
+                </span>
+                <span className={`font-work-sans text-xs font-bold ${
+                  matchedDoc.receiverStatus === "SIGNED" ? "text-emerald-600" : "text-amber-600"
+                }`}>
+                  {matchedDoc.receiverStatus}
                 </span>
               </div>
             </div>
@@ -428,6 +461,41 @@ function ProposalDetailsModal({
               </button>
             </div>
           )}
+
+          {/* Action Row for DocuSign signing */}
+          {matchedDoc && matchedDoc.status !== "SIGNED" && (
+            <div className="flex flex-col items-center gap-3 pt-6 border-t border-gray-100 mt-auto w-full">
+              {isSPSender ? (
+                matchedDoc.senderStatus !== "SIGNED" ? (
+                  <button
+                    onClick={() => onSignContract(matchedDoc.dbId)}
+                    disabled={isSigningLoading}
+                    className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isSigningLoading ? "Loading..." : "Sign Contract"}
+                  </button>
+                ) : (
+                  <p className="font-work-sans text-xs text-amber-600 font-semibold bg-amber-50 border border-amber-200/60 px-4 py-2.5 rounded-2xl w-full text-center">
+                    Waiting for Client signature...
+                  </p>
+                )
+              ) : (
+                matchedDoc.senderStatus !== "SIGNED" ? (
+                  <p className="font-work-sans text-xs text-amber-600 font-semibold bg-amber-50 border border-amber-200/60 px-4 py-2.5 rounded-2xl w-full text-center">
+                    Waiting for Client to sign first...
+                  </p>
+                ) : matchedDoc.receiverStatus !== "SIGNED" ? (
+                  <button
+                    onClick={() => onSignContract(matchedDoc.dbId)}
+                    disabled={isSigningLoading}
+                    className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isSigningLoading ? "Loading..." : "Sign Contract"}
+                  </button>
+                ) : null
+              )}
+            </div>
+          )}
         </div>
       </motion.div>
     </div>
@@ -447,6 +515,22 @@ export default function ReceivedProposalsPage() {
   const { data: docusignDocs = [], refetch: refetchDocs } = useDocusignRequests();
   const acceptMutation = useAcceptProposal();
   const declineMutation = useDeclineProposal();
+  const signUrlMutation = useDocusignSignUrl();
+  const [isSigningLoading, setIsSigningLoading] = useState(false);
+
+  const handleSignContract = async (dbId: string) => {
+    try {
+      setIsSigningLoading(true);
+      const res = await signUrlMutation.mutateAsync(dbId);
+      if (res.url) {
+        window.location.href = res.url;
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to initiate signing session");
+    } finally {
+      setIsSigningLoading(false);
+    }
+  };
 
   const filteredProposals = proposals.filter((p) => {
     if (filter === "ALL") return true;
@@ -708,14 +792,49 @@ export default function ReceivedProposalsPage() {
                       {/* Upload contract action on card */}
                       {proposal.status === "ACCEPTED" && !matchedDoc && (
                         <div className="flex pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            onClick={() => setUploadProposal(proposal)}
-                            className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5"
-                          >
-                            <FileText size={12} /> Send DocuSign Contract
-                          </button>
-                        </div>
-                      )}
+                           <button
+                             onClick={() => setUploadProposal(proposal)}
+                             className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5"
+                           >
+                             <FileText size={12} /> Send DocuSign Contract
+                           </button>
+                         </div>
+                       )}
+
+                       {/* Sign contract action on card */}
+                       {matchedDoc && matchedDoc.status !== "SIGNED" && (
+                         <div className="flex pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
+                           {matchedDoc.senderRole === "PROVIDER" ? (
+                             matchedDoc.senderStatus !== "SIGNED" ? (
+                               <button
+                                 onClick={() => handleSignContract(matchedDoc.dbId)}
+                                 disabled={isSigningLoading}
+                                 className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                               >
+                                 Sign Contract (You)
+                               </button>
+                             ) : (
+                               <div className="w-full text-center py-2 bg-amber-50 border border-amber-200/50 rounded-xl">
+                                 <span className="font-work-sans text-[10px] text-amber-600 font-bold">Waiting for Client...</span>
+                               </div>
+                             )
+                           ) : (
+                             matchedDoc.senderStatus !== "SIGNED" ? (
+                               <div className="w-full text-center py-2 bg-amber-50 border border-amber-200/50 rounded-xl">
+                                 <span className="font-work-sans text-[10px] text-amber-600 font-bold">Waiting for Client first...</span>
+                               </div>
+                             ) : matchedDoc.receiverStatus !== "SIGNED" ? (
+                               <button
+                                 onClick={() => handleSignContract(matchedDoc.dbId)}
+                                 disabled={isSigningLoading}
+                                 className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                               >
+                                 Sign Contract (You)
+                               </button>
+                             ) : null
+                           )}
+                         </div>
+                       )}
                     </div>
                   </div>
                 </motion.div>
@@ -739,6 +858,8 @@ export default function ReceivedProposalsPage() {
               setUploadProposal(selectedProposal);
               setSelectedProposal(null);
             }}
+            onSignContract={handleSignContract}
+            isSigningLoading={isSigningLoading}
           />
         )}
       </AnimatePresence>
