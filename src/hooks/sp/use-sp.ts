@@ -127,6 +127,7 @@ export function useSendDirectProposal() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-proposals"] })
       qc.invalidateQueries({ queryKey: ["my-sent-proposals"] })
+      qc.invalidateQueries({ queryKey: ["my-badges"] })
     }
   })
 }
@@ -198,6 +199,7 @@ export function useUploadAndSendDocusign() {
       qc.invalidateQueries({ queryKey: ["docusign-requests"] })
       qc.invalidateQueries({ queryKey: ["received-proposals"] })
       qc.invalidateQueries({ queryKey: ["my-sent-proposals"] })
+      qc.invalidateQueries({ queryKey: ["my-badges"] })
     },
   })
 }
@@ -206,5 +208,14 @@ export function useDocusignSignUrl() {
   const token = useToken()
   return useMutation({
     mutationFn: (documentId: string) => proposalService.getDocusignSignUrl(documentId, token),
+  })
+}
+
+export function useProviderServiceItems(providerId: number | null) {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["provider-service-items", providerId],
+    queryFn: () => proposalService.getProviderServiceItems(providerId!, token),
+    enabled: !!providerId && !!token,
   })
 }

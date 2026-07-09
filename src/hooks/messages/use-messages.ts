@@ -5,6 +5,7 @@ import { io, Socket } from "socket.io-client"
 import { useAuthStore } from "@/stores/auth/use-auth-store"
 import { messagesService } from "@/services/messages/messages-service"
 import type { Message, Conversation, ConversationDetail } from "@/types/messages"
+import { toast } from "sonner"
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? ""
 
@@ -80,6 +81,13 @@ export function useChat(otherUserId: number | null) {
         // avoid duplicate if already added optimistically
         if (prev.find((m) => m.id === msg.id)) return prev
         return [...prev, msg]
+      })
+    })
+
+    socket.on("url_warning", (data: { message: string; originalMessage: string }) => {
+      toast.warning(data.message, {
+        description: "Sharing links outside AristoPay may put your transaction at risk.",
+        duration: 8000,
       })
     })
 

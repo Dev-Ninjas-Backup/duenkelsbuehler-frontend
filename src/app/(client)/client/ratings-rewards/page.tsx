@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import Image from "next/image";
 import { useMyGivenReviews } from "@/hooks/reviews/use-reviews";
-import { useBadges } from "@/hooks/admin/use-admin";
+import { useMyBadges } from "@/hooks/admin/use-admin";
 
 const PAGE_SIZE_OPTIONS = [5, 10, 20];
 
@@ -27,7 +27,7 @@ export default function ClientRatingsRewardsPage() {
   const [pageSize, setPageSize] = useState(10);
 
   const { data: reviews = [], isLoading } = useMyGivenReviews();
-  const { data: badges = [] } = useBadges();
+  const { data: myBadges = [], isLoading: isBadgesLoading } = useMyBadges();
 
   const totalPages = Math.ceil(reviews.length / pageSize) || 1;
   const paginated = reviews.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -52,23 +52,47 @@ export default function ClientRatingsRewardsPage() {
         Rating & Badges
       </motion.h1>
 
-      {/* Badges from API */}
-      {badges.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}
-          className="flex flex-col gap-6 mb-6 shrink-0">
-          {badges.slice(0, 2).map((badge) => (
-            <div key={badge.id} className="flex items-start gap-4 lg:gap-5">
-              <div className="w-16 h-16 lg:w-20 lg:h-20 shrink-0 flex items-center justify-center">
-                <Image src={badge.imageUrl} alt={badge.title} width={80} height={80} className="object-contain" />
-              </div>
-              <div>
-                <h2 className="font-rozha text-xl lg:text-2xl text-[#181D27] mb-1">{badge.title}</h2>
-                <p className="font-work-sans text-[13px] lg:text-sm text-[#414651]">{badge.description}</p>
-              </div>
-            </div>
-          ))}
-        </motion.div>
-      )}
+      {/* Earned Badges Section */}
+      <div className="mb-8 shrink-0">
+        <h2 className="font-rozha text-xl text-[#181D27] mb-4">My Earned Badges</h2>
+        {isBadgesLoading ? (
+          <div className="h-20 w-full bg-gray-50 rounded-[20px] animate-pulse" />
+        ) : myBadges.length > 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            {myBadges.map((earned) => {
+              const badge = earned.badge;
+              return (
+                <div key={earned.id} className="flex items-center gap-4 bg-[#F9F9F9] p-4.5 rounded-[20px] border border-gray-100/60 shadow-xs hover:bg-[#EFEFEF]/50 transition-colors">
+                  <div className="w-16 h-16 shrink-0 flex items-center justify-center bg-white rounded-2xl p-2 border border-gray-200/50 shadow-xs">
+                    <Image src={badge.imageUrl} alt={badge.title} width={80} height={80} className="object-contain" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1 flex-wrap">
+                      <h3 className="font-rozha text-[15px] text-[#181D27] truncate leading-tight">{badge.title}</h3>
+                      <span className="font-work-sans text-[8px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-1.5 py-0.5 rounded-md uppercase tracking-wider">
+                        Earned
+                      </span>
+                    </div>
+                    <p className="font-work-sans text-xs text-[#535862] line-clamp-2 leading-relaxed">{badge.description}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </motion.div>
+        ) : (
+          <div className="w-full bg-[#F9F9F9] border border-dashed border-gray-200 rounded-[20px] py-8 px-6 text-center">
+            <p className="font-rozha text-lg text-[#535862] mb-1">No Badges Yet</p>
+            <p className="font-work-sans text-xs text-[#9CA3AF] max-w-sm mx-auto">
+              You haven&apos;t earned any badges yet. Complete tasks on AristoPay like sending proposals, uploading contracts, or verifying your profile to earn them!
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Table Header */}
       <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.2 }}

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { Calendar, DollarSign, Send, X, AlertCircle, FileText, ArrowLeftRight } from "lucide-react";
 import { useReceivedProposals, useAcceptProposal, useDeclineProposal, useDocusignRequests, useUploadAndSendDocusign, useDocusignSignUrl } from "@/hooks/sp/use-sp";
+import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
 import { toast } from "sonner";
 
 interface Client {
@@ -103,7 +104,13 @@ function UploadContractModal({
 
     try {
       const res = await uploadMutation.mutateAsync(formData);
-      toast.success("Contract successfully uploaded! Redirecting to sign...");
+      if (res?.overageWarning) {
+        toast.warning(res.overageWarning, { duration: 6000 });
+        // Wait 3 seconds to let them read the warning before redirecting
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      } else {
+        toast.success("Contract successfully uploaded! Redirecting to sign...");
+      }
       const signUrlRes = await signUrlMutation.mutateAsync(res.dbId || String(res.id));
       if (signUrlRes && signUrlRes.url) {
         window.location.href = signUrlRes.url;
@@ -211,6 +218,7 @@ function ProposalDetailsModal({
   onUploadContract,
   onSignContract,
   isSigningLoading,
+  hasActiveSubscription,
 }: {
   proposal: ServiceProposal;
   matchedDoc: any | null;
@@ -221,6 +229,7 @@ function ProposalDetailsModal({
   onUploadContract: () => void;
   onSignContract: (documentId: string) => void;
   isSigningLoading: boolean;
+  hasActiveSubscription: boolean;
 }) {
   const [mounted, setMounted] = useState(false);
   const isSPSender = matchedDoc?.senderRole === "PROVIDER";
@@ -452,13 +461,27 @@ function ProposalDetailsModal({
           )}
 
           {proposal.status === "ACCEPTED" && !matchedDoc && (
-            <div className="flex items-center justify-center gap-4 pt-6 border-t border-gray-100 mt-auto">
-              <button
-                onClick={onUploadContract}
-                className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2"
-              >
-                <FileText size={16} /> Send DocuSign Contract
-              </button>
+            <div className="flex flex-col items-center gap-2 pt-6 border-t border-gray-100 mt-auto w-full">
+              {hasActiveSubscription ? (
+                <button
+                  onClick={onUploadContract}
+                  className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2"
+                >
+                  <FileText size={16} /> Send DocuSign Contract
+                </button>
+              ) : (
+                <div className="flex flex-col items-center gap-2 w-full">
+                  <button
+                    disabled
+                    className="w-48 h-12 rounded-full bg-gray-100 text-gray-400 font-work-sans text-sm font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
+                  >
+                    <FileText size={16} /> Send Contract (Premium)
+                  </button>
+                  <p className="font-work-sans text-xs text-red-500 text-center">
+                    Premium subscription required to send DocuSign contracts.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -467,13 +490,27 @@ function ProposalDetailsModal({
             <div className="flex flex-col items-center gap-3 pt-6 border-t border-gray-100 mt-auto w-full">
               {isSPSender ? (
                 matchedDoc.senderStatus !== "SIGNED" ? (
-                  <button
-                    onClick={() => onSignContract(matchedDoc.dbId)}
-                    disabled={isSigningLoading}
-                    className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {isSigningLoading ? "Loading..." : "Sign Contract"}
-                  </button>
+                  hasActiveSubscription ? (
+                    <button
+                      onClick={() => onSignContract(matchedDoc.dbId)}
+                      disabled={isSigningLoading}
+                      className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {isSigningLoading ? "Loading..." : "Sign Contract"}
+                    </button>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 w-full">
+                      <button
+                        disabled
+                        className="w-48 h-12 rounded-full bg-gray-100 text-gray-400 font-work-sans text-sm font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
+                      >
+                        Sign Contract (Premium)
+                      </button>
+                      <p className="font-work-sans text-xs text-red-500 text-center">
+                        Premium subscription required to sign contracts.
+                      </p>
+                    </div>
+                  )
                 ) : (
                   <p className="font-work-sans text-xs text-amber-600 font-semibold bg-amber-50 border border-amber-200/60 px-4 py-2.5 rounded-2xl w-full text-center">
                     Waiting for Client signature...
@@ -485,13 +522,27 @@ function ProposalDetailsModal({
                     Waiting for Client to sign first...
                   </p>
                 ) : matchedDoc.receiverStatus !== "SIGNED" ? (
-                  <button
-                    onClick={() => onSignContract(matchedDoc.dbId)}
-                    disabled={isSigningLoading}
-                    className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {isSigningLoading ? "Loading..." : "Sign Contract"}
-                  </button>
+                  hasActiveSubscription ? (
+                    <button
+                      onClick={() => onSignContract(matchedDoc.dbId)}
+                      disabled={isSigningLoading}
+                      className="w-48 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {isSigningLoading ? "Loading..." : "Sign Contract"}
+                    </button>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 w-full">
+                      <button
+                        disabled
+                        className="w-48 h-12 rounded-full bg-gray-100 text-gray-400 font-work-sans text-sm font-semibold flex items-center justify-center gap-2 cursor-not-allowed"
+                      >
+                        Sign Contract (Premium)
+                      </button>
+                      <p className="font-work-sans text-xs text-red-500 text-center">
+                        Premium subscription required to sign contracts.
+                      </p>
+                    </div>
+                  )
                 ) : null
               )}
             </div>
@@ -513,6 +564,9 @@ export default function ReceivedProposalsPage() {
   // Mutations & Queries
   const { data: proposals = [], isLoading, error } = useReceivedProposals();
   const { data: docusignDocs = [], refetch: refetchDocs } = useDocusignRequests();
+  const { data: subscriptions = [] } = useMySubscriptions();
+  const hasActiveSubscription = subscriptions.some((s) => s.status === "ACTIVE" || s.status === "TRIALING");
+  
   const acceptMutation = useAcceptProposal();
   const declineMutation = useDeclineProposal();
   const signUrlMutation = useDocusignSignUrl();
@@ -792,12 +846,22 @@ export default function ReceivedProposalsPage() {
                       {/* Upload contract action on card */}
                       {proposal.status === "ACCEPTED" && !matchedDoc && (
                         <div className="flex pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
-                           <button
-                             onClick={() => setUploadProposal(proposal)}
-                             className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5"
-                           >
-                             <FileText size={12} /> Send DocuSign Contract
-                           </button>
+                           {hasActiveSubscription ? (
+                             <button
+                               onClick={() => setUploadProposal(proposal)}
+                               className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5"
+                             >
+                               <FileText size={12} /> Send DocuSign Contract
+                             </button>
+                           ) : (
+                             <button
+                               disabled
+                               className="w-full h-9 rounded-full bg-gray-100 text-gray-400 font-work-sans text-xs font-semibold flex items-center justify-center gap-1.5 cursor-not-allowed"
+                               title="Premium subscription required"
+                             >
+                               <FileText size={12} /> Send Contract (Premium)
+                             </button>
+                           )}
                          </div>
                        )}
 
@@ -806,13 +870,23 @@ export default function ReceivedProposalsPage() {
                          <div className="flex pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
                            {matchedDoc.senderRole === "PROVIDER" ? (
                              matchedDoc.senderStatus !== "SIGNED" ? (
-                               <button
-                                 onClick={() => handleSignContract(matchedDoc.dbId)}
-                                 disabled={isSigningLoading}
-                                 className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
-                               >
-                                 Sign Contract (You)
-                               </button>
+                               hasActiveSubscription ? (
+                                 <button
+                                   onClick={() => handleSignContract(matchedDoc.dbId)}
+                                   disabled={isSigningLoading}
+                                   className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                                 >
+                                   Sign Contract (You)
+                                 </button>
+                               ) : (
+                                 <button
+                                   disabled
+                                   className="w-full h-9 rounded-full bg-gray-100 text-gray-400 font-work-sans text-xs font-semibold flex items-center justify-center gap-1.5 cursor-not-allowed"
+                                   title="Premium subscription required to sign contracts"
+                                 >
+                                   Sign Contract (Premium)
+                                 </button>
+                               )
                              ) : (
                                <div className="w-full text-center py-2 bg-amber-50 border border-amber-200/50 rounded-xl">
                                  <span className="font-work-sans text-[10px] text-amber-600 font-bold">Waiting for Client...</span>
@@ -824,13 +898,23 @@ export default function ReceivedProposalsPage() {
                                  <span className="font-work-sans text-[10px] text-amber-600 font-bold">Waiting for Client first...</span>
                                </div>
                              ) : matchedDoc.receiverStatus !== "SIGNED" ? (
-                               <button
-                                 onClick={() => handleSignContract(matchedDoc.dbId)}
-                                 disabled={isSigningLoading}
-                                 className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
-                               >
-                                 Sign Contract (You)
-                               </button>
+                               hasActiveSubscription ? (
+                                 <button
+                                   onClick={() => handleSignContract(matchedDoc.dbId)}
+                                   disabled={isSigningLoading}
+                                   className="w-full h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                                 >
+                                   Sign Contract (You)
+                                 </button>
+                               ) : (
+                                 <button
+                                   disabled
+                                   className="w-full h-9 rounded-full bg-gray-100 text-gray-400 font-work-sans text-xs font-semibold flex items-center justify-center gap-1.5 cursor-not-allowed"
+                                   title="Premium subscription required to sign contracts"
+                                 >
+                                   Sign Contract (Premium)
+                                 </button>
+                               )
                              ) : null
                            )}
                          </div>
@@ -860,6 +944,7 @@ export default function ReceivedProposalsPage() {
             }}
             onSignContract={handleSignContract}
             isSigningLoading={isSigningLoading}
+            hasActiveSubscription={hasActiveSubscription}
           />
         )}
       </AnimatePresence>

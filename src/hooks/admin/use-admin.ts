@@ -148,6 +148,15 @@ export function useBadges() {
   });
 }
 
+export function useMyBadges() {
+  const token = useToken();
+  return useQuery({
+    queryKey: ["my-badges"],
+    queryFn: () => badgeService.getMyBadges(token),
+    enabled: !!token,
+  });
+}
+
 export function useCreateBadge() {
   const token = useToken();
   const qc = useQueryClient();

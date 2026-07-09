@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ClientSidebar } from "./client/_components/client-sidebar";
 import { ClientBottomNav } from "./client/_components/client-bottom-nav";
 import { AuthGuard } from "@/components/shared/auth-guard";
+import { BadgeAwardNotifier } from "@/components/shared/badge-award-notifier";
 
 export default function ClientLayout({
   children,
@@ -15,6 +16,7 @@ export default function ClientLayout({
   return (
     <AuthGuard allowedRoles={["CLIENT"]} redirectTo="/login">
       <div className="h-dvh w-full overflow-hidden bg-[#F8F9FA]">
+        <BadgeAwardNotifier />
         <div className="flex h-full p-4 md:p-6 lg:p-10 gap-4 lg:gap-8 pb-[130px] lg:pb-[100px] relative max-w-[1600px] mx-auto">
           <ClientSidebar
             isOpen={sidebarOpen}

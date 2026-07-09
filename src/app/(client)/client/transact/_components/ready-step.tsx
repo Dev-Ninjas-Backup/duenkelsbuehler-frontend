@@ -69,6 +69,20 @@ export function ReadyStep() {
   const [confirmUnverified, setConfirmUnverified] = useState(data.confirmUnverified);
   const [showModal, setShowModal] = useState(false);
 
+  const priceNum = Number(data.price) || 0;
+  const currency = data.currency || "USD";
+
+  // Calculations
+  const clientPercentageFee = priceNum * 0.05;
+  const clientFlatFee = 0.40;
+  const clientFeeTotal = clientPercentageFee + clientFlatFee;
+  const totalClientPays = priceNum + clientFeeTotal;
+
+  const spStandardFee = priceNum * 0.05;
+  const spPromoFee = priceNum * 0.03;
+  const totalSpReceivesStandard = priceNum - spStandardFee;
+  const totalSpReceivesPromo = priceNum - spPromoFee;
+
   const { mutate: sendProposal, isPending } = useSendDirectProposal();
 
   useEffect(() => {
@@ -91,6 +105,7 @@ export function ReadyStep() {
         data: {
           proposalTitle: data.title,
           serviceDescription: data.serviceDescription,
+          selectedServiceItemIds: data.selectedServiceItemIds,
           issueDate: isoIssueDate,
           dueDate: isoDueDate,
           proposedPrice: numericPrice,
@@ -135,7 +150,7 @@ export function ReadyStep() {
         </motion.h1>
 
         {/* SP Card */}
-        <div className="w-full bg-[#F9F9F9] rounded-2xl px-5 py-4 flex items-center gap-4 mb-6">
+        <div className="w-full bg-[#F9F9F9] rounded-2xl px-5 py-4 flex items-center gap-4 mb-4">
           <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 relative">
             <Image src={sp.avatar} alt={sp.name} fill className="object-cover" />
           </div>
@@ -146,6 +161,47 @@ export function ReadyStep() {
                 <AiFillWarning className="w-[11px] h-[11px]" /> Unverified
               </span>
             )}
+          </div>
+        </div>
+
+        {/* Proposal Summary & Fee Breakdown Card */}
+        <div className="w-full bg-[#F9F9F9] border border-gray-100 rounded-2xl p-5 mb-6 flex flex-col gap-4">
+          <div>
+            <h3 className="font-rozha text-[15px] text-[#181D27] mb-1">Proposal: {data.title}</h3>
+            <p className="font-work-sans text-xs text-[#535862] line-clamp-2 leading-relaxed">
+              {data.serviceDescription || "No description provided."}
+            </p>
+          </div>
+
+          <div className="h-px bg-gray-200/60" />
+
+          {/* Pricing breakdown */}
+          <div className="flex flex-col gap-2.5">
+            <div className="flex justify-between items-center text-xs font-work-sans text-[#414651]">
+              <span>Proposed Price:</span>
+              <span className="font-semibold text-gray-700">{priceNum.toFixed(2)} {currency}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs font-work-sans text-[#414651]">
+              <span>Escrow Protection Fee (5% + 0.40):</span>
+              <span className="font-semibold text-gray-700">+{clientFeeTotal.toFixed(2)} {currency}</span>
+            </div>
+            
+            <div className="h-px bg-gray-200/40 my-1" />
+
+            <div className="flex justify-between items-center text-sm font-work-sans font-bold text-[#181D27]">
+              <span>Total You Pay:</span>
+              <span className="text-[#16A34A]">{totalClientPays.toFixed(2)} {currency}</span>
+            </div>
+
+            <div className="h-px bg-gray-200/40 my-1" />
+
+            <div className="flex justify-between items-start text-xs font-work-sans text-[#535862]">
+              <span>Provider Will Receive:</span>
+              <div className="text-right">
+                <p className="font-semibold text-gray-700">{totalSpReceivesStandard.toFixed(2)} {currency}</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">({totalSpReceivesPromo.toFixed(2)} {currency} if launch promo applies)</p>
+              </div>
+            </div>
           </div>
         </div>
 
