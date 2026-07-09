@@ -1,5 +1,6 @@
 export type SubStep =
   | "search"
+  | "select-services"
   | "proposal-details"
   | "final-remarks"
   | "ready"
@@ -15,6 +16,7 @@ export interface SP {
 
 export interface ProposalData {
   sp: SP | null;
+  selectedServiceItemIds: number[];
   title: string;
   serviceDescription: string;
   issueDate: string;

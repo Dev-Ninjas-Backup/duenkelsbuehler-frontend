@@ -3,13 +3,14 @@ import { SP, SubStep, ProposalData } from "@/app/(client)/client/transact/_compo
 
 const EMPTY_DATA: ProposalData = {
   sp: null,
+  selectedServiceItemIds: [],
   title: "",
   serviceDescription: "",
   issueDate: "",
   dueDate: "",
   price: "",
   currency: "USD",
-  paymentMethod: "TRUST_APP",
+  paymentMethod: "CARD",
   notes: "",
   terms: "",
   confirmSP: false,

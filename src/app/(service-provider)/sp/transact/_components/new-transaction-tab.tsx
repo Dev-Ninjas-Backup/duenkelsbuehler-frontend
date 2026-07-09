@@ -19,6 +19,7 @@ import { useSavedContracts } from "@/store/saved-contracts";
 import { AddContactModal } from "./add-contact-modal";
 import { useCreateTransaction } from "@/hooks/trustap/use-trustap";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
+import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
 
 const STEP_ORDER: SubStep[] = ["contacts", "amount", "payment-method", "contract", "invoice", "final-details", "ready"];
 
@@ -59,6 +60,8 @@ export function NewTransactionTab({ onDone }: Props) {
   const { saveContract } = useSavedContracts();
   const { mutate: createTransaction, isPending: isCreatingTx } = useCreateTransaction();
   const user = useAuthStore((s) => s.user);
+  const { data: subscriptions = [] } = useMySubscriptions();
+  const hasActiveSubscription = subscriptions.some((s) => s.status === "ACTIVE" || s.status === "TRIALING");
 
   const goTo = (next: SubStep, dir: number) => {
     setDirection(dir);
@@ -200,6 +203,7 @@ export function NewTransactionTab({ onDone }: Props) {
               contact={data.contact}
               contractFile={data.contractFile}
               docuSign={data.docuSign}
+              isSubscriber={hasActiveSubscription}
               onFileChange={(f) => set("contractFile", f)}
               onDocuSignChange={(v) => set("docuSign", v)}
               onNext={(shouldSave) => {

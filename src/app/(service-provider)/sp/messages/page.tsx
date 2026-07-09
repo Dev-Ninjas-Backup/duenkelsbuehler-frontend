@@ -133,9 +133,21 @@ function MessagesContent() {
         </div>
       </motion.div>
 
-      <LeaveAristoPayModal isOpen={leaveModalOpen}
-        onClose={() => { setLeaveModalOpen(false); setPendingUrl(null); }}
-        onLeave={() => { if (pendingUrl) window.open(pendingUrl, "_blank"); setLeaveModalOpen(false); setInput(""); setPendingUrl(null); }} />
+      <LeaveAristoPayModal
+        isOpen={leaveModalOpen}
+        onClose={() => {
+          setLeaveModalOpen(false);
+          setPendingUrl(null);
+        }}
+        onLeave={() => {
+          if (pendingUrl) {
+            sendMessage(pendingUrl);
+            setInput("");
+          }
+          setLeaveModalOpen(false);
+          setPendingUrl(null);
+        }}
+      />
     </div>
   );
 }

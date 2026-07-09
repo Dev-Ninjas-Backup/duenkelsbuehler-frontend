@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuthStore } from "@/stores/auth/use-auth-store"
 import { trustapService, CreateTransactionData } from "@/services/trustap/trustap-service"
 
@@ -8,9 +8,13 @@ function useToken() {
 
 export function useCreateTransaction() {
   const token = useToken()
+  const qc = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateTransactionData) =>
       trustapService.createTransaction(data, token),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-badges"] })
+    }
   })
 }
 

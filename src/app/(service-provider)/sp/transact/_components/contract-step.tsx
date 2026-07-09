@@ -171,16 +171,21 @@ export function ContractStep({
 
         {/* DocuSign checkbox */}
         {contractFile && (
-          <motion.label initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-3 cursor-pointer">
+          <motion.label
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className={`flex items-start gap-3 ${isSubscriber ? "cursor-pointer" : "cursor-not-allowed opacity-60"}`}
+          >
             <input
               type="checkbox"
-              checked={docuSign}
+              checked={isSubscriber ? docuSign : false}
+              disabled={!isSubscriber}
               onChange={(e) => onDocuSignChange(e.target.checked)}
-              title="Require DocuSign signature"
-              className="mt-0.5 w-4 h-4 accent-[#181D27] cursor-pointer"
+              title={isSubscriber ? "Require DocuSign signature" : "Premium subscription required"}
+              className="mt-0.5 w-4 h-4 accent-[#181D27]"
             />
             <span className="font-work-sans text-sm text-[#414651]">
-              Click this box to require a DocuSign signature before invoicing
+              Click this box to require a DocuSign signature before invoicing {!isSubscriber && <span className="text-red-500 font-semibold">(Premium Only)</span>}
             </span>
           </motion.label>
         )}

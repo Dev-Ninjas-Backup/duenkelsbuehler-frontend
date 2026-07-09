@@ -39,10 +39,11 @@ export function ProposalDetailsStep() {
   const [dueDate, setDueDate] = useState(data.dueDate);
   const [price, setPrice] = useState(data.price);
   const [currency, setCurrency] = useState(data.currency || "USD");
-  const [paymentMethod, setPaymentMethod] = useState(data.paymentMethod || "TRUST_APP");
+  const [paymentMethod, setPaymentMethod] = useState(data.paymentMethod || "CARD");
 
-  const isPriceValid = price === "" || Number(price) >= 150;
-  const canNext = title && serviceDescription && issueDate && dueDate && price && Number(price) >= 150;
+  const minPrice = paymentMethod === "BANK_TRANSFER" ? 300 : 150;
+  const isPriceValid = price === "" || Number(price) >= minPrice;
+  const canNext = title && serviceDescription && issueDate && dueDate && price && Number(price) >= minPrice;
 
   const saveData = () => {
     updateData({
@@ -170,11 +171,13 @@ export function ProposalDetailsStep() {
               type="number"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
-              placeholder="Min 150"
+              placeholder={`Min ${minPrice}`}
               className={inputCls}
             />
             {!isPriceValid && (
-              <span className="font-work-sans text-xs text-red-500">Minimum proposed price is 150.</span>
+              <span className="font-work-sans text-xs text-red-500">
+                Minimum proposed price for {paymentMethod === "BANK_TRANSFER" ? "Bank/Wire Transfer is 300" : "Card payment is 150"}.
+              </span>
             )}
           </div>
           <div className="flex flex-col gap-1.5">
@@ -200,9 +203,8 @@ export function ProposalDetailsStep() {
             onChange={(e) => setPaymentMethod(e.target.value as any)}
             className={selectCls}
           >
-            <option value="TRUST_APP">Trust App</option>
-            <option value="BANK_TRANSFER">Bank Transfer</option>
             <option value="CARD">Credit/Debit Card</option>
+            <option value="BANK_TRANSFER">Bank Transfer</option>
           </select>
         </div>
 
@@ -212,7 +214,7 @@ export function ProposalDetailsStep() {
             whileTap={{ scale: 0.95 }}
             onClick={() => {
               saveData();
-              setStep("search");
+              setStep("select-services");
             }}
             className="w-36 h-12 rounded-full border border-gray-200 font-work-sans text-sm text-[#414651] font-medium hover:bg-gray-50 transition-colors"
           >

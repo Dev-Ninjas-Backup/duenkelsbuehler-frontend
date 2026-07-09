@@ -86,6 +86,7 @@ export const serviceProviderService = {
 export interface CreateDirectProposalData {
   proposalTitle: string;
   serviceDescription: string;
+  selectedServiceItemIds?: number[];
   issueDate: string;
   dueDate: string;
   proposedPrice: number;
@@ -96,6 +97,9 @@ export interface CreateDirectProposalData {
 }
 
 export const proposalService = {
+  getProviderServiceItems: (providerId: number, token: string) =>
+    request<{ serviceItems: any[] }>(`/services/${providerId}/service-items`, token),
+
   sendDirectProposal: (providerId: number, data: CreateDirectProposalData, token: string) =>
     request<any>(`/services/${providerId}/send-proposal`, token, {
       method: "POST",

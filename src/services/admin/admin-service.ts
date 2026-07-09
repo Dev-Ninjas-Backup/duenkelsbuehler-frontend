@@ -96,6 +96,9 @@ export const badgeService = {
   findAll: (token: string) =>
     request<Badge[]>("/badge", token),
 
+  getMyBadges: (token: string) =>
+    request<any[]>("/badge/my-badges", token),
+
   findOne: (id: number, token: string) =>
     request<Badge>(`/badge/${id}`, token),
 
