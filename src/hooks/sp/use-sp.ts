@@ -219,3 +219,70 @@ export function useProviderServiceItems(providerId: number | null) {
     enabled: !!providerId && !!token,
   })
 }
+
+export function useSearchClients({ search, page, limit }: { search: string; page: number; limit: number }) {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["search-clients", search, page, limit],
+    queryFn: () => proposalService.searchClients(search, page, limit, token),
+    enabled: !!token,
+  })
+}
+
+export function useSendSPProposal() {
+  const token = useToken()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ clientId, data }: { clientId: number; data: any }) =>
+      proposalService.sendSPProposal(clientId, data, token),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sp-sent-proposals"] })
+      qc.invalidateQueries({ queryKey: ["my-proposals"] })
+      qc.invalidateQueries({ queryKey: ["my-badges"] })
+    },
+  })
+}
+
+export function useSPSentProposals() {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["sp-sent-proposals"],
+    queryFn: () => proposalService.getSPSentProposals(token),
+    enabled: !!token,
+  })
+}
+
+export function useClientReceivedSPProposals() {
+  const token = useToken()
+  return useQuery({
+    queryKey: ["client-received-sp-proposals"],
+    queryFn: () => proposalService.getClientReceivedSPProposals(token),
+    enabled: !!token,
+  })
+}
+
+export function useClientAcceptSPProposal() {
+  const token = useToken()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (proposalId: number) => proposalService.clientAcceptSPProposal(proposalId, token),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["client-received-sp-proposals"] })
+      qc.invalidateQueries({ queryKey: ["my-sent-proposals"] })
+      qc.invalidateQueries({ queryKey: ["my-proposals"] })
+    },
+  })
+}
+
+export function useClientDeclineSPProposal() {
+  const token = useToken()
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (proposalId: number) => proposalService.clientDeclineSPProposal(proposalId, token),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["client-received-sp-proposals"] })
+      qc.invalidateQueries({ queryKey: ["my-sent-proposals"] })
+      qc.invalidateQueries({ queryKey: ["my-proposals"] })
+    },
+  })
+}

@@ -5,7 +5,11 @@ import type {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
-async function request<T>(endpoint: string, token: string, options?: RequestInit): Promise<T> {
+interface RequestOptions extends RequestInit {
+  raw?: boolean
+}
+
+async function request<T>(endpoint: string, token: string, options?: RequestOptions): Promise<T> {
   const headers: HeadersInit = {
     Authorization: `Bearer ${token}`,
     "ngrok-skip-browser-warning": "true",
@@ -22,6 +26,7 @@ async function request<T>(endpoint: string, token: string, options?: RequestInit
   })
   const json = await res.json()
   if (!res.ok) throw new Error(json?.message || "Something went wrong")
+  if (options?.raw) return json as T
   return (json?.data !== undefined ? json.data : json) as T
 }
 
@@ -124,4 +129,21 @@ export const proposalService = {
     request<{ url: string }>(`/docusign_2/sign-url/${documentId}`, token),
   getDocusignRequests: (token: string) =>
     request<any[]>("/docusign_2/my-requests", token),
+
+  // SP to Client (Option A) new endpoints
+  searchClients: (search: string, page: number, limit: number, token: string) =>
+    request<{ data: any[]; meta: any }>(`/services/sp/search-clients?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, token, { raw: true }),
+  sendSPProposal: (clientId: number, data: any, token: string) =>
+    request<any>(`/services/sp/send-proposal/${clientId}`, token, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  getSPSentProposals: (token: string) =>
+    request<any[]>("/services/sp/proposals/sent", token),
+  getClientReceivedSPProposals: (token: string) =>
+    request<any[]>("/services/proposals/sp-received", token),
+  clientAcceptSPProposal: (proposalId: number, token: string) =>
+    request<any>(`/services/proposals/${proposalId}/client-accept`, token, { method: "PATCH" }),
+  clientDeclineSPProposal: (proposalId: number, token: string) =>
+    request<any>(`/services/proposals/${proposalId}/client-decline`, token, { method: "PATCH" }),
 }

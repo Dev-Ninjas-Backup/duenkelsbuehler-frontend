@@ -74,6 +74,7 @@ export interface AuthUser {
   role: UserRole[]
   isEmailVerified: boolean
   isIdentityVerified: boolean
+  verifIdentityVerificationStatus?: string | null
   trustapUserId: string | null
   imageUrl?: string | null
   createdAt: string
