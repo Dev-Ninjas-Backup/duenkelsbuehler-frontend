@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Clock, AlertCircle, AlertTriangle, RefreshCw } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LandingStep }   from "./_components/landing-step";
 import { SubscribeStep } from "./_components/subscribe-step";
@@ -13,9 +13,9 @@ import { useGetMe } from "@/hooks/auth/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import { Suspense } from "react";
 
-type Step = "landing" | "subscribe" | "upload" | "success";
+type Step = "landing" | "subscribe" | "upload" | "success" | "submitted" | "declined" | "resubmit";
 
-const STEPS: Step[] = ["landing", "subscribe", "upload", "success"];
+const STEPS: Step[] = ["landing", "subscribe", "upload", "success", "submitted", "declined", "resubmit"];
 
 const slideVariants = {
   enter:  (dir: number) => ({ opacity: 0, x: dir > 0 ?  40 : -40 }),
@@ -26,6 +26,7 @@ const slideVariants = {
 function VerifyAccountContent() {
   const [step, setStep]           = useState<Step>("landing");
   const [direction, setDirection] = useState(1);
+  const [retryOverride, setRetryOverride] = useState(false);
   const [ready, setReady]         = useState(false);
   const [retrying, setRetrying]   = useState(false);
   const retryCount                = useRef(0);
@@ -69,15 +70,29 @@ function VerifyAccountContent() {
       (s) => s.status === "ACTIVE" || s.status === "TRIALING"
     );
 
-    if (me?.isIdentityVerified) {
+    const status = me?.verifIdentityVerificationStatus;
+
+    if (me?.isIdentityVerified || status === "APPROVED") {
       setStep("success");
+    } else if (!retryOverride && (status === "SUBMITTED" || status === "REVIEW")) {
+      setStep("submitted");
+    } else if (!retryOverride && (status === "DECLINED" || status === "EXPIRED" || status === "ABANDONED")) {
+      setStep("declined");
+    } else if (!retryOverride && status === "RESUBMISSION_REQUESTED") {
+      setStep("resubmit");
     } else if (activeSub) {
       setStep("upload");
     } else {
       // If there is no active subscription, we default to "landing"
       // but we shouldn't force them back to "landing" if they are currently in the middle of "subscribe" (plans selection)
       setStep((prev) => {
-        if (prev === "upload" || prev === "success") {
+        if (
+          prev === "upload" ||
+          prev === "success" ||
+          prev === "submitted" ||
+          prev === "declined" ||
+          prev === "resubmit"
+        ) {
           return "landing";
         }
         return prev;
@@ -85,7 +100,7 @@ function VerifyAccountContent() {
     }
 
     if (!retrying) setReady(true);
-  }, [subsLoading, meLoading, subscriptions, me, fromStripe, retrying]);
+  }, [subsLoading, meLoading, subscriptions, me, fromStripe, retrying, retryOverride]);
 
   const goTo = (next: Step) => {
     setDirection(STEPS.indexOf(next) > STEPS.indexOf(step) ? 1 : -1);
@@ -95,7 +110,7 @@ function VerifyAccountContent() {
   const goNext = () => goTo(STEPS[STEPS.indexOf(step) + 1]);
   const goBack = () => goTo(STEPS[STEPS.indexOf(step) - 1]);
 
-  const showBack = step !== "landing" && step !== "success" && step !== "upload";
+  const showBack = step !== "landing" && step !== "success" && step !== "upload" && step !== "submitted" && step !== "declined" && step !== "resubmit";
 
   if (!ready || retrying) {
     return (
@@ -159,6 +174,69 @@ function VerifyAccountContent() {
           {step === "landing"   && <LandingStep   onNext={goNext} />}
           {step === "subscribe" && <SubscribeStep onNext={goNext} />}
           {step === "upload"    && <UploadStep    onNext={goNext} />}
+          {step === "submitted" && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-md mx-auto w-full bg-white border border-gray-100 rounded-3xl p-8 shadow-sm flex flex-col items-center text-center mt-6"
+            >
+              <div className="w-16 h-16 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 mb-6 animate-pulse">
+                <Clock size={32} />
+              </div>
+              <h2 className="font-rozha text-2xl text-[#181D27] mb-3">Verification Under Review</h2>
+              <p className="font-work-sans text-sm text-[#414651] leading-relaxed mb-8">
+                Thank you! We have received your identity verification documents. Veriff is currently reviewing your submission. This usually takes a few minutes, but can take up to 24 hours. We will notify you once done.
+              </p>
+              <button
+                onClick={() => router.push("/sp/settings")}
+                className="w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
+              >
+                Back to Dashboard
+              </button>
+            </motion.div>
+          )}
+          {step === "declined" && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-md mx-auto w-full bg-white border border-gray-100 rounded-3xl p-8 shadow-sm flex flex-col items-center text-center mt-6"
+            >
+              <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-500 mb-6">
+                <AlertCircle size={32} />
+              </div>
+              <h2 className="font-rozha text-2xl text-[#181D27] mb-3">Verification Failed</h2>
+              <p className="font-work-sans text-sm text-[#414651] leading-relaxed mb-8">
+                Your identity verification session was declined, expired, or abandoned. Please ensure your documents are valid and clearly visible, then try again.
+              </p>
+              <button
+                onClick={() => setRetryOverride(true)}
+                className="w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2"
+              >
+                <RefreshCw size={16} /> Try Again
+              </button>
+            </motion.div>
+          )}
+          {step === "resubmit" && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-md mx-auto w-full bg-white border border-gray-100 rounded-3xl p-8 shadow-sm flex flex-col items-center text-center mt-6"
+            >
+              <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 mb-6">
+                <AlertTriangle size={32} />
+              </div>
+              <h2 className="font-rozha text-2xl text-[#181D27] mb-3">Resubmission Requested</h2>
+              <p className="font-work-sans text-sm text-[#414651] leading-relaxed mb-8">
+                The verification service has requested a resubmission of your documents. This could be due to glare, blur, or incomplete information on your ID.
+              </p>
+              <button
+                onClick={() => setRetryOverride(true)}
+                className="w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2"
+              >
+                <RefreshCw size={16} /> Resubmit Documents
+              </button>
+            </motion.div>
+          )}
         </motion.div>
       </AnimatePresence>
 
