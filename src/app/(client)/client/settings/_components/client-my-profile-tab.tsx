@@ -43,6 +43,40 @@ export function ClientMyProfileTab() {
     );
   }
 
+  const getVerificationStatus = () => {
+    if (user?.isIdentityVerified) {
+      return { text: "Verified ✓", colorCls: "text-green-600" };
+    }
+    const status = user?.verifIdentityVerificationStatus;
+    if (!status) {
+      return { text: "Not Verified", colorCls: "text-red-500" };
+    }
+    switch (status) {
+      case "CREATED":
+        return { text: "Not Verified", colorCls: "text-red-500" };
+      case "STARTED":
+        return { text: "Verification Started", colorCls: "text-blue-500" };
+      case "SUBMITTED":
+        return { text: "Submitted (Pending Review)", colorCls: "text-amber-500" };
+      case "REVIEW":
+        return { text: "Under Review", colorCls: "text-amber-500" };
+      case "DECLINED":
+        return { text: "Declined", colorCls: "text-red-500" };
+      case "RESUBMISSION_REQUESTED":
+        return { text: "Resubmission Requested", colorCls: "text-red-500" };
+      case "EXPIRED":
+        return { text: "Expired", colorCls: "text-gray-500" };
+      case "ABANDONED":
+        return { text: "Abandoned", colorCls: "text-gray-500" };
+      case "APPROVED":
+        return { text: "Verified ✓", colorCls: "text-green-600" };
+      default:
+        return { text: "Not Verified", colorCls: "text-red-500" };
+    }
+  };
+
+  const verifStatus = getVerificationStatus();
+
   return (
     <motion.div key="profile" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.3 }}
@@ -131,9 +165,9 @@ export function ClientMyProfileTab() {
           <div className="flex flex-col gap-1.5">
             <label className="font-work-sans text-[13px] font-bold text-[#181D27]">Identity Verified</label>
             <input readOnly
-              value={user?.isIdentityVerified ? "Verified ✓" : "Not Verified"}
+              value={verifStatus.text}
               title="Identity Verified"
-              className={`${readonlyCls} ${user?.isIdentityVerified ? "text-green-600" : "text-red-500"}`}
+              className={`${readonlyCls} ${verifStatus.colorCls}`}
             />
           </div>
 

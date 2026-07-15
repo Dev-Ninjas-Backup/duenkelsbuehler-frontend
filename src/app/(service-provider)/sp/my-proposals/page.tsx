@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { Calendar, DollarSign, Send, X, AlertCircle, FileText, ArrowLeftRight } from "lucide-react";
-import { useReceivedProposals, useAcceptProposal, useDeclineProposal, useDocusignRequests, useUploadAndSendDocusign, useDocusignSignUrl } from "@/hooks/sp/use-sp";
+import { useReceivedProposals, useSPSentProposals, useAcceptProposal, useDeclineProposal, useDocusignRequests, useUploadAndSendDocusign, useDocusignSignUrl } from "@/hooks/sp/use-sp";
 import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
 import { toast } from "sonner";
 
@@ -31,6 +31,7 @@ interface ServiceProposal {
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   createdAt: string;
   client: Client;
+  initiatedBy?: "CLIENT" | "SERVICE_PROVIDER";
 }
 
 const containerVariants = {
@@ -300,7 +301,7 @@ function ProposalDetailsModal({
             {proposal.proposalTitle}
           </h2>
           <p className="font-work-sans text-xs text-gray-400 mt-1">
-            Received on {formatDate(proposal.createdAt)}
+            {proposal.initiatedBy === "SERVICE_PROVIDER" ? "Sent" : "Received"} on {formatDate(proposal.createdAt)}
           </p>
         </div>
 
@@ -312,7 +313,7 @@ function ProposalDetailsModal({
             </div>
             <div>
               <p className="font-work-sans text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Client (Sender)
+                {proposal.initiatedBy === "SERVICE_PROVIDER" ? "Client (Receiver)" : "Client (Sender)"}
               </p>
               <p className="font-rozha text-base text-[#181D27]">{proposal.client.name}</p>
               <p className="font-work-sans text-xs text-gray-500">
@@ -442,22 +443,30 @@ function ProposalDetailsModal({
 
           {/* Action Row inside modal */}
           {proposal.status === "PENDING" && (
-            <div className="flex items-center justify-center gap-4 pt-6 border-t border-gray-100 mt-auto">
-              <button
-                disabled={isActionPending}
-                onClick={onDecline}
-                className="w-36 h-12 rounded-full border border-red-200 text-red-600 font-work-sans text-sm font-semibold hover:bg-red-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Decline
-              </button>
-              <button
-                disabled={isActionPending}
-                onClick={onAccept}
-                className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Accept
-              </button>
-            </div>
+            proposal.initiatedBy === "SERVICE_PROVIDER" ? (
+              <div className="flex flex-col items-center gap-2 pt-6 border-t border-gray-100 mt-auto w-full">
+                <div className="w-full text-center py-3 bg-amber-50 border border-amber-200/50 rounded-2xl">
+                  <span className="font-work-sans text-xs text-amber-600 font-bold">Waiting for Client to accept or decline...</span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-4 pt-6 border-t border-gray-100 mt-auto">
+                <button
+                  disabled={isActionPending}
+                  onClick={onDecline}
+                  className="w-36 h-12 rounded-full border border-red-200 text-red-600 font-work-sans text-sm font-semibold hover:bg-red-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Decline
+                </button>
+                <button
+                  disabled={isActionPending}
+                  onClick={onAccept}
+                  className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Accept
+                </button>
+              </div>
+            )
           )}
 
           {proposal.status === "ACCEPTED" && !matchedDoc && (
@@ -562,7 +571,11 @@ export default function ReceivedProposalsPage() {
   const [uploadProposal, setUploadProposal] = useState<ServiceProposal | null>(null);
 
   // Mutations & Queries
-  const { data: proposals = [], isLoading, error } = useReceivedProposals();
+  const receivedQuery = useReceivedProposals();
+  const sentQuery = useSPSentProposals();
+  const proposals = activeCategory === "RECEIVED" ? (receivedQuery.data || []) : (sentQuery.data || []);
+  const isLoading = activeCategory === "RECEIVED" ? receivedQuery.isLoading : sentQuery.isLoading;
+  const error = activeCategory === "RECEIVED" ? receivedQuery.error : sentQuery.error;
   const { data: docusignDocs = [], refetch: refetchDocs } = useDocusignRequests();
   const { data: subscriptions = [] } = useMySubscriptions();
   const hasActiveSubscription = subscriptions.some((s) => s.status === "ACTIVE" || s.status === "TRIALING");
@@ -705,15 +718,7 @@ export default function ReceivedProposalsPage() {
 
       {/* Main List */}
       <div className="flex-1 min-h-0">
-        {activeCategory === "SENT" ? (
-          <div className="flex flex-col items-center justify-center h-64 bg-[#F9F9F9] rounded-[24px] border border-gray-100 p-8 text-center">
-            <Send className="w-10 h-10 text-gray-300 mb-3" />
-            <h3 className="font-rozha text-xl text-[#181D27] mb-1.5">Direct Sent Proposals</h3>
-            <p className="font-work-sans text-sm text-[#535862] max-w-sm leading-relaxed">
-              In the direct transaction model, onboarding is initiated by clients. You will receive client proposals directly in the &ldquo;Received Proposals&rdquo; tab, which you can review and accept.
-            </p>
-          </div>
-        ) : isLoading ? (
+        {isLoading ? (
           <div className="flex flex-col items-center justify-center h-64">
             <svg className="animate-spin h-8 w-8 text-[#181D27] mb-2" viewBox="0 0 24 24" fill="none">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -733,8 +738,10 @@ export default function ReceivedProposalsPage() {
             <h3 className="font-rozha text-xl text-[#181D27] mb-1.5">No proposals found</h3>
             <p className="font-work-sans text-sm text-[#535862] max-w-sm">
               {filter === "ALL"
-                ? "You haven't received any service proposals from clients yet."
-                : `You don't have any received proposals with the status "${filter.toLowerCase()}".`}
+                ? activeCategory === "RECEIVED"
+                  ? "You haven't received any service proposals from clients yet."
+                  : "You haven't sent any service proposals to clients yet."
+                : `You don't have any ${activeCategory === "RECEIVED" ? "received" : "sent"} proposals with the status "${filter.toLowerCase()}".`}
             </p>
           </div>
         ) : (
@@ -806,8 +813,10 @@ export default function ReceivedProposalsPage() {
                           <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-semibold text-xs bg-[#181D27] text-white">
                             {proposal.client.name.charAt(0).toUpperCase()}
                           </div>
-                          <div>
-                            <p className="font-work-sans text-[10px] text-gray-400 uppercase tracking-wider">From Client</p>
+                           <div>
+                            <p className="font-work-sans text-[10px] text-gray-400 uppercase tracking-wider">
+                              {activeCategory === "RECEIVED" ? "From Client" : "To Client"}
+                            </p>
                             <p className="font-rozha text-sm text-[#181D27] leading-tight truncate max-w-[100px]">
                               {proposal.client.name}
                             </p>
@@ -824,7 +833,7 @@ export default function ReceivedProposalsPage() {
                       </div>
 
                       {/* Quick Action buttons on card */}
-                      {proposal.status === "PENDING" && (
+                      {proposal.status === "PENDING" && activeCategory === "RECEIVED" && (
                         <div className="flex items-center gap-2 pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
                           <button
                             disabled={isActionPending}

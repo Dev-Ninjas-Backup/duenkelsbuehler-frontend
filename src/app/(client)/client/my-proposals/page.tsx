@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { Calendar, DollarSign, Send, X, AlertCircle, FileText } from "lucide-react";
-import { useMySentProposals, useClientReceivedProposals, useDocusignRequests, useDocusignSignUrl } from "@/hooks/sp/use-sp";
+import { useMySentProposals, useClientReceivedSPProposals, useClientAcceptSPProposal, useClientDeclineSPProposal, useDocusignRequests, useDocusignSignUrl } from "@/hooks/sp/use-sp";
 import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
 import { toast } from "sonner";
 
@@ -31,6 +31,7 @@ interface ServiceProposal {
   status: "PENDING" | "ACCEPTED" | "REJECTED";
   createdAt: string;
   provider: Provider;
+  initiatedBy?: "CLIENT" | "SERVICE_PROVIDER";
 }
 
 const containerVariants = {
@@ -78,6 +79,9 @@ function ProposalDetailsModal({
   isSigningLoading,
   onPayViaTrustap,
   hasActiveSubscription,
+  onAccept,
+  onDecline,
+  isActionPending,
 }: {
   proposal: ServiceProposal;
   matchedDoc: any | null;
@@ -87,6 +91,9 @@ function ProposalDetailsModal({
   isSigningLoading: boolean;
   onPayViaTrustap: (proposal: ServiceProposal) => void;
   hasActiveSubscription: boolean;
+  onAccept?: () => void;
+  onDecline?: () => void;
+  isActionPending?: boolean;
 }) {
   const [mounted, setMounted] = useState(false);
   const isClientSender = matchedDoc?.senderRole === "CLIENT";
@@ -358,6 +365,26 @@ function ProposalDetailsModal({
             </div>
           )}
 
+          {/* Action Row for Client to Accept/Decline SP proposal */}
+          {proposal.status === "PENDING" && !isSentByClient && (
+            <div className="flex items-center justify-center gap-4 pt-6 border-t border-gray-100 mt-auto">
+              <button
+                disabled={isActionPending}
+                onClick={onDecline}
+                className="w-36 h-12 rounded-full border border-red-200 text-red-600 font-work-sans text-sm font-semibold hover:bg-red-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Decline
+              </button>
+              <button
+                disabled={isActionPending}
+                onClick={onAccept}
+                className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Accept
+              </button>
+            </div>
+          )}
+
           {/* Action Row for Trustap escrow payment */}
           {matchedDoc && matchedDoc.status === "SIGNED" && (
             <div className="flex items-center justify-center gap-4 pt-6 border-t border-gray-100 mt-auto">
@@ -384,7 +411,9 @@ export default function MyProposalsPage() {
 
   // Queries & Mutations
   const sentProposalsQuery = useMySentProposals();
-  const receivedProposalsQuery = useClientReceivedProposals();
+  const receivedProposalsQuery = useClientReceivedSPProposals();
+  const acceptMutation = useClientAcceptSPProposal();
+  const declineMutation = useClientDeclineSPProposal();
   const { data: docusignDocs = [] } = useDocusignRequests();
   const signUrlMutation = useDocusignSignUrl();
   const { data: subscriptions = [] } = useMySubscriptions();
@@ -394,7 +423,7 @@ export default function MyProposalsPage() {
   const error = activeCategory === "SENT" ? sentProposalsQuery.error : receivedProposalsQuery.error;
   const rawProposals = activeCategory === "SENT"
     ? (sentProposalsQuery.data || [])
-    : (receivedProposalsQuery.data || []).filter((p) => p.serviceItemId !== null && p.serviceItemId !== undefined);
+    : (receivedProposalsQuery.data || []);
 
   // Filter
   const filteredProposals = rawProposals.filter((p) => {
@@ -422,6 +451,28 @@ export default function MyProposalsPage() {
         return method;
     }
   };
+
+  const handleAccept = async (id: number) => {
+    try {
+      await acceptMutation.mutateAsync(id);
+      toast.success("Proposal accepted successfully!");
+      setSelectedProposal(null);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to accept proposal");
+    }
+  };
+
+  const handleDecline = async (id: number) => {
+    try {
+      await declineMutation.mutateAsync(id);
+      toast.success("Proposal declined successfully!");
+      setSelectedProposal(null);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to decline proposal");
+    }
+  };
+
+  const isActionPending = acceptMutation.isPending || declineMutation.isPending;
 
   const handleSignContract = async (dbId: string) => {
     try {
@@ -639,6 +690,26 @@ export default function MyProposalsPage() {
                         </div>
                       </div>
 
+                      {/* Accept/Decline actions on card */}
+                      {proposal.status === "PENDING" && activeCategory === "RECEIVED" && (
+                        <div className="flex items-center gap-2 pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            disabled={isActionPending}
+                            onClick={() => handleDecline(proposal.id)}
+                            className="flex-1 h-9 rounded-full border border-red-100 text-red-600 font-work-sans text-xs font-semibold hover:bg-red-50 transition-colors disabled:opacity-40"
+                          >
+                            Decline
+                          </button>
+                          <button
+                            disabled={isActionPending}
+                            onClick={() => handleAccept(proposal.id)}
+                            className="flex-1 h-9 rounded-full bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 transition-colors disabled:opacity-40"
+                          >
+                            Accept
+                          </button>
+                        </div>
+                      )}
+
                       {/* Sign contract action on card */}
                       {matchedDoc && matchedDoc.status !== "SIGNED" && (
                         <div className="flex pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
@@ -726,6 +797,9 @@ export default function MyProposalsPage() {
             isSigningLoading={signUrlMutation.isPending}
             onPayViaTrustap={handlePayViaTrustap}
             hasActiveSubscription={hasActiveSubscription}
+            onAccept={() => handleAccept(selectedProposal.id)}
+            onDecline={() => handleDecline(selectedProposal.id)}
+            isActionPending={isActionPending}
           />
         )}
       </AnimatePresence>
