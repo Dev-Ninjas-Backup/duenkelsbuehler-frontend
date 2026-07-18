@@ -83,7 +83,7 @@ export function ClientSidebar({ isOpen, onToggle }: ClientSidebarProps) {
                   Client Mode
                 </span>
                 <div className="mt-2 mb-2">
-                  <Image src="/svg/crown.svg" alt="Crown" width={32} height={26} />
+                  <Image src={user?.isIdentityVerified ? "/svg/crown.svg" : "/svg/unverified_warning.svg"} alt="Crown" width={32} height={26} />
                 </div>
                 <div className="mt-2 w-[85px] h-[85px] rounded-full overflow-hidden shadow-sm relative flex items-center justify-center bg-[#181D27]">
                   {user?.imageUrl ? (

@@ -98,7 +98,7 @@ export function SPSidebar({ isOpen, onToggle }: SPSidebarProps) {
                 {/* Crown badge */}
                 <div className="mt-2 mb-2">
                   <Image
-                    src="/svg/crown.svg"
+                    src={user?.isIdentityVerified ? "/svg/crown.svg" : "/svg/unverified_warning.svg"}
                     alt="Crown"
                     width={32}
                     height={26}

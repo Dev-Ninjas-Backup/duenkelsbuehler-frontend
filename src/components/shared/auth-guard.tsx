@@ -22,10 +22,12 @@ export function AuthGuard({ children, allowedRoles, redirectTo }: AuthGuardProps
 
   useEffect(() => {
     if (!hydrated) return
-    if (!isAuthenticated || !role || !allowedRoles.includes(role)) {
+    // Read directly from the raw persisted store to avoid Next.js React hydration lag
+    const rawState = useAuthStore.getState()
+    if (!rawState.isAuthenticated || !rawState.role || !allowedRoles.includes(rawState.role)) {
       router.replace(redirectTo)
     }
-  }, [hydrated, isAuthenticated, role, allowedRoles, redirectTo, router])
+  }, [hydrated, allowedRoles, redirectTo, router])
 
   // Wait for hydration
   if (!hydrated) {
