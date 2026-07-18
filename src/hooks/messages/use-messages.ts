@@ -58,7 +58,8 @@ export function useChat(otherUserId: number | null) {
 
     const socket = io(`${SOCKET_URL}/messages`, {
       auth: { token },
-      transports: ["websocket"],
+      transports: ["websocket", "polling"],
+      withCredentials: true,
     })
 
     socketRef.current = socket
