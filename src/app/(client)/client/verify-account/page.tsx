@@ -48,7 +48,10 @@ function VerifyAccountContent() {
       (s) => s.status === "ACTIVE" || s.status === "TRIALING"
     );
 
-    if (activeSub || me?.isIdentityVerified) return;
+    if (activeSub || me?.isIdentityVerified) {
+      setRetrying(false);
+      return;
+    }
 
     if (retryCount.current < 6) {
       setRetrying(true);
