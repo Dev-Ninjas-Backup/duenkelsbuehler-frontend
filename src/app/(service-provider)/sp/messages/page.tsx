@@ -3,9 +3,10 @@
 import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, ImagePlus, FileText } from "lucide-react";
 import { useChat } from "@/hooks/messages/use-messages";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
+import { useUploadImage } from "@/hooks/files/use-files";
 import type { Message } from "@/types/messages";
 import { LeaveAristoPayModal } from "./_components/leave-aristopay-modal";
 
@@ -30,10 +31,23 @@ function MessageBubble({ msg, myId, otherName }: { msg: Message; myId: number; o
           {isMe ? "You" : otherName}
         </p>
         {msg.attachmentUrl ? (
-          <a href={msg.attachmentUrl} target="_blank" rel="noopener noreferrer"
-            className="font-work-sans text-sm text-white underline">
-            {msg.attachmentType === "IMAGE" ? "📷 Image" : "📄 Document"}
-          </a>
+          msg.attachmentType === "IMAGE" ? (
+            <div className="mt-1.5 rounded-lg overflow-hidden border border-white/20 max-w-[260px] max-h-[180px] flex items-center justify-center bg-black/10">
+              <a href={msg.attachmentUrl} target="_blank" rel="noopener noreferrer" className="block w-full h-full cursor-zoom-in group">
+                <img
+                  src={msg.attachmentUrl}
+                  alt="Attachment"
+                  className="w-full h-full max-h-[180px] object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                />
+              </a>
+            </div>
+          ) : (
+            <a href={msg.attachmentUrl} target="_blank" rel="noopener noreferrer"
+              className="font-work-sans text-sm text-white underline flex items-center gap-1.5 mt-1 hover:text-white/80">
+              <FileText size={16} />
+              <span className="truncate max-w-[200px]">{msg.attachmentUrl.split("/").pop() || "Document"}</span>
+            </a>
+          )
         ) : (
           <p className="font-work-sans text-[14px] text-white leading-relaxed font-medium">{msg.message}</p>
         )}
@@ -59,7 +73,20 @@ function MessagesContent() {
   const [input, setInput] = useState("");
   const [leaveModalOpen, setLeaveModalOpen] = useState(false);
   const [pendingUrl, setPendingUrl] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const { mutate: uploadImage, isPending: isUploading } = useUploadImage();
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !clientId) return;
+    uploadImage(file, {
+      onSuccess: (data) => {
+        sendMessage(data.url, "IMAGE");
+      },
+    });
+    e.target.value = "";
+  };
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -123,7 +150,15 @@ function MessagesContent() {
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
           placeholder="Type your message here.." rows={2}
           className="w-full resize-none font-work-sans text-sm text-[#181D27] placeholder:text-gray-400 focus:outline-none bg-transparent" />
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-end gap-2">
+          <input ref={fileRef} type="file" accept="image/*" className="hidden"
+            aria-label="Upload image" onChange={handleImageUpload} />
+          <motion.button whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.88 }}
+            onClick={() => fileRef.current?.click()} disabled={isUploading}
+            className="w-10 h-10 rounded-full bg-[#181D27] flex items-center justify-center hover:bg-[#2d3748] transition-colors disabled:opacity-40"
+            aria-label="Upload image">
+            <ImagePlus size={18} className="text-white" />
+          </motion.button>
           <motion.button whileHover={{ scale: 1.08 }} whileTap={{ scale: 0.85 }}
             onClick={handleSend} disabled={!input.trim() || isSending}
             className="w-10 h-10 rounded-full bg-[#181D27] flex items-center justify-center hover:bg-[#2d3748] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"

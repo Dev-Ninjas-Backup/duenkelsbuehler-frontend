@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ImagePlus, ArrowUp } from "lucide-react";
+import { ImagePlus, ArrowUp, FileText } from "lucide-react";
 import { useChat } from "@/hooks/messages/use-messages";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
 import { useUploadImage } from "@/hooks/files/use-files";
@@ -36,10 +36,23 @@ function MessageBubble({ msg, myId, otherName }: { msg: Message; myId: number; o
           {isMe ? "You" : otherName}
         </p>
         {msg.attachmentUrl ? (
-          <a href={msg.attachmentUrl} target="_blank" rel="noopener noreferrer"
-            className="font-work-sans text-sm text-white underline">
-            {msg.attachmentType === "IMAGE" ? "📷 Image" : "📄 Document"}
-          </a>
+          msg.attachmentType === "IMAGE" ? (
+            <div className="mt-1.5 rounded-lg overflow-hidden border border-white/20 max-w-[260px] max-h-[180px] flex items-center justify-center bg-black/10">
+              <a href={msg.attachmentUrl} target="_blank" rel="noopener noreferrer" className="block w-full h-full cursor-zoom-in group">
+                <img
+                  src={msg.attachmentUrl}
+                  alt="Attachment"
+                  className="w-full h-full max-h-[180px] object-cover group-hover:scale-[1.02] transition-transform duration-200"
+                />
+              </a>
+            </div>
+          ) : (
+            <a href={msg.attachmentUrl} target="_blank" rel="noopener noreferrer"
+              className="font-work-sans text-sm text-white underline flex items-center gap-1.5 mt-1 hover:text-white/80">
+              <FileText size={16} />
+              <span className="truncate max-w-[200px]">{msg.attachmentUrl.split("/").pop() || "Document"}</span>
+            </a>
+          )
         ) : (
           <p className="font-work-sans text-sm text-white leading-relaxed">{msg.message}</p>
         )}
