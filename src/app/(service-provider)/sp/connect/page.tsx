@@ -223,7 +223,7 @@ export default function ConnectPage() {
                       <span className="font-work-sans text-[15px] font-bold text-[#181D27]">
                         {client.name}
                       </span>
-                      {client.isIdentityVerified && (
+                      {client.isIdentityVerified ? (
                         <span className="flex items-center gap-1 font-work-sans text-[11px] font-semibold text-green-600 bg-green-50 px-2 py-0.5 rounded-full w-max">
                           <Image
                             src="/svg/crown.svg"
@@ -232,6 +232,10 @@ export default function ConnectPage() {
                             height={14}
                           />
                           Verified
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 font-work-sans text-[11px] font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded-full w-max">
+                          Unverified
                         </span>
                       )}
                     </div>

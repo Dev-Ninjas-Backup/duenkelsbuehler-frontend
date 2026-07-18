@@ -8,7 +8,12 @@ export function useClients() {
     queryKey: ["clients"],
     queryFn: async () => {
       const all = await usersService.findAll(token)
-      return all.filter((u) => u.role?.includes("CLIENT"))
+      return all.filter(
+        (u) =>
+          u.role?.includes("CLIENT") &&
+          !u.role?.includes("SERVICE_PROVIDER") &&
+          !u.role?.includes("ADMIN")
+      )
     },
     enabled: !!token,
   })
