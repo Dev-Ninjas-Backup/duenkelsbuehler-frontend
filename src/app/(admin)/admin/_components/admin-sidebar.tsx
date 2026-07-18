@@ -22,7 +22,7 @@ import {
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { label: "User Management", href: "/admin/user-management", icon: Users },
-  { label: "Banner Management", href: "/admin/banner-management", icon: ImageIcon },
+  // { label: "Banner Management", href: "/admin/banner-management", icon: ImageIcon },
   { label: "Deal Management", href: "/admin/deal-management", icon: Handshake },
   { label: "Badges Management", href: "/admin/badges-management", icon: Award },
   { label: "Subscriptions", href: "/admin/subscription-management", icon: CreditCard },

@@ -3,12 +3,15 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, FileText, Bookmark, ChevronDown } from "lucide-react";
+import { Upload, X, FileText, Bookmark, ChevronDown, Loader2 } from "lucide-react";
 import { AiFillWarning } from "react-icons/ai";
 import { Contact } from "./types";
 import { FinePrintModal } from "./fine-print-modal";
-import { useSavedContracts } from "@/store/saved-contracts";
 import { useUploadDocument } from "@/hooks/files/use-files";
+import { useMyTemplates } from "@/hooks/contract-templates/use-contract-templates";
+import { contractTemplatesService } from "@/services/contract-templates/contract-templates-service";
+import { useAuthStore } from "@/stores/auth/use-auth-store";
+import { toast } from "sonner";
 
 interface Props {
   contact: Contact;
@@ -28,8 +31,11 @@ export function ContractStep({
   const [showModal, setShowModal] = useState(true);
   const [saveContract, setSaveContract] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
+  const [isLoadingFile, setIsLoadingFile] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
-  const { contracts } = useSavedContracts();
+  
+  const token = useAuthStore((s) => s.accessToken) ?? "";
+  const { data: templates = [] } = useMyTemplates();
   const { mutate: uploadDocument, isPending: isUploading } = useUploadDocument();
 
   const handleNext = () => onNext(saveContract);
@@ -42,6 +48,27 @@ export function ContractStep({
     });
     setSaveContract(false);
   };
+
+  const handleSelectTemplate = async (templateId: number, originalName: string) => {
+    setIsLoadingFile(true);
+    try {
+      const blob = await contractTemplatesService.download(templateId, token);
+      const file = new File([blob], originalName, { type: blob.type });
+      handleFileChange(file);
+      setShowSaved(false);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to load template file");
+    } finally {
+      setIsLoadingFile(false);
+    }
+  };
+
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
 
   return (
     <>
@@ -86,7 +113,7 @@ export function ContractStep({
         </motion.div>
 
         {/* Saved contracts dropdown — subscriber only */}
-        {isSubscriber && contracts.length > 0 && (
+        {isSubscriber && templates.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -95,11 +122,16 @@ export function ContractStep({
           >
             <button
               onClick={() => setShowSaved((p) => !p)}
-              className="flex items-center justify-between w-full bg-[#F5F5F5] rounded-2xl px-5 py-3 font-work-sans text-sm font-semibold text-[#181D27] hover:bg-gray-200 transition-colors"
+              disabled={isLoadingFile}
+              className="flex items-center justify-between w-full bg-[#F5F5F5] rounded-2xl px-5 py-3 font-work-sans text-sm font-semibold text-[#181D27] hover:bg-gray-200 transition-colors disabled:opacity-60"
             >
               <span className="flex items-center gap-2">
-                <Bookmark size={15} className="fill-[#181D27]" />
-                Use a saved contract
+                {isLoadingFile ? (
+                  <Loader2 size={15} className="animate-spin text-[#181D27]" />
+                ) : (
+                  <Bookmark size={15} className="fill-[#181D27]" />
+                )}
+                Use a saved template
               </span>
               <ChevronDown size={15} className={`transition-transform ${showSaved ? "rotate-180" : ""}`} />
             </button>
@@ -110,19 +142,19 @@ export function ContractStep({
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden flex flex-col gap-2"
+                  className="overflow-hidden flex flex-col gap-2 bg-white border border-gray-100 rounded-xl p-2 max-h-60 overflow-y-auto"
                 >
-                  {contracts.map((c) => (
+                  {templates.map((t) => (
                     <motion.button
-                      key={c.id}
+                      key={t.id}
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => { handleFileChange(c.file ?? null); setShowSaved(false); }}
-                      className="flex items-center gap-3 bg-white border border-gray-200 rounded-xl px-4 py-3 hover:bg-gray-50 transition-colors text-left"
+                      onClick={() => handleSelectTemplate(t.id, t.originalName)}
+                      className="flex items-center gap-3 bg-white hover:bg-gray-50 border border-gray-100/60 rounded-xl px-4 py-3 transition-colors text-left w-full cursor-pointer"
                     >
                       <FileText size={18} className="text-red-500 shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="font-work-sans text-sm font-semibold text-[#181D27] truncate">{c.fileName}</p>
-                        <p className="font-work-sans text-xs text-[#9CA3AF]">Saved {c.savedAt}</p>
+                        <p className="font-work-sans text-sm font-semibold text-[#181D27] truncate">{t.title}</p>
+                        <p className="font-work-sans text-xs text-[#9CA3AF]">Saved {formatDate(t.createdAt)}</p>
                       </div>
                     </motion.button>
                   ))}
@@ -146,7 +178,7 @@ export function ContractStep({
               <span className="font-work-sans text-sm font-semibold text-[#181D27] flex-1 truncate">
                 {contractFile.name}
               </span>
-              <button aria-label="Remove file" onClick={() => handleFileChange(null)} className="text-red-500 hover:text-red-600 transition-colors shrink-0">
+              <button aria-label="Remove file" onClick={() => handleFileChange(null)} className="text-red-500 hover:text-red-600 transition-colors shrink-0 cursor-pointer">
                 <X size={20} className="bg-red-500 text-white rounded-full p-0.5" />
               </button>
             </motion.div>
@@ -222,8 +254,8 @@ export function ContractStep({
             whileTap={{ scale: 0.95 }}
             aria-label="Upload contract"
             onClick={() => fileRef.current?.click()}
-            disabled={isUploading}
-            className="w-14 h-14 rounded-full bg-[#6B7280] flex items-center justify-center text-white shadow-md hover:bg-[#4B5563] transition-colors disabled:opacity-60"
+            disabled={isUploading || isLoadingFile}
+            className="w-14 h-14 rounded-full bg-[#6B7280] flex items-center justify-center text-white shadow-md hover:bg-[#4B5563] transition-colors disabled:opacity-60 cursor-pointer"
           >
             {isUploading ? (
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
@@ -238,13 +270,13 @@ export function ContractStep({
 
         {/* Skip + Next */}
         <div className="flex items-center justify-center gap-4 mt-2">
-          <button onClick={onSkip} className="font-work-sans text-sm text-[#414651] underline underline-offset-2 hover:text-[#181D27] transition-colors">
+          <button onClick={onSkip} className="font-work-sans text-sm text-[#414651] underline underline-offset-2 hover:text-[#181D27] transition-colors cursor-pointer">
             Skip
           </button>
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={handleNext}
-            className="px-8 py-3 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
+            className="px-8 py-3 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors cursor-pointer"
           >
             Next
           </motion.button>

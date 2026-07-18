@@ -8,6 +8,14 @@ import { FreePlanCard } from "@/components/shared/free-plan-card";
 import Image from "next/image";
 import { Check } from "lucide-react";
 
+const FALLBACK_FEATURES = [
+  "Send unlimited proposals",
+  "Track all transactions",
+  "Priority support",
+  "DocuSign contracts integration",
+  "ID verification via Veriff",
+];
+
 function parseFeatures(description: string): string[] {
   if (!description) return [];
   return description
@@ -47,7 +55,15 @@ export function SubscribeStep({ onNext }: { onNext: () => void }) {
   };
 
   const premiumPlan = plans[0];
-  const features = premiumPlan ? parseFeatures(premiumPlan.description) : [];
+  const features = premiumPlan
+    ? parseFeatures(premiumPlan.description).length > 0
+      ? parseFeatures(premiumPlan.description)
+      : FALLBACK_FEATURES
+    : FALLBACK_FEATURES;
+
+  const planName = premiumPlan?.name ?? "PREMIUM";
+  const planAmount = premiumPlan?.amount ?? "9.99";
+  const planInterval = premiumPlan?.interval === "YEAR" ? "year" : "month";
 
   return (
     <div className="max-w-2xl mx-auto w-full flex flex-col items-center">
@@ -67,29 +83,24 @@ export function SubscribeStep({ onNext }: { onNext: () => void }) {
         {/* Right Column: Subscribe to Premium */}
         <div className="flex flex-col h-full">
           <h3 className="font-rozha text-base font-bold text-[#181D27] mb-2 self-start">Subscribe to Premium</h3>
-          <div className="flex-1 w-full bg-[#181D27] rounded-2xl p-4 lg:p-5 flex flex-col justify-between gap-3 text-white shadow-lg">
-            {!isLoading && premiumPlan && (
+          <div className="flex-1 w-full bg-[#181D27] rounded-2xl p-4 lg:p-5 flex flex-col justify-between gap-3 text-white shadow-lg relative">
+            {/* Crown icon top-right */}
+            <div className="absolute top-4 right-4 w-4 h-4">
+              <Image src="/svg/crown.svg" alt="Premium" fill className="object-contain" />
+            </div>
+
+            {!isLoading && (
               <div className="flex flex-col gap-3 flex-1 justify-between">
                 <div className="flex flex-col gap-3">
                   <div>
-                    <div className="flex items-center gap-1.5 mb-0.5">
-                      <p className="font-work-sans text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider">
-                        {premiumPlan.name}
-                      </p>
-                      <div className="relative w-3.5 h-3.5 shrink-0">
-                        <Image
-                          src="/svg/crown.svg"
-                          alt="Premium"
-                          fill
-                          className="object-contain"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-baseline gap-0.5">
+                    <p className="font-work-sans text-xs font-semibold text-[#9CA3AF] uppercase tracking-wider">
+                      {planName}
+                    </p>
+                    <div className="flex items-baseline gap-0.5 mt-1">
                       <span className="font-work-sans text-base font-semibold text-white mt-0.5">$</span>
-                      <span className="font-rozha text-4xl text-white leading-none">{premiumPlan.amount}</span>
+                      <span className="font-rozha text-4xl text-white leading-none">{planAmount}</span>
                       <span className="font-work-sans text-xs text-gray-400 ml-0.5">
-                        /{premiumPlan.interval === "MONTH" ? "month" : "year"}
+                        /{planInterval}
                       </span>
                     </div>
                     <p className="font-work-sans text-xs text-[#9CA3AF] mt-0.5">No monthly commitment</p>
@@ -107,13 +118,22 @@ export function SubscribeStep({ onNext }: { onNext: () => void }) {
                   </ul>
                 </div>
 
-                <Button 
-                  onClick={handleSubscribe} 
-                  disabled={isPending || isLoading}
+                <Button
+                  onClick={handleSubscribe}
+                  disabled={isPending}
                   className="w-full h-11 rounded-full bg-[#00D05A] hover:bg-[#00b34d] font-work-sans font-semibold text-sm text-white disabled:opacity-60 mt-1 shadow-lg shadow-[#00D05A]/25"
                 >
                   {isPending ? "Redirecting..." : "Subscribe"}
                 </Button>
+              </div>
+            )}
+
+            {isLoading && (
+              <div className="flex-1 flex items-center justify-center">
+                <svg className="animate-spin h-6 w-6 text-white/40" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
               </div>
             )}
           </div>
