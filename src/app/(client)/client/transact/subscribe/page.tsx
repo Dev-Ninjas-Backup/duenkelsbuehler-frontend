@@ -81,46 +81,10 @@ export default function SubscribePage() {
           </div>
 
           {plans.length === 0 ? (
-            /* Fallback if no plans in DB */
-            <div className="w-full bg-[#181D27] text-white rounded-3xl p-8 flex flex-col justify-between gap-6 shadow-xl relative border border-transparent">
-              <div className="absolute top-6 right-6 w-8 h-8">
-                <Image src="/svg/crown.svg" alt="Premium Plan" fill className="object-contain" />
-              </div>
-              <div className="flex flex-col gap-1">
-                <p className="font-work-sans text-xs font-semibold text-gray-400 uppercase tracking-wider">PREMIUM</p>
-                <div className="flex items-baseline gap-0.5 mt-2">
-                  <span className="font-work-sans text-lg font-semibold">$</span>
-                  <span className="font-rozha text-5xl leading-none">9.99</span>
-                  <span className="font-work-sans text-sm text-gray-400 ml-0.5">/month</span>
-                </div>
-                <p className="font-work-sans text-xs text-gray-400 mt-1">No monthly commitment</p>
-              </div>
-
-              <div className="h-px bg-white/10 my-2" />
-
-              <ul className="flex flex-col gap-3 flex-1">
-                {[
-                  "Send unlimited proposals",
-                  "Track all transactions",
-                  "Priority support",
-                  "DocuSign contracts integration",
-                  "ID verification via Veriff"
-                ].map((f) => (
-                  <li key={f} className="flex items-start gap-2.5 font-work-sans text-sm">
-                    <Check className="w-4 h-4 text-[#16A34A] shrink-0 mt-0.5" />
-                    <span className="text-gray-300">{f}</span>
-                  </li>
-                ))}
-              </ul>
-
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                disabled={isPending}
-                onClick={() => handleSubscribe(1)}
-                className="w-full h-12 rounded-full bg-[#00D05A] hover:bg-[#00b34d] text-white font-work-sans text-sm font-semibold transition-colors mt-4 shadow-lg shadow-[#00D05A]/25 disabled:opacity-60"
-              >
-                {isPending ? "Redirecting..." : "SUBSCRIBE NOW"}
-              </motion.button>
+            /* No plans available from admin */
+            <div className="flex flex-col items-center gap-3 py-8 text-center">
+              <p className="font-work-sans text-base text-[#535862]">No subscription plans available at the moment.</p>
+              <p className="font-work-sans text-sm text-[#9CA3AF]">Please check back later or contact support.</p>
             </div>
           ) : (
             /* Real plans from API styled with premium layout */

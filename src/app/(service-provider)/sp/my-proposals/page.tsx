@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { Calendar, DollarSign, Send, X, AlertCircle, FileText, ArrowLeftRight } from "lucide-react";
 import { useReceivedProposals, useSPSentProposals, useAcceptProposal, useDeclineProposal, useDocusignRequests, useUploadAndSendDocusign, useDocusignSignUrl } from "@/hooks/sp/use-sp";
 import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
+import { useMyTemplates, useSendFromTemplate } from "@/hooks/contract-templates/use-contract-templates";
 import { toast } from "sonner";
 
 interface Client {
@@ -80,11 +81,20 @@ function UploadContractModal({
   onSuccess: () => void;
 }) {
   const [mounted, setMounted] = useState(false);
+  const [mode, setMode] = useState<"upload" | "template">("upload");
+
+  // Upload mode state
   const [title, setTitle] = useState(`Service Agreement - ${proposal.proposalTitle}`);
   const [file, setFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadMutation = useUploadAndSendDocusign();
   const signUrlMutation = useDocusignSignUrl();
+
+  // Template mode state
+  const [selectedTemplateId, setSelectedTemplateId] = useState<number | "">("");
+  const [templateTitle, setTemplateTitle] = useState(`Service Agreement - ${proposal.proposalTitle}`);
+  const { data: templates = [], isLoading: templatesLoading } = useMyTemplates();
+  const sendFromTemplateMutation = useSendFromTemplate();
 
   useEffect(() => {
     setMounted(true);
@@ -107,7 +117,6 @@ function UploadContractModal({
       const res = await uploadMutation.mutateAsync(formData);
       if (res?.overageWarning) {
         toast.warning(res.overageWarning, { duration: 6000 });
-        // Wait 3 seconds to let them read the warning before redirecting
         await new Promise((resolve) => setTimeout(resolve, 3000));
       } else {
         toast.success("Contract successfully uploaded! Redirecting to sign...");
@@ -125,6 +134,40 @@ function UploadContractModal({
     }
   };
 
+  const handleSendFromTemplate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTemplateId) {
+      toast.error("Please select a template");
+      return;
+    }
+    try {
+      const res = await sendFromTemplateMutation.mutateAsync({
+        templateId: Number(selectedTemplateId),
+        title: templateTitle,
+        clientId: proposal.client.id,
+        proposalId: proposal.id,
+      });
+      if (res?.overageWarning) {
+        toast.warning(res.overageWarning, { duration: 6000 });
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+      }
+      // Get sign URL
+      const signUrlRes = await signUrlMutation.mutateAsync(res.dbId || String(res.id));
+      if (signUrlRes && signUrlRes.url) {
+        toast.success("Contract sent! Redirecting to sign...");
+        window.location.href = signUrlRes.url;
+      } else {
+        toast.success("Contract sent successfully!");
+        onSuccess();
+        onClose();
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to send contract from template");
+    }
+  };
+
+  const isPending = uploadMutation.isPending || signUrlMutation.isPending || sendFromTemplateMutation.isPending;
+
   const content = (
     <div className="fixed inset-0 z-[1001] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
       <motion.div
@@ -136,70 +179,148 @@ function UploadContractModal({
         <button onClick={onClose} className="absolute right-6 top-6 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors">
           <X size={16} />
         </button>
-        
+
         <div>
           <h3 className="font-rozha text-xl sm:text-2xl text-[#181D27] leading-tight">Send DocuSign Contract</h3>
-          <p className="font-work-sans text-xs text-[#535862] mt-1">Upload a PDF or Word agreement document to link with this proposal.</p>
+          <p className="font-work-sans text-xs text-[#535862] mt-1">Choose how you want to attach the agreement document.</p>
         </div>
 
-        <form onSubmit={handleUpload} className="flex flex-col gap-4">
-          <div>
-            <label className="block font-work-sans text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Contract Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className="w-full h-11 px-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[#181D27] font-work-sans text-sm"
-            />
-          </div>
+        {/* Mode Toggle Tabs */}
+        <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+          <button
+            type="button"
+            onClick={() => setMode("upload")}
+            className={`flex-1 h-9 rounded-lg font-work-sans text-sm font-semibold transition-all ${
+              mode === "upload" ? "bg-white text-[#181D27] shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Upload File
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("template")}
+            className={`flex-1 h-9 rounded-lg font-work-sans text-sm font-semibold transition-all ${
+              mode === "template" ? "bg-white text-[#181D27] shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Saved Templates
+          </button>
+        </div>
 
-          <div>
-            <label className="block font-work-sans text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Agreement File (PDF/Word)</label>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.doc,.docx"
-              className="hidden"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-            />
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-gray-200 hover:border-[#181D27] transition-colors rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer text-center"
-            >
-              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-2">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
+        {/* Upload Mode */}
+        {mode === "upload" && (
+          <form onSubmit={handleUpload} className="flex flex-col gap-4">
+            <div>
+              <label className="block font-work-sans text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Contract Title</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                className="w-full h-11 px-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[#181D27] font-work-sans text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block font-work-sans text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Agreement File (PDF/Word)</label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.doc,.docx"
+                className="hidden"
+                onChange={(e) => setFile(e.target.files?.[0] || null)}
+              />
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-gray-200 hover:border-[#181D27] transition-colors rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer text-center"
+              >
+                <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 mb-2">
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                {file ? (
+                  <p className="font-work-sans text-sm text-[#16A34A] font-semibold truncate max-w-xs">{file.name}</p>
+                ) : (
+                  <>
+                    <p className="font-work-sans text-sm text-gray-700 font-medium">Click to select contract file</p>
+                    <p className="font-work-sans text-xs text-gray-400 mt-0.5">Supports PDF or DOCX up to 25MB</p>
+                  </>
+                )}
               </div>
-              {file ? (
-                <p className="font-work-sans text-sm text-[#16A34A] font-semibold truncate max-w-xs">{file.name}</p>
+            </div>
+
+            <div className="flex items-center gap-4 justify-center pt-4 border-t border-gray-100">
+              <button type="button" onClick={onClose} className="w-36 h-12 rounded-full border border-gray-200 text-gray-600 font-work-sans text-sm font-semibold hover:bg-gray-50 transition-colors">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isPending}
+                className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {uploadMutation.isPending ? "Sending..." : signUrlMutation.isPending ? "Redirecting..." : "Send Contract"}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* Template Mode */}
+        {mode === "template" && (
+          <form onSubmit={handleSendFromTemplate} className="flex flex-col gap-4">
+            <div>
+              <label className="block font-work-sans text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Contract Title</label>
+              <input
+                type="text"
+                value={templateTitle}
+                onChange={(e) => setTemplateTitle(e.target.value)}
+                required
+                className="w-full h-11 px-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[#181D27] font-work-sans text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block font-work-sans text-xs font-bold text-gray-400 uppercase tracking-wider mb-1.5">Select Template</label>
+              {templatesLoading ? (
+                <div className="h-11 rounded-xl border border-gray-200 flex items-center px-4">
+                  <span className="font-work-sans text-sm text-gray-400">Loading templates...</span>
+                </div>
+              ) : templates.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-gray-200 p-5 text-center">
+                  <p className="font-work-sans text-sm text-gray-500">No saved templates found.</p>
+                  <p className="font-work-sans text-xs text-gray-400 mt-0.5">Upload templates from the Saved Contracts page.</p>
+                </div>
               ) : (
-                <>
-                  <p className="font-work-sans text-sm text-gray-700 font-medium">Click to select contract file</p>
-                  <p className="font-work-sans text-xs text-gray-400 mt-0.5">Supports PDF or DOCX up to 25MB</p>
-                </>
+                <select
+                  value={selectedTemplateId}
+                  onChange={(e) => setSelectedTemplateId(Number(e.target.value) || "")}
+                  required
+                  className="w-full h-11 px-4 rounded-xl border border-gray-200 focus:outline-none focus:border-[#181D27] font-work-sans text-sm bg-white appearance-none cursor-pointer"
+                >
+                  <option value="">— Choose a template —</option>
+                  {templates.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.title} ({t.fileType?.toUpperCase()})
+                    </option>
+                  ))}
+                </select>
               )}
             </div>
-          </div>
 
-          <div className="flex items-center gap-4 justify-center pt-4 border-t border-gray-100">
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-36 h-12 rounded-full border border-gray-200 text-gray-600 font-work-sans text-sm font-semibold hover:bg-gray-50 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={uploadMutation.isPending || signUrlMutation.isPending}
-              className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2"
-            >
-              {uploadMutation.isPending ? "Sending..." : signUrlMutation.isPending ? "Redirecting..." : "Send Contract"}
-            </button>
-          </div>
-        </form>
+            <div className="flex items-center gap-4 justify-center pt-4 border-t border-gray-100">
+              <button type="button" onClick={onClose} className="w-36 h-12 rounded-full border border-gray-200 text-gray-600 font-work-sans text-sm font-semibold hover:bg-gray-50 transition-colors">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isPending || templates.length === 0}
+                className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {sendFromTemplateMutation.isPending ? "Sending..." : signUrlMutation.isPending ? "Redirecting..." : "Send Contract"}
+              </button>
+            </div>
+          </form>
+        )}
       </motion.div>
     </div>
   );

@@ -35,7 +35,11 @@ export function useTrustapSocket({ onTransactionCreated, onTransactionUpdated }:
 
     const socket = io(`${SOCKET_URL}/transactions`, {
       auth: { token },
-      transports: ["websocket"],
+      transports: ["polling", "websocket"],
+      withCredentials: true,
+      extraHeaders: {
+        "ngrok-skip-browser-warning": "true",
+      },
     })
 
     socketRef.current = socket

@@ -58,11 +58,26 @@ export function useChat(otherUserId: number | null) {
 
     const socket = io(`${SOCKET_URL}/messages`, {
       auth: { token },
-      transports: ["websocket", "polling"],
+      transports: ["polling", "websocket"],
       withCredentials: true,
+      extraHeaders: {
+        "ngrok-skip-browser-warning": "true",
+      },
     })
 
     socketRef.current = socket
+
+    socket.on("connect", () => {
+      console.log("Socket connected successfully to /messages:", socket.id)
+    })
+
+    socket.on("connect_error", (err) => {
+      console.error("Socket connection error on /messages:", err)
+    })
+
+    socket.on("disconnect", (reason) => {
+      console.log("Socket disconnected from /messages:", reason)
+    })
 
     socket.on("receive_message", (msg: Message) => {
       if (
