@@ -11,11 +11,11 @@ import type { UserRole } from "@/types/auth"
 export function useFirebaseSocialLogin() {
   const router = useRouter()
   const { setAuth } = useAuthStore()
-  const [isPending, setIsPending] = useState(false)
+  const [pendingProvider, setPendingProvider] = useState<"GOOGLE" | "APPLE" | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const loginWithGoogle = async (role: "CLIENT" | "SERVICE_PROVIDER") => {
-    setIsPending(true)
+    setPendingProvider("GOOGLE")
     setError(null)
     try {
       const result = await signInWithPopup(auth, googleProvider)
@@ -27,12 +27,12 @@ export function useFirebaseSocialLogin() {
     } catch (err: any) {
       setError(err?.message || "Google login failed")
     } finally {
-      setIsPending(false)
+      setPendingProvider(null)
     }
   }
 
   const loginWithApple = async (role: "CLIENT" | "SERVICE_PROVIDER") => {
-    setIsPending(true)
+    setPendingProvider("APPLE")
     setError(null)
     try {
       const result = await signInWithPopup(auth, appleProvider)
@@ -44,11 +44,17 @@ export function useFirebaseSocialLogin() {
     } catch (err: any) {
       setError(err?.message || "Apple login failed")
     } finally {
-      setIsPending(false)
+      setPendingProvider(null)
     }
   }
 
-  return { loginWithGoogle, loginWithApple, isPending, error }
+  return {
+    loginWithGoogle,
+    loginWithApple,
+    isPending: pendingProvider !== null,
+    pendingProvider,
+    error,
+  }
 }
 
 function redirect(role: UserRole, router: ReturnType<typeof useRouter>) {

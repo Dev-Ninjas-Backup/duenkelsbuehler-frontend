@@ -126,8 +126,17 @@ export function useChat(otherUserId: number | null) {
         } else {
           payload.message = text.trim()
         }
-        const sent = await messagesService.send(payload, token)
-        setMessages((prev) => [...prev, sent])
+
+        if (socketRef.current && socketRef.current.connected) {
+          socketRef.current.emit("send_message", payload)
+        } else {
+          // Fallback to REST API if socket is disconnected
+          const sent = await messagesService.send(payload, token)
+          setMessages((prev) => {
+            if (prev.find((m) => m.id === sent.id)) return prev
+            return [...prev, sent]
+          })
+        }
       } catch (err) {
         console.error("Send failed:", err)
       } finally {

@@ -35,19 +35,19 @@ const getInitialState = (): AuthState => ({
 
 // Wrapper hook logic that prevents hydration mismatch
 const useAuthStoreHook = <U>(selector?: (state: AuthState) => U): U | AuthState => {
-  const store = useAuthStoreRaw();
-  const [state, setState] = useState(() => {
-    const initial = getInitialState();
-    return selector ? selector(initial) : initial;
-  });
-
-  const selectedState = selector ? selector(store) : store;
+  const storeData = useAuthStoreRaw(selector as any);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setState(selectedState);
-  }, [selectedState]);
+    setHydrated(true);
+  }, []);
 
-  return state;
+  if (!hydrated) {
+    const initial = getInitialState();
+    return selector ? selector(initial) : (initial as any);
+  }
+
+  return storeData as U | AuthState;
 };
 
 // Copy all static utility properties (setState, getState, subscribe, etc.)

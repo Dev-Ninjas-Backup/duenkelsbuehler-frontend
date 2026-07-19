@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Bookmark, Star, Settings, ShieldCheck, FileT
 import Image from "next/image";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
 import { authService } from "@/services/auth/auth-service";
+import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
 
 const navItems = [
   { label: "My Proposals", href: "/client/my-proposals", icon: FileText },
@@ -26,6 +27,11 @@ export function ClientSidebar({ isOpen, onToggle }: ClientSidebarProps) {
   const router = useRouter();
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
+
+  const { data: subscriptions = [] } = useMySubscriptions();
+  const isPremium = subscriptions.some(
+    (s) => s.status === "ACTIVE" || s.status === "TRIALING"
+  );
 
   const handleSwitchProfile = async () => {
     if (!accessToken) return;
@@ -104,6 +110,11 @@ export function ClientSidebar({ isOpen, onToggle }: ClientSidebarProps) {
                     />
                   )}
                 </div>
+                {isPremium && (
+                  <span className="mt-3 px-2.5 py-0.5 text-[9px] uppercase tracking-wider font-bold font-work-sans text-[#D97706] bg-[#FEF3C7] border border-[#F59E0B]/30 rounded-full flex items-center gap-1 shadow-xs">
+                    ★ AristoAccess+
+                  </span>
+                )}
                 {user?.role?.includes("SERVICE_PROVIDER") && (
                   <motion.button
                     whileHover={{ scale: 1.02 }}
