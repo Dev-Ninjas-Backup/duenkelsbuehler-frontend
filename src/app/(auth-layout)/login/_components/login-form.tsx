@@ -12,6 +12,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { useLogin } from "@/hooks/auth/use-login";
 import { useFirebaseSocialLogin } from "@/hooks/auth/use-firebase-social-login";
 import type { LoginFormData } from "@/types/auth";
+import { FaUser } from "react-icons/fa6";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -55,12 +56,16 @@ export function LoginForm() {
 
       {/* Role Selector — সবার আগে */}
       <motion.div variants={itemVariants} className="grid grid-cols-2 gap-3 mb-6">
-        {(["CLIENT", "SERVICE_PROVIDER"] as const).map((r) => (
-          <button key={r} type="button" onClick={() => setValue("role", r)}
-            className={`py-2 rounded-xl border-2 font-work-sans text-sm font-medium transition-all ${
-              selectedRole === r ? "border-[#181D27] bg-[#181D27]/5" : "border-gray-200 hover:border-gray-300"
+        {([
+          { value: "SERVICE_PROVIDER", label: "Service Provider" },
+          { value: "CLIENT", label: "Client" },
+        ] as const).map(({ value, label }) => (
+          <button key={value} type="button" onClick={() => setValue("role", value)}
+            className={`flex flex-col items-center gap-2 px-4 py-3 rounded-xl border-2 font-work-sans text-sm font-medium transition-all ${
+              selectedRole === value ? "border-[#181D27] bg-[#181D27]/5" : "border-gray-200 hover:border-gray-300"
             }`}>
-            {r === "CLIENT" ? "Client" : "Service Provider"}
+            <FaUser className="h-6 w-6 text-[#181D27] shrink-0" />
+            {label}
           </button>
         ))}
       </motion.div>

@@ -106,17 +106,17 @@ function DocusingContent() {
       : "/login";
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          router.push(dashboardPath);
-        }
-        return prev - 1;
-      });
+    if (countdown <= 0) {
+      router.push(dashboardPath);
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((prev) => prev - 1);
     }, 1000);
-    return () => clearInterval(timer);
-  }, [dashboardPath, router]);
+
+    return () => clearTimeout(timer);
+  }, [countdown, dashboardPath, router]);
 
   return (
     <div className="min-h-screen relative flex items-center justify-center bg-gray-50/60 overflow-hidden px-4">
