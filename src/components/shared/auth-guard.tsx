@@ -27,7 +27,7 @@ export function AuthGuard({ children, allowedRoles, redirectTo }: AuthGuardProps
     if (!rawState.isAuthenticated || !rawState.role || !allowedRoles.includes(rawState.role)) {
       router.replace(redirectTo)
     }
-  }, [hydrated, allowedRoles, redirectTo, router])
+  }, [hydrated, allowedRoles, redirectTo, router, isAuthenticated, role])
 
   // Wait for hydration
   if (!hydrated) {
