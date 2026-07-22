@@ -12,16 +12,18 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
 
+import { useLogout } from "@/hooks/auth/use-auth";
+
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { isAuthenticated, user, role, clearAuth } = useAuthStore();
+  const logout = useLogout();
+  const { isAuthenticated, user, role } = useAuthStore();
 
   const handleLogout = () => {
-    clearAuth();
-    router.push("/");
+    logout();
     setOpen(false);
   };
 

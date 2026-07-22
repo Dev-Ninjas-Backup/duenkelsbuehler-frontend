@@ -19,6 +19,7 @@ import type {
 // ─── Login ───────────────────────────────────────────────────────
 export function useLogin() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { setAuth } = useAuthStore()
 
   return useMutation({
@@ -28,6 +29,7 @@ export function useLogin() {
       return { tokenRes, user }
     },
     onSuccess: ({ tokenRes, user }) => {
+      queryClient.clear()
       setAuth(user, tokenRes.accessToken, tokenRes.role)
       if (tokenRes.role === "SERVICE_PROVIDER") {
         router.push("/sp/my-services")
@@ -54,6 +56,7 @@ export function useGetMe() {
 // ─── Social Login ─────────────────────────────────────────────────
 export function useSocialLogin() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { setAuth } = useAuthStore()
 
   return useMutation({
@@ -63,6 +66,7 @@ export function useSocialLogin() {
       return { tokenRes, user }
     },
     onSuccess: ({ tokenRes, user }) => {
+      queryClient.clear()
       setAuth(user, tokenRes.accessToken, tokenRes.role)
       if (tokenRes.role === "SERVICE_PROVIDER") {
         router.push("/sp/my-services")
@@ -146,10 +150,12 @@ export function useResetPasswordWithOtp() {
 // ─── Logout ───────────────────────────────────────────────────────
 export function useLogout() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const { clearAuth } = useAuthStore()
 
   return () => {
     clearAuth()
+    queryClient.clear()
     router.push("/login")
   }
 }
