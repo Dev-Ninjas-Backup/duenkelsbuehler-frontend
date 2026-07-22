@@ -11,10 +11,12 @@ import { toast } from "sonner";
 const inputCls = "w-full h-11 border border-gray-200 rounded-xl px-4 font-work-sans text-[13px] text-[#181D27] placeholder:text-gray-400 focus:outline-none focus:border-[#181D27] bg-white transition-colors";
 const readonlyCls = "w-full h-11 border border-gray-100 rounded-xl px-4 font-work-sans text-[13px] text-[#9CA3AF] bg-gray-50 cursor-not-allowed";
 
+import { useLogout } from "@/hooks/auth/use-auth";
+
 export function MyProfileTab() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: user, isLoading } = useGetMe();
-  const { clearAuth } = useAuthStore();
+  const logout = useLogout();
 
   const nameParts = user?.name?.split(" ") ?? [];
   const firstName = nameParts[0] ?? "";
@@ -129,8 +131,8 @@ export function MyProfileTab() {
             >
               {isUploading ? "Uploading..." : "Upload new photo"}
             </button>
-            <button type="button" onClick={() => clearAuth()}
-              className="h-10 px-5 rounded-full border border-red-200 text-red-500 font-work-sans text-[13px] font-semibold hover:bg-red-50 transition-colors w-full">
+            <button type="button" onClick={() => logout()}
+              className="h-10 px-5 rounded-full border border-red-200 text-red-500 font-work-sans text-[13px] font-semibold hover:bg-red-50 transition-colors w-full cursor-pointer">
               Logout
             </button>
           </div>

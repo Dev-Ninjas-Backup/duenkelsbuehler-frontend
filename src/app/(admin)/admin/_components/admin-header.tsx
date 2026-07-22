@@ -14,13 +14,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { useLogout } from "@/hooks/auth/use-auth";
+
 export function AdminHeader() {
   const router = useRouter();
-  const { clearAuth, user } = useAuthStore();
+  const logout = useLogout();
+  const { user } = useAuthStore();
 
   const handleLogout = () => {
-    clearAuth();
-    router.replace("/admin/login");
+    logout();
   };
   return (
     <motion.div

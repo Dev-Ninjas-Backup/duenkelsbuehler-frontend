@@ -33,14 +33,15 @@ interface AdminSidebarProps {
   onToggle: () => void;
 }
 
+import { useLogout } from "@/hooks/auth/use-auth";
+
 export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { clearAuth } = useAuthStore();
+  const logout = useLogout();
 
   const handleLogout = () => {
-    clearAuth();
-    router.replace("/admin/login");
+    logout();
   };
 
   return (

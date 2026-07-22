@@ -38,7 +38,11 @@ function PlanModal({ plan, onClose }: {
   onClose: () => void;
 }) {
   const [name, setName] = useState(plan?.name ?? "");
-  const [description, setDescription] = useState(plan?.description ?? "");
+  const [featureTags, setFeatureTags] = useState<string[]>(() => {
+    if (!plan?.description) return [];
+    return parseFeatures(plan.description);
+  });
+  const [currentFeatureInput, setCurrentFeatureInput] = useState("");
   const [amount, setAmount] = useState(plan?.amount?.toString() ?? "");
   const [currency, setCurrency] = useState(plan?.currency ?? "USD");
   const [interval, setInterval] = useState<"MONTH" | "YEAR">(plan?.interval === "YEAR" ? "YEAR" : "MONTH");
@@ -47,16 +51,39 @@ function PlanModal({ plan, onClose }: {
   const { mutate: updatePlan, isPending: isUpdating } = useAdminUpdatePlan();
   const isPending = isCreating || isUpdating;
 
+  const handleAddFeature = () => {
+    const trimmed = currentFeatureInput.trim();
+    if (!trimmed) return;
+    setFeatureTags((prev) => [...prev, trimmed]);
+    setCurrentFeatureInput("");
+  };
+
+  const handleKeyDownFeature = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddFeature();
+    }
+  };
+
+  const handleRemoveFeature = (indexToRemove: number) => {
+    setFeatureTags((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
   const handleSubmit = () => {
-    if (!name || !amount) return;
+    if (!name) return;
+    // Format feature tags into clean line-separated string
+    const formattedDescription = featureTags.map((f) => `✓ ${f}`).join("\n");
+
     if (plan) {
-      const data: UpdatePlanData = { name, description, amount: parseFloat(amount), currency, interval };
+      // In EDIT mode: send ONLY name and description (omit amount, currency, interval to prevent Stripe price creation errors)
+      const data: UpdatePlanData = { name, description: formattedDescription };
       updatePlan({ planId: plan.id, data }, {
         onSuccess: () => { toast.success("Plan updated successfully!"); onClose(); },
         onError: (err) => toast.error((err as Error).message || "Failed to update plan"),
       });
     } else {
-      const data: CreatePlanData = { name, description, amount: parseFloat(amount), currency, interval };
+      if (!amount) return;
+      const data: CreatePlanData = { name, description: formattedDescription, amount: parseFloat(amount), currency, interval };
       createPlan(data, {
         onSuccess: () => { toast.success("Plan created successfully!"); onClose(); },
         onError: (err) => toast.error((err as Error).message || "Failed to create plan"),
@@ -65,31 +92,90 @@ function PlanModal({ plan, onClose }: {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.2 }}
-        onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-2xl p-8 w-full max-w-md flex flex-col gap-5 shadow-xl">
         <div className="flex items-center justify-between">
           <h2 className="font-rozha text-2xl text-[#181D27]">{plan ? "Edit Plan" : "Add New Plan"}</h2>
-          <button onClick={onClose} aria-label="Close modal" className="text-gray-400 hover:text-[#181D27]"><X size={20} /></button>
+          <button onClick={onClose} aria-label="Close modal" className="text-gray-400 hover:text-[#181D27] cursor-pointer"><X size={20} /></button>
         </div>
         <div className="flex flex-col gap-1.5">
           <label className="font-work-sans text-sm font-medium text-[#181D27]">Name *</label>
           <input value={name} onChange={(e) => setName(e.target.value)} placeholder="AristoAccess+" className={inputCls} />
         </div>
+
+        {/* Features Tag Input */}
         <div className="flex flex-col gap-1.5">
-          <label className="font-work-sans text-sm font-medium text-[#181D27]">Description</label>
-          <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Plan description" className={inputCls} />
+          <label className="font-work-sans text-sm font-medium text-[#181D27] flex justify-between items-center">
+            <span>Features Checklist</span>
+            <span className="text-[11px] text-gray-400 font-normal">Press Enter or + to add</span>
+          </label>
+          <div className="flex gap-2">
+            <input
+              value={currentFeatureInput}
+              onChange={(e) => setCurrentFeatureInput(e.target.value)}
+              onKeyDown={handleKeyDownFeature}
+              placeholder="e.g. Identity verification (Veriff)"
+              className={inputCls}
+            />
+            <button
+              type="button"
+              onClick={handleAddFeature}
+              disabled={!currentFeatureInput.trim()}
+              className="px-4 h-11 rounded-xl bg-[#181D27] text-white font-work-sans text-xs font-semibold hover:bg-[#181D27]/90 disabled:opacity-40 transition-colors shrink-0 cursor-pointer"
+            >
+              + Add
+            </button>
+          </div>
+
+          {/* Render Tag Badges */}
+          {featureTags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mt-1 max-h-36 overflow-y-auto p-2.5 bg-gray-50 rounded-xl border border-gray-100">
+              {featureTags.map((feat, idx) => (
+                <span
+                  key={idx}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-gray-200 text-[#181D27] font-work-sans text-xs font-medium shadow-2xs group"
+                >
+                  <span className="text-[#16A34A] font-bold">✓</span>
+                  <span>{feat}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveFeature(idx)}
+                    className="text-gray-400 hover:text-red-500 transition-colors ml-0.5 cursor-pointer"
+                    title="Remove feature"
+                  >
+                    <X size={12} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
+
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className="font-work-sans text-sm font-medium text-[#181D27]">Amount *</label>
-            <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="9.99" className={inputCls} />
+            <label className="font-work-sans text-sm font-medium text-[#181D27]">
+              Amount * {plan && <span className="text-[10px] font-normal text-gray-400">(Fixed)</span>}
+            </label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder="9.99"
+              disabled={!!plan}
+              className={`${inputCls} ${plan ? "bg-gray-100 text-gray-500 cursor-not-allowed" : ""}`}
+            />
           </div>
           <div className="flex flex-col gap-1.5">
             <label className="font-work-sans text-sm font-medium text-[#181D27]">Currency</label>
-            <select value={currency} onChange={(e) => setCurrency(e.target.value)} aria-label="Select currency" className={inputCls}>
+            <select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              disabled={!!plan}
+              aria-label="Select currency"
+              className={`${inputCls} ${plan ? "bg-gray-100 text-gray-500 cursor-not-allowed" : ""}`}
+            >
               {["USD", "EUR", "GBP"].map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
@@ -98,15 +184,25 @@ function PlanModal({ plan, onClose }: {
           <label className="font-work-sans text-sm font-medium text-[#181D27]">Billing Interval</label>
           <div className="grid grid-cols-2 gap-3">
             {(["MONTH", "YEAR"] as const).map((i) => (
-              <button key={i} type="button" onClick={() => setInterval(i)}
-                className={`py-2 rounded-xl border-2 font-work-sans text-sm font-medium transition-all ${interval === i ? "border-[#181D27] bg-[#181D27]/5" : "border-gray-200"}`}>
+              <button
+                key={i}
+                type="button"
+                disabled={!!plan}
+                onClick={() => setInterval(i)}
+                className={`py-2 rounded-xl border-2 font-work-sans text-sm font-medium transition-all ${
+                  interval === i ? "border-[#181D27] bg-[#181D27]/5" : "border-gray-200"
+                } ${plan ? "opacity-60 cursor-not-allowed" : ""}`}
+              >
                 {i === "MONTH" ? "Monthly" : "Yearly"}
               </button>
             ))}
           </div>
         </div>
-        <button onClick={handleSubmit} disabled={!name || !amount || isPending}
-          className="w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 disabled:opacity-40 transition-colors">
+        <button
+          onClick={handleSubmit}
+          disabled={!name || (!plan && !amount) || isPending}
+          className="w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 disabled:opacity-40 transition-colors cursor-pointer mt-1"
+        >
           {isPending ? "Saving..." : plan ? "Save Changes" : "Create Plan"}
         </button>
       </motion.div>
@@ -200,9 +296,8 @@ export default function SubscriptionManagementPage() {
             <span className="font-work-sans text-sm text-[#414651]">No plans yet</span>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {plans.map((plan) => {
-              const isPremium = plan.name.toLowerCase().includes("access") || plan.amount > 0;
               const features = parseFeatures(plan.description);
 
               return (
@@ -210,22 +305,18 @@ export default function SubscriptionManagementPage() {
                   key={plan.id}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`rounded-3xl p-6 flex flex-col justify-between min-h-[360px] shadow-sm transition-all duration-300 relative border ${
-                    isPremium
-                      ? "bg-[#181D27] text-white border-transparent hover:shadow-lg"
-                      : "bg-white text-[#181D27] border-gray-100 hover:shadow-md hover:border-gray-200"
-                  }`}
+                  className="bg-[#181D27] text-white border border-white/10 rounded-3xl p-6 flex flex-col justify-between shadow-md hover:shadow-xl transition-all duration-300 relative gap-4"
                 >
-                  <div>
-                    {/* Header: Plan Name, Crown, and Actions */}
-                    <div className="flex items-start justify-between gap-4">
+                  <div className="flex flex-col gap-4">
+                    {/* Header: Plan Name, Crown, Status & Actions */}
+                    <div className="flex items-start justify-between gap-3">
                       <div className="flex flex-col gap-1.5 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="font-rozha text-xl tracking-wide font-semibold truncate">
+                          <p className="font-rozha text-xl tracking-wide font-semibold text-white truncate">
                             {plan.name}
                           </p>
-                          {isPremium && (
-                            <div className="relative w-5 h-5 shrink-0">
+                          {plan.amount > 0 && (
+                            <div className="relative w-4 h-4 shrink-0">
                               <Image
                                 src="/svg/crown.svg"
                                 alt="Premium Plan"
@@ -236,94 +327,78 @@ export default function SubscriptionManagementPage() {
                           )}
                         </div>
                         <span
-                          className={`w-fit px-2.5 py-0.5 rounded-full font-work-sans text-[10px] font-semibold uppercase tracking-wider ${
+                          className={`w-fit px-2.5 py-0.5 rounded-full font-work-sans text-[10px] font-bold uppercase tracking-wider ${
                             plan.isActive
-                              ? isPremium
-                                ? "bg-green-500/10 text-green-400 border border-green-500/20"
-                                : "bg-green-50 text-green-600 border border-green-100"
-                              : isPremium
-                                ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                                : "bg-red-50 text-red-500 border border-red-100"
+                              ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                              : "bg-red-500/10 text-red-400 border border-red-500/20"
                           }`}
                         >
                           {plan.isActive ? "Active" : "Inactive"}
                         </span>
                       </div>
 
-                      {/* Actions */}
+                      {/* Top Right Actions */}
                       <div className="flex items-center gap-1.5 shrink-0">
                         <motion.button
                           whileTap={{ scale: 0.85 }}
                           title={plan.isActive ? "Deactivate" : "Activate"}
                           onClick={() => handleToggleActive(plan)}
-                          className={`w-8 h-8 flex items-center justify-center rounded-full border transition-all shadow-sm ${
-                            isPremium
-                              ? "bg-white/10 border-white/10 hover:bg-white/20 text-white"
-                              : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-600"
-                          }`}
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-white transition-all cursor-pointer"
                         >
                           {plan.isActive ? (
-                            <ToggleRight size={16} className={isPremium ? "text-green-400" : "text-green-600"} />
+                            <ToggleRight size={18} className="text-[#00D05A]" />
                           ) : (
-                            <ToggleLeft size={16} className={isPremium ? "text-gray-400" : "text-gray-400"} />
+                            <ToggleLeft size={18} className="text-gray-400" />
                           )}
                         </motion.button>
                         <motion.button
                           whileTap={{ scale: 0.85 }}
+                          title="Edit Plan"
                           onClick={() => {
                             setEditingPlan(plan);
                             setModalOpen(true);
                           }}
-                          className={`w-8 h-8 flex items-center justify-center rounded-full border transition-all shadow-sm ${
-                            isPremium
-                              ? "bg-white/10 border-white/10 hover:bg-white/20 text-white"
-                              : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-400 hover:text-[#181D27]"
-                          }`}
+                          className="w-8 h-8 flex items-center justify-center rounded-full bg-white/10 border border-white/10 hover:bg-white/20 text-white transition-all cursor-pointer"
                         >
                           <Pencil size={13} />
                         </motion.button>
                       </div>
                     </div>
 
-                    {/* Features Checklist */}
-                    <div className={`mt-5 pt-5 border-t ${isPremium ? "border-white/10" : "border-slate-100"}`}>
-                      <ul className="flex flex-col gap-2.5">
+                    <div className="h-px bg-white/10" />
+
+                    {/* Features checklist */}
+                    <div className="flex flex-col gap-2">
+                      <span className="font-work-sans text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                        Included Features
+                      </span>
+                      <ul className="flex flex-col gap-1.5 max-h-[140px] overflow-y-auto pr-1">
                         {features.map((feat, idx) => (
-                          <li key={idx} className="flex items-start gap-2 text-xs font-work-sans">
-                            <span className="text-green-500 font-semibold shrink-0 mt-0.5">✓</span>
-                            <span className={isPremium ? "text-gray-300" : "text-slate-600"}>
-                              {feat}
-                            </span>
+                          <li key={idx} className="flex items-start gap-2 text-xs font-work-sans text-gray-300 leading-snug">
+                            <span className="text-[#00D05A] font-bold shrink-0 mt-0.5">✓</span>
+                            <span>{feat}</span>
                           </li>
                         ))}
                         {features.length === 0 && (
-                          <span className={`text-xs italic ${isPremium ? "text-gray-400" : "text-slate-400"}`}>
-                            No features listed
-                          </span>
+                          <li className="font-work-sans text-xs text-gray-400 italic">No features listed</li>
                         )}
                       </ul>
                     </div>
                   </div>
 
-                  {/* Price info at bottom */}
-                  <div className={`mt-6 pt-4 border-t flex items-end justify-between ${
-                    isPremium ? "border-white/10" : "border-slate-100"
-                  }`}>
-                    <span className={`text-[10px] font-work-sans font-bold uppercase tracking-wider ${
-                      isPremium ? "text-gray-400" : "text-slate-400"
-                    }`}>
+                  {/* Price Banner Footer */}
+                  <div className="pt-4 border-t border-white/10 flex items-end justify-between">
+                    <span className="text-[10px] font-work-sans font-bold uppercase tracking-wider text-gray-400">
                       Price
                     </span>
                     <div className="flex items-baseline gap-0.5">
-                      <span className="font-work-sans text-xs font-semibold mr-0.5">
+                      <span className="font-work-sans text-xs font-semibold text-gray-400 mr-0.5">
                         {plan.currency}
                       </span>
-                      <span className="font-rozha text-3xl font-semibold leading-none">
+                      <span className="font-rozha text-3xl font-bold text-white leading-none">
                         {plan.amount}
                       </span>
-                      <span className={`font-work-sans text-[10px] font-medium ml-0.5 ${
-                        isPremium ? "text-gray-400" : "text-slate-400"
-                      }`}>
+                      <span className="font-work-sans text-[10px] font-medium text-gray-400 ml-0.5">
                         /{plan.interval === "MONTH" ? "mo" : "yr"}
                       </span>
                     </div>

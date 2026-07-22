@@ -10,10 +10,12 @@ import { toast } from "sonner";
 
 const readonlyCls = "w-full h-11 border border-gray-100 rounded-xl px-4 font-work-sans text-[13px] text-[#9CA3AF] bg-gray-50 cursor-not-allowed";
 
+import { useLogout } from "@/hooks/auth/use-auth";
+
 export function ClientMyProfileTab() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: user, isLoading } = useGetMe();
-  const { clearAuth } = useAuthStore();
+  const logout = useLogout();
 
   const nameParts = user?.name?.split(" ") ?? [];
   const firstName = nameParts[0] ?? "";
@@ -128,8 +130,8 @@ export function ClientMyProfileTab() {
             >
               {isUploading ? "Uploading..." : "Upload new photo"}
             </button>
-            <button type="button" onClick={() => clearAuth()}
-              className="h-10 px-5 rounded-full border border-red-200 text-red-500 font-work-sans text-[13px] font-semibold hover:bg-red-50 transition-colors w-full">
+            <button type="button" onClick={() => logout()}
+              className="h-10 px-5 rounded-full border border-red-200 text-red-500 font-work-sans text-[13px] font-semibold hover:bg-red-50 transition-colors w-full cursor-pointer">
               Logout
             </button>
           </div>

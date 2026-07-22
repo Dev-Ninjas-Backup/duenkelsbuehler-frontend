@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
 import { authService } from "@/services/auth/auth-service";
 import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
+import type { UserRole } from "@/types/auth";
 
 const navItems = [
   { label: "My Proposals", href: "/client/my-proposals", icon: FileText },
@@ -38,10 +39,17 @@ export function ClientSidebar({ isOpen, onToggle }: ClientSidebarProps) {
     try {
       const res = await authService.switchRole("SERVICE_PROVIDER", accessToken);
       
+      const currentUser = useAuthStore.getState().user;
+      const currentRoles = currentUser?.role || [];
+      const updatedRoles: UserRole[] = currentRoles.includes("SERVICE_PROVIDER")
+        ? currentRoles
+        : [...currentRoles, "SERVICE_PROVIDER"];
+
       // Update active token and role in Zustand store (persisted synchronously in localStorage)
       useAuthStore.setState({
         accessToken: res.accessToken,
-        role: "SERVICE_PROVIDER"
+        role: "SERVICE_PROVIDER",
+        user: currentUser ? { ...currentUser, role: updatedRoles } : null,
       });
 
       // Redirect directly via window.location to avoid client-side Next.js route guard race condition
@@ -115,17 +123,15 @@ export function ClientSidebar({ isOpen, onToggle }: ClientSidebarProps) {
                     ★ AristoAccess+
                   </span>
                 )}
-                {user?.role?.includes("SERVICE_PROVIDER") && (
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleSwitchProfile}
-                    className="mt-4 flex items-center justify-between gap-2.5 px-4 py-2 w-44 rounded-xl bg-white border border-gray-200 text-[#181D27] hover:bg-[#181D27] hover:text-white transition-all shadow-xs shrink-0 font-work-sans text-xs font-semibold cursor-pointer"
-                  >
-                    <span>Switch to Provider</span>
-                    <ArrowLeftRight size={14} className="opacity-70" />
-                  </motion.button>
-                )}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleSwitchProfile}
+                  className="mt-4 flex items-center justify-between gap-2.5 px-4 py-2 w-44 rounded-xl bg-white border border-gray-200 text-[#181D27] hover:bg-[#181D27] hover:text-white transition-all shadow-xs shrink-0 font-work-sans text-xs font-semibold cursor-pointer"
+                >
+                  <span>Switch to Provider</span>
+                  <ArrowLeftRight size={14} className="opacity-70" />
+                </motion.button>
               </div>
 
               {/* Nav Items */}
