@@ -2,6 +2,8 @@ export type Tab = "new" | "track";
 
 export type SubStep =
   | "client-search"
+  | "contract"
+  | "confirm"
   | "proposal-details"
   | "final-remarks"
   | "ready";
@@ -17,6 +19,8 @@ export interface Client {
 
 export interface SPProposalData {
   client: Client | null;
+  contractFile: File | null;
+  docuSign: boolean;
   title: string;
   serviceDescription: string;
   issueDate: string;

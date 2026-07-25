@@ -1,5 +1,7 @@
 export type SubStep =
   | "search"
+  | "contract"
+  | "confirm"
   | "select-services"
   | "proposal-details"
   | "final-remarks"
@@ -17,6 +19,8 @@ export interface SP {
 export interface ProposalData {
   sp: SP | null;
   selectedServiceItemIds: number[];
+  contractFile: File | null;
+  docuSign: boolean;
   title: string;
   serviceDescription: string;
   issueDate: string;
