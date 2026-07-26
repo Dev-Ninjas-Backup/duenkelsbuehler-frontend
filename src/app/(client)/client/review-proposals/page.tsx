@@ -636,12 +636,12 @@ export default function ReviewProposalsPage() {
             onAction={handleFinalize}
           />
         )}
-        {showRating && selected && (
+        {showRating && (
           <RatingModal
             isOpen={showRating}
-            name={getPartyInfo(selected).name}
-            serviceId={selected.serviceItemId || 1}
-            revieweeId={getPartyInfo(selected).id || 1}
+            name={selected ? getPartyInfo(selected).name : (rawProposals?.[0] ? getPartyInfo(rawProposals[0]).name : "Service Provider")}
+            serviceId={selected?.serviceItemId || (rawProposals?.[0] as any)?.serviceItemId || 1}
+            revieweeId={selected ? getPartyInfo(selected).id : (rawProposals?.[0] ? getPartyInfo(rawProposals[0]).id : 1)}
             onSubmit={handleRatingDone}
             onSkip={handleRatingDone}
           />
