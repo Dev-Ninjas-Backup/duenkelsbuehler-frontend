@@ -4,6 +4,8 @@ import { SP, SubStep, ProposalData } from "@/app/(client)/client/transact/_compo
 const EMPTY_DATA: ProposalData = {
   sp: null,
   selectedServiceItemIds: [],
+  contractFile: null,
+  docuSign: false,
   title: "",
   serviceDescription: "",
   issueDate: "",

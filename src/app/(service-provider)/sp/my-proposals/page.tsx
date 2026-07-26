@@ -750,6 +750,20 @@ export default function ReceivedProposalsPage() {
     try {
       await acceptMutation.mutateAsync(id);
       toast.success("Proposal accepted successfully!");
+
+      const matchedDoc = docusignDocs.find((doc: any) => doc.proposalId === id);
+      if (matchedDoc && matchedDoc.dbId && matchedDoc.senderStatus === "SIGNED" && matchedDoc.status !== "SIGNED") {
+        try {
+          const signRes = await signUrlMutation.mutateAsync(matchedDoc.dbId);
+          if (signRes?.url) {
+            window.location.href = signRes.url;
+            return;
+          }
+        } catch {
+          toast.info("Proposal accepted. Please click 'Sign Contract' to complete DocuSign.");
+        }
+      }
+
       setSelectedProposal(null);
     } catch (e: any) {
       toast.error(e?.message || "Failed to accept proposal");

@@ -214,7 +214,7 @@ export function ProposalDetailsStep() {
             whileTap={{ scale: 0.95 }}
             onClick={() => {
               saveData();
-              setStep("select-services");
+              setStep("confirm");
             }}
             className="w-36 h-12 rounded-full border border-gray-200 font-work-sans text-sm text-[#414651] font-medium hover:bg-gray-50 transition-colors"
           >

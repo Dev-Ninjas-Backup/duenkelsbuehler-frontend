@@ -6,7 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { AiFillWarning } from "react-icons/ai";
 import { useTransactStore } from "@/stores/transact/use-transact-store";
-import { useSendDirectProposal } from "@/hooks/sp/use-sp";
+import { useSendDirectProposal, useUploadAndSendDocusign, useDocusignSignUrl } from "@/hooks/sp/use-sp";
 import { toast } from "sonner";
 
 function KaChingModal({ onClose }: { onClose: () => void }) {
@@ -83,7 +83,11 @@ export function ReadyStep() {
   const totalSpReceivesStandard = priceNum - spStandardFee;
   const totalSpReceivesPromo = priceNum - spPromoFee;
 
-  const { mutate: sendProposal, isPending } = useSendDirectProposal();
+  const { mutate: sendProposal, isPending: isProposalPending } = useSendDirectProposal();
+  const uploadDocusignMutation = useUploadAndSendDocusign();
+  const signUrlMutation = useDocusignSignUrl();
+
+  const isPending = isProposalPending || uploadDocusignMutation.isPending || signUrlMutation.isPending;
 
   useEffect(() => {
     if (!showModal) return;
@@ -116,7 +120,34 @@ export function ReadyStep() {
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: async (createdProposal: any) => {
+          if (data.contractFile && createdProposal?.id) {
+            try {
+              const formData = new FormData();
+              formData.append("file", data.contractFile);
+              formData.append("title", data.title || "Service Agreement");
+              formData.append("providerId", String(sp.id));
+              formData.append("proposalId", String(createdProposal.id));
+
+              const docRes = await uploadDocusignMutation.mutateAsync(formData);
+
+              // If sender needs to sign first
+              if (docRes?.dbId) {
+                try {
+                  const signRes = await signUrlMutation.mutateAsync(docRes.dbId);
+                  if (signRes?.url) {
+                    window.location.href = signRes.url;
+                    return;
+                  }
+                } catch {
+                  // Fallback to KaChing modal if embedded signing fails
+                }
+              }
+            } catch (err: any) {
+              toast.error(err?.message || "Proposal created, but contract upload failed.");
+            }
+          }
+
           setShowModal(true);
           setTimeout(() => {
             setShowModal(false);

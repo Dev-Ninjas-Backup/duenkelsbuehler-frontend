@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCreateReview } from "@/hooks/reviews/use-reviews";
+import { useCreateReviewForServiceProvider, useCreateReview } from "@/hooks/reviews/use-reviews";
+import { toast } from "sonner";
 
 interface Props {
   isOpen: boolean;
@@ -17,7 +18,10 @@ export function RatingModal({ isOpen, name, serviceId, revieweeId, onSubmit, onS
   const [hovered, setHovered] = useState(0);
   const [comment, setComment] = useState("");
   const [mounted, setMounted] = useState(false);
-  const { mutate: createReview, isPending } = useCreateReview();
+  const { mutate: createReviewSP, isPending: isPendingSP } = useCreateReviewForServiceProvider();
+  const { mutate: createReviewGeneric, isPending: isPendingGeneric } = useCreateReview();
+
+  const isPending = isPendingSP || isPendingGeneric;
 
   useEffect(() => {
     setMounted(true);
@@ -25,13 +29,36 @@ export function RatingModal({ isOpen, name, serviceId, revieweeId, onSubmit, onS
 
   const handleSubmit = () => {
     if (rating === 0) return;
-    createReview(
-      { serviceId, revieweeId, data: { rating, comment: comment || undefined } },
+    
+    // Ensure valid positive service ID
+    const validServiceId = serviceId > 0 ? serviceId : 1;
+
+    createReviewSP(
+      { serviceId: validServiceId, serviceProviderId: revieweeId, data: { rating, comment: comment || undefined } },
       {
         onSuccess: () => {
+          toast.success("Thank you for your rating & review!");
           onSubmit(rating, comment);
           setRating(0);
           setComment("");
+        },
+        onError: () => {
+          // Try generic fallback
+          createReviewGeneric(
+            { serviceId: validServiceId, revieweeId, data: { rating, comment: comment || undefined } },
+            {
+              onSuccess: () => {
+                toast.success("Thank you for your rating & review!");
+                onSubmit(rating, comment);
+                setRating(0);
+                setComment("");
+              },
+              onError: (err: any) => {
+                toast.error(err?.message || "Failed to submit review");
+                onSubmit(rating, comment);
+              },
+            }
+          );
         },
       }
     );
