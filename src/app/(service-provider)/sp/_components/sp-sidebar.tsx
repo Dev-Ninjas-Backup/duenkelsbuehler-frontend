@@ -3,16 +3,17 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, ArrowLeftRight, Briefcase, Users, Star, ShieldCheck, Settings, Bookmark, FileText } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowLeftRight, Briefcase, Users, Star, ShieldCheck, Settings, Bookmark, FileText, LogOut } from "lucide-react";
 import Image from "next/image";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
 import { authService } from "@/services/auth/auth-service";
 import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
+import { useLogout } from "@/hooks/auth/use-auth";
 import type { UserRole } from "@/types/auth";
 
 const navItems = [
-  { label: "My Services", href: "/sp/my-services", icon: Briefcase },
   { label: "My Proposals", href: "/sp/my-proposals", icon: FileText },
+  { label: "My Services", href: "/sp/my-services", icon: Briefcase },
   { label: "Saved Clients", href: "/sp/saved-clients", icon: Users },
   { label: "Saved Contracts", href: "/sp/saved-contracts", icon: Bookmark },
   { label: "Rating & Badges", href: "/sp/ratings-rewards", icon: Star },
@@ -28,6 +29,7 @@ interface SPSidebarProps {
 export function SPSidebar({ isOpen, onToggle }: SPSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const logout = useLogout();
   const user = useAuthStore((s) => s.user);
   const accessToken = useAuthStore((s) => s.accessToken);
 
@@ -146,7 +148,7 @@ export function SPSidebar({ isOpen, onToggle }: SPSidebarProps) {
               </div>
 
               {/* Nav Items */}
-              <nav className="flex flex-col gap-1 lg:gap-1.5 flex-1 w-full px-4 mt-2 lg:mt-3">
+              <nav className="flex flex-col gap-1 lg:gap-1.5 w-full px-4 mt-2 lg:mt-3 mb-4">
                 {navItems.map(({ label, href,  icon: Icon }) => {
                   const isActive = pathname === href || pathname.startsWith(href);
                   return (
@@ -165,6 +167,16 @@ export function SPSidebar({ isOpen, onToggle }: SPSidebarProps) {
                     </Link>
                   );
                 })}
+
+                <div className="mt-2">
+                  <motion.button
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => logout()}
+                    className="w-full h-10 rounded-full border border-red-200 text-[#FF4D4D] hover:text-red-600 hover:bg-red-50/60 font-work-sans text-sm font-semibold flex items-center justify-center transition-all cursor-pointer shadow-2xs"
+                  >
+                    Logout
+                  </motion.button>
+                </div>
               </nav>
             </motion.div>
           )}
