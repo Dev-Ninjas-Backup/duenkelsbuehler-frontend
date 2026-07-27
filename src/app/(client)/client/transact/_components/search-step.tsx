@@ -7,11 +7,13 @@ import { Search, ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import { SP } from "./types";
 import { useAllServiceItems } from "@/hooks/sp/use-sp";
 import { useAddFavorite, useRemoveFavorite, useMyFavorites } from "@/hooks/favorites/use-favorites";
+import { useGetMe } from "@/hooks/auth/use-auth";
 import { useTransactStore } from "@/stores/transact/use-transact-store";
 import { toast } from "sonner";
 
 interface DiscoverUser {
   id: number;
+  email: string;
   name: string;
   role: string[];
   imageUrl: string | null;
@@ -38,6 +40,7 @@ export function SearchStep() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  const { data: me } = useGetMe();
   const { data = [], isLoading } = useAllServiceItems({ limit: 100 });
   const { data: favData } = useMyFavorites();
   const { mutate: addFavorite } = useAddFavorite();
@@ -49,7 +52,12 @@ export function SearchStep() {
   const serviceProviders = useMemo(() => {
     const rawServices = (data as unknown as DiscoverUser[]) || [];
     return rawServices
-      .filter((user) => user.role?.includes("SERVICE_PROVIDER"))
+      .filter(
+        (user) =>
+          user.role?.includes("SERVICE_PROVIDER") &&
+          user.id !== me?.id &&
+          user.email !== me?.email
+      )
       .map((user) => ({
         id: user.id,
         name: user.name,
@@ -57,7 +65,7 @@ export function SearchStep() {
         avatar: user.imageUrl || "/images/user/user_avatar.png",
         verified: user.isIdentityVerified,
       }));
-  }, [data]);
+  }, [data, me]);
 
   const filtered = useMemo(() => {
     return serviceProviders.filter(
