@@ -29,8 +29,8 @@ function TransactContent() {
 
   const { step, setStep, data } = useTransactStore();
 
-  const btnDark = "w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors";
-  const btnGreen = "w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold transition-colors hover:text-[#16A34A]";
+  const btnDark = "w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors cursor-pointer";
+  const btnGreen = "w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold transition-colors hover:text-[#16A34A] cursor-pointer";
 
   if (isSubLoading) {
     return (
@@ -69,7 +69,7 @@ function TransactContent() {
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => router.push("/client/transact/subscribe")}
-            className="w-full h-12 rounded-full bg-[#F59E0B] text-white font-work-sans text-sm font-semibold hover:bg-[#D97706] transition-colors"
+            className="w-full h-12 rounded-full bg-[#F59E0B] text-white font-work-sans text-sm font-semibold hover:bg-[#D97706] transition-colors cursor-pointer"
           >
             Send a Proposal
           </motion.button>

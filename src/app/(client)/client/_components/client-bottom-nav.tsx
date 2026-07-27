@@ -32,7 +32,7 @@ export function ClientBottomNav({ onMeClick }: { onMeClick: () => void }) {
 
         if (isTransact) {
           return (
-            <Link key={href} href={href} className="flex-1 flex flex-col items-center justify-end gap-1 -mt-8">
+            <Link key={href} href={href} className="flex-1 flex flex-col items-center justify-end gap-1 -mt-8 cursor-pointer">
               <motion.div
                 whileTap={{ scale: 0.92 }}
                 className="md:w-24 md:h-24 w-16 h-16 rounded-full bg-[#181D27] md:-mt-8 md:border-8 border-white flex items-center justify-center shadow-xl"
@@ -46,7 +46,7 @@ export function ClientBottomNav({ onMeClick }: { onMeClick: () => void }) {
 
         if (isMe) {
           return (
-            <button key={href} onClick={onMeClick} className="flex-1 flex flex-col items-center justify-end pb-1 gap-1">
+            <button key={href} onClick={onMeClick} className="flex-1 flex flex-col items-center justify-end pb-1 gap-1 cursor-pointer">
               <motion.div whileTap={{ scale: 0.9 }}>
                 <span className={`font-work-sans text-sm md:text-base font-medium transition-colors ${isActive ? "text-[#16A34A] font-semibold" : "text-white"}`}>
                   {label}
@@ -57,7 +57,7 @@ export function ClientBottomNav({ onMeClick }: { onMeClick: () => void }) {
         }
 
         return (
-          <Link key={href} href={href} className="flex-1 flex flex-col items-center justify-end pb-1 gap-1">
+          <Link key={href} href={href} className="flex-1 flex flex-col items-center justify-end pb-1 gap-1 cursor-pointer">
             <motion.div whileTap={{ scale: 0.9 }}>
               <span
                 className={`font-work-sans text-sm md:text-base font-medium transition-colors ${

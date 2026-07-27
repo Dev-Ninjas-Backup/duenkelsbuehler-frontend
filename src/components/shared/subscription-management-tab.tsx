@@ -16,31 +16,55 @@ function parseFeatures(description: string): string[] {
     .filter((item) => item.length > 0);
 }
 
+import { createPortal } from "react-dom";
+import { useEffect } from "react";
+
 function ConfirmCancelModal({ onConfirm, onClose }: { onConfirm: () => void; onClose: () => void }) {
-  return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-      <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 10 }} transition={{ duration: 0.2 }}
-        className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-sm flex flex-col gap-5 shadow-xl">
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-xs px-4"
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+        transition={{ duration: 0.2 }}
+        className="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-sm flex flex-col gap-5 shadow-2xl relative border border-gray-100"
+      >
         <div className="flex flex-col gap-2">
-          <h3 className="font-rozha text-xl text-[#181D27]">Cancel Subscription?</h3>
-          <p className="font-work-sans text-sm text-[#535862]">
+          <h3 className="font-rozha text-2xl text-[#181D27]">Cancel Subscription?</h3>
+          <p className="font-work-sans text-sm text-[#535862] leading-relaxed">
             Your subscription will remain active until the end of the current billing period. After that, you will lose access to premium features.
           </p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={onClose}
-            className="flex-1 h-11 rounded-full border border-gray-200 font-work-sans text-sm font-semibold text-[#414651] hover:bg-gray-50 transition-colors cursor-pointer">
+        <div className="flex gap-3 pt-2">
+          <button
+            onClick={onClose}
+            className="flex-1 h-11 rounded-full border border-gray-200 font-work-sans text-sm font-semibold text-[#414651] hover:bg-gray-50 transition-colors cursor-pointer"
+          >
             Keep Plan
           </button>
-          <button onClick={onConfirm}
-            className="flex-1 h-11 rounded-full bg-red-500 text-white font-work-sans text-sm font-semibold hover:bg-red-600 transition-colors cursor-pointer">
+          <button
+            onClick={onConfirm}
+            className="flex-1 h-11 rounded-full bg-red-500 text-white font-work-sans text-sm font-semibold hover:bg-red-600 transition-colors cursor-pointer shadow-xs"
+          >
             Yes, Cancel
           </button>
         </div>
       </motion.div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 }
 

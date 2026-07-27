@@ -127,7 +127,7 @@ export function MyProfileTab() {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading}
-              className="h-10 px-5 rounded-full bg-[#181D27] text-white font-work-sans text-[13px] font-semibold hover:bg-[#181D27]/90 disabled:opacity-60 transition-colors w-full flex items-center justify-center gap-2"
+              className="h-10 px-5 rounded-full bg-[#181D27] text-white font-work-sans text-[13px] font-semibold hover:bg-[#181D27]/90 disabled:opacity-60 transition-colors w-full flex items-center justify-center gap-2 cursor-pointer"
             >
               {isUploading ? "Uploading..." : "Upload new photo"}
             </button>

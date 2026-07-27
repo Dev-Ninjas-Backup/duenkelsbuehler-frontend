@@ -35,7 +35,7 @@ export default function SPSettingsPage() {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`relative px-8 py-3 font-work-sans text-sm font-medium transition-colors ${
+              className={`relative px-8 py-3 font-work-sans text-sm font-medium transition-colors cursor-pointer ${
                 activeTab === tab ? "text-[#181D27]" : "text-[#9CA3AF] hover:text-[#414651]"
               }`}
             >

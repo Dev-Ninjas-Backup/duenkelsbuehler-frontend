@@ -198,7 +198,7 @@ export default function ConnectPage() {
                       whileTap={{ scale: 0.85 }}
                       disabled={isFavPending}
                       onClick={(e) => handleToggleFavorite(e, client.id)}
-                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50"
+                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer"
                       aria-label="Save Client"
                     >
                       <svg
@@ -213,10 +213,19 @@ export default function ConnectPage() {
 
                 {/* Name + Info */}
                 <div className="flex w-full items-center gap-4 lg:w-auto">
-                  <div className="w-10 h-10 rounded-full bg-[#181D27] shrink-0 flex items-center justify-center">
-                    <span className="font-rozha text-lg text-white">
-                      {client.name.charAt(0).toUpperCase()}
-                    </span>
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden bg-[#181D27] shrink-0 flex items-center justify-center border border-gray-100 shadow-sm">
+                    {client.imageUrl ? (
+                      <Image
+                        src={client.imageUrl}
+                        alt={client.name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <span className="font-rozha text-lg text-white select-none">
+                        {client.name.charAt(0).toUpperCase()}
+                      </span>
+                    )}
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1 mt-0.5">
@@ -251,7 +260,7 @@ export default function ConnectPage() {
                     whileTap={{ scale: 0.85 }}
                     disabled={isFavPending}
                     onClick={(e) => handleToggleFavorite(e, client.id)}
-                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50"
+                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-100 transition-colors disabled:opacity-50 cursor-pointer"
                     aria-label="Save Client"
                   >
                     <svg

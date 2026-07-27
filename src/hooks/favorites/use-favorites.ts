@@ -2,6 +2,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useAuthStore } from "@/stores/auth/use-auth-store"
 import { favoritesService } from "@/services/favorites/favorites-service"
 
+import { toast } from "sonner"
+
 function useToken() {
   return useAuthStore((s) => s.accessToken) ?? ""
 }
@@ -20,7 +22,13 @@ export function useAddFavorite() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (targetUserId: number) => favoritesService.addFavorite(targetUserId, token),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["my-favorites"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-favorites"] })
+      toast.success("Saved successfully!")
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Failed to save")
+    },
   })
 }
 
@@ -29,7 +37,13 @@ export function useAddFavoriteClient() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (targetUserId: number) => favoritesService.addFavoriteClient(targetUserId, token),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["my-favorites"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-favorites"] })
+      toast.success("Client saved successfully!")
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Failed to save client")
+    },
   })
 }
 
@@ -38,7 +52,13 @@ export function useAddFavoriteServiceProvider() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (targetUserId: number) => favoritesService.addFavoriteServiceProvider(targetUserId, token),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["my-favorites"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-favorites"] })
+      toast.success("Service Provider saved successfully!")
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Failed to save service provider")
+    },
   })
 }
 
@@ -47,6 +67,12 @@ export function useRemoveFavorite() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (targetUserId: number) => favoritesService.removeFavorite(targetUserId, token),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["my-favorites"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["my-favorites"] })
+      toast.success("Removed from saved!")
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Failed to remove from saved")
+    },
   })
 }

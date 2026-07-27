@@ -120,7 +120,7 @@ export default function SavedClientsPage() {
                       whileTap={{ scale: 0.85 }}
                       disabled={isRemoving}
                       onClick={() => handleRemove(fav.user.id)}
-                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors disabled:opacity-50"
+                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-red-50 hover:text-red-500 transition-colors disabled:opacity-50 cursor-pointer"
                       aria-label="Remove from saved"
                     >
                       <Bookmark className="h-[14px] w-[14px] fill-[#181D27]" />
@@ -128,7 +128,7 @@ export default function SavedClientsPage() {
                     <motion.button
                       whileTap={{ scale: 0.85 }}
                       onClick={() => router.push(`/sp/messages?clientId=${fav.user.id}`)}
-                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors cursor-pointer"
                       aria-label="Message client"
                     >
                       <AiFillMessage className="h-[14px] w-[14px]" />
@@ -160,7 +160,7 @@ export default function SavedClientsPage() {
                     whileTap={{ scale: 0.85 }}
                     disabled={isRemoving}
                     onClick={() => handleRemove(fav.user.id)}
-                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors disabled:opacity-50"
+                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-red-50 hover:text-red-500 transition-colors disabled:opacity-50 cursor-pointer"
                     aria-label="Remove from saved"
                   >
                     <Bookmark className="h-[14px] w-[14px] fill-[#181D27]" />
@@ -168,7 +168,7 @@ export default function SavedClientsPage() {
                   <motion.button
                     whileTap={{ scale: 0.85 }}
                     onClick={() => router.push(`/sp/messages?clientId=${fav.user.id}`)}
-                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                    className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors cursor-pointer"
                     aria-label="Message client"
                   >
                     <AiFillMessage className="h-[14px] w-[14px]" />

@@ -535,7 +535,7 @@ export default function MyProposalsPage() {
             <button
               key={t}
               onClick={() => setFilter(t)}
-              className={`px-4 py-2 rounded-full text-xs font-semibold font-work-sans transition-all uppercase ${
+              className={`px-4 py-2 rounded-full text-xs font-semibold font-work-sans transition-all uppercase cursor-pointer ${
                 filter === t
                   ? "bg-[#181D27] text-white shadow-xs"
                   : "text-[#535862] hover:text-[#181D27]"
@@ -554,7 +554,7 @@ export default function MyProposalsPage() {
             setActiveCategory("SENT");
             setFilter("ALL");
           }}
-          className={`pb-3 font-work-sans font-semibold text-sm transition-all relative ${
+          className={`pb-3 font-work-sans font-semibold text-sm transition-all relative cursor-pointer ${
             activeCategory === "SENT" ? "text-[#181D27]" : "text-[#98A2B3] hover:text-[#535862]"
           }`}
         >
@@ -571,7 +571,7 @@ export default function MyProposalsPage() {
             setActiveCategory("RECEIVED");
             setFilter("ALL");
           }}
-          className={`pb-3 font-work-sans font-semibold text-sm transition-all relative ${
+          className={`pb-3 font-work-sans font-semibold text-sm transition-all relative cursor-pointer ${
             activeCategory === "RECEIVED" ? "text-[#181D27]" : "text-[#98A2B3] hover:text-[#535862]"
           }`}
         >

@@ -46,7 +46,7 @@ export default function TransactPage() {
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`relative flex-1 py-3 font-work-sans text-sm font-medium transition-colors ${
+            className={`relative flex-1 py-3 font-work-sans text-sm font-medium transition-colors cursor-pointer ${
               activeTab === key ? "text-[#181D27]" : "text-[#9CA3AF] hover:text-[#414651]"
             }`}
           >
