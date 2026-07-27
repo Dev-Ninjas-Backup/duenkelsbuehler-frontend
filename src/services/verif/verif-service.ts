@@ -44,6 +44,10 @@ export const verifService = {
     })
     const json = await res.json()
     if (!res.ok) throw new Error(json?.message || "Verification failed")
-    return json?.data !== undefined ? json.data : json
+    const resData = json?.data !== undefined ? json.data : json
+    if (resData?.status === "fail" || resData?.status === "error") {
+      throw new Error(resData?.message || "Verification session creation failed")
+    }
+    return resData
   },
 }
