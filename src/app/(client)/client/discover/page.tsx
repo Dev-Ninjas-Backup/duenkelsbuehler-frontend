@@ -7,6 +7,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Search, Crown, AlertTriangle, Star } from "lucide-react";
 import { useAllServiceItems } from "@/hooks/sp/use-sp";
 import { useAddFavorite, useRemoveFavorite, useMyFavorites } from "@/hooks/favorites/use-favorites";
+import { useGetMe } from "@/hooks/auth/use-auth";
 import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "sonner";
 
@@ -45,6 +46,7 @@ const rowVariants = {
 
 export default function DiscoverPage() {
   const router = useRouter();
+  const { data: me } = useGetMe();
   const [searchName, setSearchName] = useState("");
   const [searchIndustry, setSearchIndustry] = useState("");
   const [searchLocation, setSearchLocation] = useState("");
@@ -73,10 +75,13 @@ export default function DiscoverPage() {
 
   const favoritedIds = new Set(favData?.favorites.map((f) => f.user.id) ?? []);
 
-  // Filter the backend response to only show Service Providers
-  const rawServices = data as unknown as DiscoverUser[];
+  // Filter the backend response to only show Service Providers (excluding self)
+  const rawServices = (data as unknown as DiscoverUser[]) || [];
   const serviceProviders = rawServices.filter(
-    (user) => user.role?.includes("SERVICE_PROVIDER")
+    (user) =>
+      user.role?.includes("SERVICE_PROVIDER") &&
+      user.id !== me?.id &&
+      user.email !== me?.email
   );
 
   // In addition to backend query parameters, apply client-side filtering as a fallback/reinforcement

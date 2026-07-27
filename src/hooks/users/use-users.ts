@@ -4,15 +4,18 @@ import { usersService } from "@/services/users/users-service"
 
 export function useClients() {
   const token = useAuthStore((s) => s.accessToken) ?? ""
+  const currentUser = useAuthStore((s) => s.user)
+
   return useQuery({
-    queryKey: ["clients"],
+    queryKey: ["clients", currentUser?.id],
     queryFn: async () => {
       const all = await usersService.findAll(token)
       return all.filter(
         (u) =>
           u.role?.includes("CLIENT") &&
-          !u.role?.includes("SERVICE_PROVIDER") &&
-          !u.role?.includes("ADMIN")
+          !u.role?.includes("ADMIN") &&
+          u.id !== currentUser?.id &&
+          u.email !== currentUser?.email
       )
     },
     enabled: !!token,

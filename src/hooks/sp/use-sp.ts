@@ -222,9 +222,18 @@ export function useProviderServiceItems(providerId: number | null) {
 
 export function useSearchClients({ search, page, limit }: { search: string; page: number; limit: number }) {
   const token = useToken()
+  const currentUser = useAuthStore((s) => s.user)
   return useQuery({
-    queryKey: ["search-clients", search, page, limit],
-    queryFn: () => proposalService.searchClients(search, page, limit, token),
+    queryKey: ["search-clients", search, page, limit, currentUser?.id],
+    queryFn: async () => {
+      const res = await proposalService.searchClients(search, page, limit, token)
+      if (res && Array.isArray(res.data)) {
+        res.data = res.data.filter(
+          (u: any) => u.id !== currentUser?.id && u.email !== currentUser?.email
+        )
+      }
+      return res
+    },
     enabled: !!token,
   })
 }

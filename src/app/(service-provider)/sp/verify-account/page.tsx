@@ -2,12 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Clock, AlertCircle, AlertTriangle, RefreshCw } from "lucide-react";
+import { ChevronLeft, Clock, AlertCircle, AlertTriangle, RefreshCw, CheckCircle2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { LandingStep }   from "./_components/landing-step";
 import { SubscribeStep } from "./_components/subscribe-step";
 import { UploadStep }    from "./_components/upload-step";
 import { SuccessModal }  from "./_components/success-modal";
+import { CrownSVG }      from "./_components/shared";
 import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
 import { useGetMe } from "@/hooks/auth/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
@@ -29,6 +31,8 @@ function VerifyAccountContent() {
   const [retryOverride, setRetryOverride] = useState(false);
   const [ready, setReady]         = useState(false);
   const [retrying, setRetrying]   = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const modalShownRef             = useRef(false);
   const retryCount                = useRef(0);
   const router  = useRouter();
   const params  = useSearchParams();
@@ -38,6 +42,14 @@ function VerifyAccountContent() {
 
   const { data: subscriptions = [], isLoading: subsLoading } = useMySubscriptions();
   const { data: me, isLoading: meLoading } = useGetMe();
+
+  // Show celebratory modal once if returning from Stripe checkout
+  useEffect(() => {
+    if ((me?.isIdentityVerified || me?.verifIdentityVerificationStatus === "APPROVED") && fromStripe && !modalShownRef.current) {
+      setShowModal(true);
+      modalShownRef.current = true;
+    }
+  }, [me, fromStripe]);
 
   // Stripe থেকে ফিরলে max 6 বার retry করব (3 সেকেন্ড পর পর)
   useEffect(() => {
@@ -145,7 +157,9 @@ function VerifyAccountContent() {
         transition={{ duration: 0.4, delay: 0.1 }}
         className="font-work-sans text-sm text-[#414651] text-center mb-4"
       >
-        For verifying your identity you will have to subscribe to AristoAccess +
+        {step === "success"
+          ? "Your account identity is verified with AristoAccess+"
+          : "For verifying your identity you will have to subscribe to AristoAccess +"}
       </motion.p>
 
       <AnimatePresence>
@@ -177,6 +191,50 @@ function VerifyAccountContent() {
           {step === "landing"   && <LandingStep   onNext={goNext} />}
           {step === "subscribe" && <SubscribeStep onNext={goNext} />}
           {step === "upload"    && <UploadStep    onNext={goNext} />}
+          {step === "success" && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-md mx-auto w-full bg-white border border-gray-100 rounded-3xl p-8 shadow-sm flex flex-col items-center text-center mt-4"
+            >
+              <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 mb-4">
+                <CheckCircle2 size={36} />
+              </div>
+
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/70 text-emerald-700 text-xs font-semibold mb-3">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                Identity Verified
+              </div>
+
+              <CrownSVG className="w-16 h-12 mb-2" />
+              <h2 className="font-rozha text-2xl lg:text-3xl text-[#181D27] mb-2">
+                AristoAccess<span className="text-[#16A34A]">+</span> Active
+              </h2>
+
+              <p className="font-work-sans text-sm text-[#414651] leading-relaxed mb-6">
+                Your identity has been verified. The seal is yours to bear—your account has full access to all premium platform features.
+              </p>
+
+              <div className="mb-6">
+                <Image src="/images/seal.png" alt="Seal" width={120} height={134} className="object-contain" />
+              </div>
+
+              <div className="w-full flex flex-col gap-2.5">
+                <button
+                  onClick={() => router.push("/sp/transact")}
+                  className="w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
+                >
+                  Start Transacting
+                </button>
+                <button
+                  onClick={() => router.push("/sp/settings")}
+                  className="w-full h-10 rounded-full bg-gray-50 border border-gray-200 text-[#414651] font-work-sans text-xs font-semibold hover:bg-gray-100 transition-colors"
+                >
+                  View Profile & Settings
+                </button>
+              </div>
+            </motion.div>
+          )}
           {step === "submitted" && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -234,7 +292,7 @@ function VerifyAccountContent() {
               </p>
               <button
                 onClick={() => setRetryOverride(true)}
-                className="w-full h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-full bg-[#181D27] text-[#FFFFFF] font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors flex items-center justify-center gap-2"
               >
                 <RefreshCw size={16} /> Resubmit Documents
               </button>
@@ -244,8 +302,8 @@ function VerifyAccountContent() {
       </AnimatePresence>
 
       <SuccessModal
-        isOpen={step === "success"}
-        onDone={() => router.push("/sp/transact")}
+        isOpen={showModal}
+        onDone={() => setShowModal(false)}
       />
     </div>
   );
