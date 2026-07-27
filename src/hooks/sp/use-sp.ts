@@ -3,6 +3,8 @@ import { useAuthStore } from "@/stores/auth/use-auth-store"
 import { serviceItemService, serviceProviderService, proposalService, CreateDirectProposalData } from "@/services/sp/sp-service"
 import type { CreateServiceItemData, UpdateServiceItemData, CreateServiceProviderData } from "@/types/sp"
 
+import { toast } from "sonner"
+
 function useToken() {
   return useAuthStore((s) => s.accessToken) ?? ""
 }
@@ -40,7 +42,13 @@ export function useCreateServiceItem() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (data: CreateServiceItemData) => serviceItemService.create(data, token),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["service-items", "my"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["service-items", "my"] })
+      toast.success("Service created successfully!")
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Failed to create service")
+    },
   })
 }
 
@@ -50,7 +58,13 @@ export function useUpdateServiceItem() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateServiceItemData }) =>
       serviceItemService.update(id, data, token),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["service-items", "my"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["service-items", "my"] })
+      toast.success("Service updated successfully!")
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Failed to update service")
+    },
   })
 }
 
@@ -59,7 +73,13 @@ export function useDeleteServiceItem() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (id: number) => serviceItemService.remove(id, token),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["service-items", "my"] }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["service-items", "my"] })
+      toast.success("Service deleted successfully!")
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Failed to delete service")
+    },
   })
 }
 

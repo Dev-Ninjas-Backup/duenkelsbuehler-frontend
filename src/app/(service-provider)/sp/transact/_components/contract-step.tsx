@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X, FileText, Bookmark, ChevronDown, Loader2 } from "lucide-react";
 import { AiFillWarning } from "react-icons/ai";
 import { Contact } from "./types";
-import { FinePrintModal } from "./fine-print-modal";
 import { useUploadDocument } from "@/hooks/files/use-files";
 import { useMyTemplates } from "@/hooks/contract-templates/use-contract-templates";
 import { contractTemplatesService } from "@/services/contract-templates/contract-templates-service";
@@ -28,7 +27,6 @@ export function ContractStep({
   contact, contractFile, docuSign, isSubscriber = true,
   onFileChange, onDocuSignChange, onNext, onSkip,
 }: Props) {
-  const [showModal, setShowModal] = useState(true);
   const [saveContract, setSaveContract] = useState(false);
   const [showSaved, setShowSaved] = useState(false);
   const [isLoadingFile, setIsLoadingFile] = useState(false);
@@ -38,7 +36,21 @@ export function ContractStep({
   const { data: templates = [] } = useMyTemplates();
   const { mutate: uploadDocument, isPending: isUploading } = useUploadDocument();
 
-  const handleNext = () => onNext(saveContract);
+  const handleNext = async () => {
+    if (saveContract && contractFile) {
+      try {
+        const formData = new FormData();
+        formData.append("file", contractFile);
+        formData.append("title", contractFile.name.replace(/\.[^/.]+$/, ""));
+        formData.append("description", "Saved from proposal creation");
+        await contractTemplatesService.upload(formData, token);
+        toast.success("Contract saved to templates!");
+      } catch (err: any) {
+        console.error("Failed to save template", err);
+      }
+    }
+    onNext(saveContract);
+  };
 
   const handleFileChange = (file: File | null) => {
     if (!file) { onFileChange(null); setSaveContract(false); return; }
@@ -72,8 +84,6 @@ export function ContractStep({
 
   return (
     <>
-      <FinePrintModal isOpen={showModal} onNext={() => setShowModal(false)} onSkip={onSkip} />
-
       <div className="max-w-lg mx-auto w-full flex flex-col gap-5">
         <motion.h2
           initial={{ opacity: 0, y: -12 }}
@@ -112,39 +122,39 @@ export function ContractStep({
           </div>
         </motion.div>
 
-        {/* Saved contracts dropdown — subscriber only */}
-        {isSubscriber && templates.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.08 }}
-            className="flex flex-col gap-2"
+        {/* Saved contracts dropdown */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, delay: 0.08 }}
+          className="flex flex-col gap-2"
+        >
+          <button
+            onClick={() => setShowSaved((p) => !p)}
+            disabled={isLoadingFile}
+            className="flex items-center justify-between w-full bg-[#F5F5F5] rounded-2xl px-5 py-3 font-work-sans text-sm font-semibold text-[#181D27] hover:bg-gray-200 transition-colors disabled:opacity-60 cursor-pointer"
           >
-            <button
-              onClick={() => setShowSaved((p) => !p)}
-              disabled={isLoadingFile}
-              className="flex items-center justify-between w-full bg-[#F5F5F5] rounded-2xl px-5 py-3 font-work-sans text-sm font-semibold text-[#181D27] hover:bg-gray-200 transition-colors disabled:opacity-60"
-            >
-              <span className="flex items-center gap-2">
-                {isLoadingFile ? (
-                  <Loader2 size={15} className="animate-spin text-[#181D27]" />
-                ) : (
-                  <Bookmark size={15} className="fill-[#181D27]" />
-                )}
-                Use a saved template
-              </span>
-              <ChevronDown size={15} className={`transition-transform ${showSaved ? "rotate-180" : ""}`} />
-            </button>
+            <span className="flex items-center gap-2">
+              {isLoadingFile ? (
+                <Loader2 size={15} className="animate-spin text-[#181D27]" />
+              ) : (
+                <Bookmark size={15} className="fill-[#181D27]" />
+              )}
+              Use a saved template {templates.length > 0 && `(${templates.length})`}
+            </span>
+            <ChevronDown size={15} className={`transition-transform ${showSaved ? "rotate-180" : ""}`} />
+          </button>
 
-            <AnimatePresence>
-              {showSaved && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden flex flex-col gap-2 bg-white border border-gray-100 rounded-xl p-2 max-h-60 overflow-y-auto"
-                >
-                  {templates.map((t) => (
+          <AnimatePresence>
+            {showSaved && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden flex flex-col gap-2 bg-white border border-gray-100 rounded-xl p-2 max-h-60 overflow-y-auto"
+              >
+                {templates.length > 0 ? (
+                  templates.map((t) => (
                     <motion.button
                       key={t.id}
                       whileTap={{ scale: 0.98 }}
@@ -157,12 +167,18 @@ export function ContractStep({
                         <p className="font-work-sans text-xs text-[#9CA3AF]">Saved {formatDate(t.createdAt)}</p>
                       </div>
                     </motion.button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        )}
+                  ))
+                ) : (
+                  <div className="p-4 text-center">
+                    <p className="font-work-sans text-xs text-gray-500">
+                      No saved templates yet. Upload a contract file below and check &quot;Save this contract for future use&quot;.
+                    </p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
         {/* File preview or upload info */}
         <AnimatePresence mode="wait">
@@ -222,8 +238,8 @@ export function ContractStep({
           </motion.label>
         )}
 
-        {/* Save contract checkbox — subscriber only, shown when file is selected */}
-        {isSubscriber && contractFile && (
+        {/* Save contract checkbox — shown when file is selected */}
+        {contractFile && (
           <motion.label initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"

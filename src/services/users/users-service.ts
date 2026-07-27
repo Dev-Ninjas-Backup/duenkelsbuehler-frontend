@@ -19,6 +19,7 @@ export interface ClientUser {
   name: string
   email: string
   country: string | null
+  imageUrl?: string | null
   isIdentityVerified: boolean
   role: string[]
   trustapUserId: string | null

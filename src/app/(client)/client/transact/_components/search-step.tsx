@@ -224,7 +224,7 @@ export function SearchStep() {
                     <motion.button
                       whileTap={{ scale: 0.85 }}
                       onClick={(e) => handleFavoriteToggle(sp.id, e)}
-                      className={`w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center transition-colors ${favoritedIds.has(sp.id) ? "text-[#181D27]" : "text-gray-400 hover:text-[#181D27]"}`}
+                      className={`w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center transition-colors cursor-pointer ${favoritedIds.has(sp.id) ? "text-[#181D27]" : "text-gray-400 hover:text-[#181D27]"}`}
                       aria-label="Save Provider"
                     >
                       <svg
@@ -280,7 +280,7 @@ export function SearchStep() {
                   <motion.button
                     whileTap={{ scale: 0.85 }}
                     onClick={(e) => handleFavoriteToggle(sp.id, e)}
-                    className={`w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center transition-colors ${favoritedIds.has(sp.id) ? "text-[#181D27]" : "text-gray-400 hover:text-[#181D27]"}`}
+                    className={`w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center transition-colors cursor-pointer ${favoritedIds.has(sp.id) ? "text-[#181D27]" : "text-gray-400 hover:text-[#181D27]"}`}
                     aria-label="Save Provider"
                   >
                     <svg
@@ -329,7 +329,7 @@ export function SearchStep() {
             whileTap={{ scale: 0.9 }}
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-[#414651] hover:bg-gray-50 disabled:opacity-40 transition-colors"
+            className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-[#414651] hover:bg-gray-50 disabled:opacity-40 transition-colors cursor-pointer"
           >
             <ChevronLeft className="h-4 w-4" />
           </motion.button>
@@ -347,7 +347,7 @@ export function SearchStep() {
                 key={pg}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setCurrentPage(pg as number)}
-                className={`w-9 h-9 rounded-full font-work-sans text-sm font-medium transition-colors ${
+                className={`w-9 h-9 rounded-full font-work-sans text-sm font-medium transition-colors cursor-pointer ${
                   currentPage === pg
                     ? "bg-[#181D27] text-white"
                     : "border border-gray-200 text-[#414651] hover:bg-gray-50"
@@ -364,7 +364,7 @@ export function SearchStep() {
               setCurrentPage((p) => Math.min(totalPages, p + 1))
             }
             disabled={currentPage === totalPages}
-            className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-[#414651] hover:bg-gray-50 disabled:opacity-40 transition-colors"
+            className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-[#414651] hover:bg-gray-50 disabled:opacity-40 transition-colors cursor-pointer"
           >
             <ChevronRight className="h-4 w-4" />
           </motion.button>
@@ -376,7 +376,7 @@ export function SearchStep() {
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={() => setStep(null)}
-          className="px-8 h-10 rounded-full border border-gray-200 font-work-sans text-sm text-[#414651] font-medium hover:bg-gray-50 transition-colors"
+          className="px-8 h-10 rounded-full border border-gray-200 font-work-sans text-sm text-[#414651] font-medium hover:bg-gray-50 transition-colors cursor-pointer"
         >
           ← Back
         </motion.button>

@@ -32,23 +32,23 @@ export function SPBottomNav({ onMeClick }: { onMeClick: () => void }) {
 
         if (isTransact) {
           return (
-            <Link key={href} href={href} className="flex-1 flex flex-col items-center justify-end gap-1 -mt-8">
+            <Link key={href} href={href} className="flex-1 flex flex-col items-center justify-end gap-1 -mt-8 cursor-pointer">
               <motion.div
                 whileTap={{ scale: 0.92 }}
                 className="md:w-24 md:h-24 w-16 h-16 rounded-full bg-[#181D27] md:-mt-8 md:border-8 border-white flex items-center justify-center shadow-xl"
               >
                 <Image src="/images/logo/inverse_logo.png" alt="Transact" width={54} height={54} className="object-contain" />
               </motion.div>
-              <span className="font-work-sans text-sm md:text-base  text-[#414651] mt-1">{label}</span>
+              <span className="font-work-sans text-sm md:text-base text-[#414651] mt-1">{label}</span>
             </Link>
           );
         }
 
         if (isMe) {
           return (
-            <button key={href} onClick={onMeClick} className="flex-1 flex flex-col items-center justify-end pb-1 gap-1">
+            <button key={href} onClick={onMeClick} className="flex-1 flex flex-col items-center justify-end pb-1 gap-1 cursor-pointer">
               <motion.div whileTap={{ scale: 0.9 }}>
-                <span className={`font-work-sans  text-sm md:text-base transition-colors ${isActive ? "text-[#181D27] font-semibold" : "text-[#9CA3AF]"}`}>
+                <span className={`font-work-sans text-sm md:text-base transition-colors ${isActive ? "text-[#181D27] font-semibold" : "text-[#9CA3AF]"}`}>
                   {label}
                 </span>
               </motion.div>
@@ -57,10 +57,10 @@ export function SPBottomNav({ onMeClick }: { onMeClick: () => void }) {
         }
 
         return (
-          <Link key={href} href={href} className="flex-1 flex flex-col items-center justify-end pb-1 gap-1">
+          <Link key={href} href={href} className="flex-1 flex flex-col items-center justify-end pb-1 gap-1 cursor-pointer">
             <motion.div whileTap={{ scale: 0.9 }}>
               <span
-                className={`font-work-sans  text-sm md:text-base transition-colors ${
+                className={`font-work-sans text-sm md:text-base transition-colors ${
                   isActive ? "text-[#181D27] font-semibold" : "text-[#9CA3AF]"
                 }`}
               >

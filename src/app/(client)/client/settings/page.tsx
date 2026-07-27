@@ -44,7 +44,7 @@ export default function ClientSettingsPage() {
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`relative px-4 sm:px-6 py-3 font-work-sans text-sm font-medium whitespace-nowrap transition-colors ${
+              className={`relative px-4 sm:px-6 py-3 font-work-sans text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${
                 activeTab === key ? "text-[#181D27]" : "text-[#9CA3AF] hover:text-[#414651]"
               }`}
             >

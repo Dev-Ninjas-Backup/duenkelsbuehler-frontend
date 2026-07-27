@@ -110,13 +110,13 @@ export default function ClientMyServicesPage() {
                     onSuccess: () => toast.success("Removed from favorites"),
                     onError: (err: any) => toast.error(err?.message || "Failed to remove from favorites")
                   })}
-                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-red-50 hover:text-red-500 transition-colors"
+                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-red-50 hover:text-red-500 transition-colors cursor-pointer"
                   aria-label="Remove from saved">
                   <Bookmark className="h-[14px] w-[14px] fill-[#181D27]" />
                 </motion.button>
                 <motion.button whileTap={{ scale: 0.85 }}
                   onClick={() => router.push(`/client/messages?spId=${fav.user.id}`)}
-                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors"
+                  className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-gray-100 transition-colors cursor-pointer"
                   aria-label="Message provider">
                   <AiFillMessage className="h-[14px] w-[14px]" />
                 </motion.button>

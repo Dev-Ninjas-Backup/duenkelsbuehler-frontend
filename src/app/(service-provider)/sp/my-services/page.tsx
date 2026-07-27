@@ -196,14 +196,14 @@ export default function MyServicesPage() {
                             setEditingService(service);
                             setModalOpen(true);
                           }}
-                          className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm text-[#414651] hover:text-[#181D27]"
+                          className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm text-[#414651] hover:text-[#181D27] cursor-pointer"
                         >
                           <AiFillEdit className="h-4 w-4" />
                         </motion.button>
                         <motion.button
                           whileTap={{ scale: 0.9 }}
                           onClick={() => setDeleteId(service.id)}
-                          className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm text-red-500 hover:bg-red-50"
+                          className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-sm text-red-500 hover:bg-red-50 cursor-pointer"
                         >
                           <AiFillDelete className="h-4 w-4" />
                         </motion.button>
@@ -248,14 +248,14 @@ export default function MyServicesPage() {
                           setEditingService(service);
                           setModalOpen(true);
                         }}
-                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] text-[#414651] hover:text-[#181D27]"
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] text-[#414651] hover:text-[#181D27] cursor-pointer"
                       >
                         <AiFillEdit className="h-4 w-4" />
                       </motion.button>
                       <motion.button
                         whileTap={{ scale: 0.9 }}
                         onClick={() => setDeleteId(service.id)}
-                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] text-red-500 hover:bg-red-50"
+                        className="flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-[0_2px_8px_rgba(0,0,0,0.06)] text-red-500 hover:bg-red-50 cursor-pointer"
                       >
                         <AiFillDelete className="h-4 w-4" />
                       </motion.button>
@@ -395,14 +395,14 @@ export default function MyServicesPage() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => setDeleteId(null)}
-                      className="flex-1 h-11 rounded-full border border-gray-200 font-work-sans text-sm font-semibold text-[#414651] hover:bg-gray-50 transition-colors"
+                      className="flex-1 h-11 rounded-full border border-gray-200 font-work-sans text-sm font-semibold text-[#414651] hover:bg-gray-50 transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleDelete}
                       disabled={isDeleting}
-                      className="flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 font-work-sans text-sm font-semibold text-white transition-colors disabled:opacity-60"
+                      className="flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 font-work-sans text-sm font-semibold text-white transition-colors disabled:opacity-60 cursor-pointer shadow-xs"
                     >
                       {isDeleting ? "Deleting..." : "Delete"}
                     </button>

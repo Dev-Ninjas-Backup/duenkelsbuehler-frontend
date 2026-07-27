@@ -85,6 +85,7 @@ export default function SavedContractsPage() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isSendOpen, setIsSendOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<any | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
 
   // Pagination calculations
   const totalPages = Math.max(1, Math.ceil(templates.length / pageSize));
@@ -130,13 +131,15 @@ export default function SavedContractsPage() {
   };
 
   // Delete Handler
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this template permanently?")) return;
+  const handleDelete = async () => {
+    if (deleteId === null) return;
     try {
-      await deleteTemplateMutation.mutateAsync(id);
+      await deleteTemplateMutation.mutateAsync(deleteId);
       toast.success("Template deleted successfully!");
+      setDeleteId(null);
     } catch (err: any) {
       toast.error(err.message || "Failed to delete template");
+      setDeleteId(null);
     }
   };
 
@@ -251,8 +254,8 @@ export default function SavedContractsPage() {
                     </motion.button>
                     <motion.button
                       whileTap={{ scale: 0.85 }}
-                      onClick={() => handleDelete(t.id)}
-                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-red-500 hover:bg-red-50 transition-colors shrink-0"
+                      onClick={() => setDeleteId(t.id)}
+                      className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-red-500 hover:bg-red-50 transition-colors shrink-0 cursor-pointer"
                       aria-label="Delete template"
                     >
                       <Trash2 className="h-[14px] w-[14px]" />
@@ -319,7 +322,7 @@ export default function SavedContractsPage() {
 
                   <motion.button
                     whileTap={{ scale: 0.85 }}
-                    onClick={() => handleDelete(t.id)}
+                    onClick={() => setDeleteId(t.id)}
                     className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-red-500 hover:bg-red-50 transition-colors cursor-pointer shrink-0"
                     title="Delete template"
                   >
@@ -468,6 +471,55 @@ export default function SavedContractsPage() {
           />
         )}
       </AnimatePresence>
+      {/* Delete Confirm Modal */}
+      {typeof window !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {deleteId !== null && (
+              <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setDeleteId(null)}
+                  className="absolute inset-0 bg-black/50 backdrop-blur-xs"
+                />
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 16 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 16 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="relative z-10 w-full max-w-sm bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-gray-100 flex flex-col gap-4 mx-4"
+                >
+                  <div>
+                    <h3 className="font-rozha text-2xl text-[#181D27] mb-2">
+                      Delete Template
+                    </h3>
+                    <p className="font-work-sans text-sm text-[#535862] leading-relaxed">
+                      Are you sure you want to delete this contract template permanently? This action cannot be undone.
+                    </p>
+                  </div>
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      onClick={() => setDeleteId(null)}
+                      className="flex-1 h-11 rounded-full border border-gray-200 font-work-sans text-sm font-semibold text-[#414651] hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      disabled={deleteTemplateMutation.isPending}
+                      className="flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 font-work-sans text-sm font-semibold text-white transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                    >
+                      {deleteTemplateMutation.isPending ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
     </div>
   );
 }

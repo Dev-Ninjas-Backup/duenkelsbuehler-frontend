@@ -124,7 +124,7 @@ export function AddServiceModal({
                   <button
                     type="button"
                     onClick={() => setIndustryOpen((p) => !p)}
-                    className="w-full h-12 px-4 rounded-xl border border-gray-200 font-work-sans text-sm text-left flex items-center justify-between bg-white hover:border-gray-300 transition-colors"
+                    className="w-full h-12 px-4 rounded-xl border border-gray-200 font-work-sans text-sm text-left flex items-center justify-between bg-white hover:border-gray-300 transition-colors cursor-pointer"
                   >
                     <span
                       className={
@@ -216,7 +216,7 @@ export function AddServiceModal({
               <Button
                 type="submit"
                 disabled={isPending}
-                className="w-full h-12 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base mt-2"
+                className="w-full h-12 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base mt-2 cursor-pointer"
               >
                 {isPending
                   ? "Saving..."

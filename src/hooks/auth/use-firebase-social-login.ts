@@ -58,7 +58,7 @@ export function useFirebaseSocialLogin() {
 }
 
 function redirect(role: UserRole, router: ReturnType<typeof useRouter>) {
-  if (role === "SERVICE_PROVIDER") router.push("/sp/my-services")
-  else if (role === "CLIENT") router.push("/client/my-services")
+  if (role === "SERVICE_PROVIDER") router.push("/sp/transact")
+  else if (role === "CLIENT") router.push("/client/transact")
   else router.push("/admin/dashboard")
 }

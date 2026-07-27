@@ -98,7 +98,7 @@ function GooglePayForm() {
         <p className="font-work-sans text-xs text-[#9CA3AF]">Your Google account is now connected for payments.</p>
         <button
           onClick={() => setLinked(false)}
-          className="mt-2 px-6 py-2.5 rounded-full border-2 border-[#181D27] text-[#181D27] font-work-sans text-sm font-medium hover:bg-gray-50 transition-colors"
+          className="mt-2 px-6 py-2.5 rounded-full border-2 border-[#181D27] text-[#181D27] font-work-sans text-sm font-medium hover:bg-gray-50 transition-colors cursor-pointer"
         >
           Unlink Account
         </button>
@@ -139,7 +139,7 @@ function GooglePayForm() {
       <div className="flex flex-col gap-3">
         <button
           type="submit"
-          className="w-full py-3 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-medium hover:bg-[#2d3748] transition-colors flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-medium hover:bg-[#2d3748] transition-colors flex items-center justify-center gap-2 cursor-pointer"
         >
           <svg viewBox="0 0 48 48" className="w-4 h-4">
             <path fill="#fff" d="M23.49 12.27c0-.93-.08-1.82-.23-2.68H12v5.07h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.54-5.17 3.54-8.02z"/>
@@ -235,7 +235,7 @@ function SubmitRow() {
     <div className="flex justify-end">
       <button
         type="submit"
-        className="px-8 py-3 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-medium hover:bg-[#2d3748] transition-colors"
+        className="px-8 py-3 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-medium hover:bg-[#2d3748] transition-colors cursor-pointer"
       >
         Submit
       </button>
@@ -271,7 +271,7 @@ export function PaymentSetupTab() {
           <button
             key={key}
             onClick={() => setMethod(key)}
-            className={`flex-1 pb-3 font-work-sans text-sm font-medium transition-colors relative ${
+            className={`flex-1 pb-3 font-work-sans text-sm font-medium transition-colors relative cursor-pointer ${
               method === key ? "text-[#181D27]" : "text-[#9CA3AF] hover:text-[#414651]"
             }`}
           >

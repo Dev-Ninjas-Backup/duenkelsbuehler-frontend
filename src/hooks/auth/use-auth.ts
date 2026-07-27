@@ -32,9 +32,9 @@ export function useLogin() {
       queryClient.clear()
       setAuth(user, tokenRes.accessToken, tokenRes.role)
       if (tokenRes.role === "SERVICE_PROVIDER") {
-        router.push("/sp/my-services")
+        router.push("/sp/transact")
       } else if (tokenRes.role === "CLIENT") {
-        router.push("/client/my-services")
+        router.push("/client/transact")
       } else {
         router.push("/admin/dashboard")
       }
@@ -69,9 +69,9 @@ export function useSocialLogin() {
       queryClient.clear()
       setAuth(user, tokenRes.accessToken, tokenRes.role)
       if (tokenRes.role === "SERVICE_PROVIDER") {
-        router.push("/sp/my-services")
+        router.push("/sp/transact")
       } else {
-        router.push("/client/my-services")
+        router.push("/client/transact")
       }
     },
   })

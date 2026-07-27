@@ -35,7 +35,7 @@ export function PaymentsTab() {
             key={key}
             whileTap={{ scale: 0.97 }}
             onClick={() => setActiveSubTab(key)}
-            className={`px-5 py-2.5 rounded-full font-work-sans text-sm font-medium border-2 transition-colors ${
+            className={`px-5 py-2.5 rounded-full font-work-sans text-sm font-medium border-2 transition-colors cursor-pointer ${
               activeSubTab === key
                 ? "bg-[#181D27] text-white border-[#181D27]"
                 : "bg-white text-[#181D27] border-[#181D27] hover:bg-gray-50"
