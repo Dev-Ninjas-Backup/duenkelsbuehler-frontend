@@ -10,6 +10,8 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { authService } from "@/services/auth/auth-service";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
 
+import Link from "next/link";
+
 const adminLoginSchema = z.object({
   email: z.string().email("Enter a valid email address"),
   password: z.string().min(1, "Password is required"),
@@ -73,6 +75,15 @@ export function AdminLoginForm() {
           </label>
           <PasswordInput {...register("password")} placeholder="Enter your password" className={inputCls} />
           {errors.password && <p className="font-work-sans text-xs text-red-500">● {errors.password.message}</p>}
+        </motion.div>
+
+        <motion.div variants={itemVariants} className="flex justify-end -mt-2">
+          <Link
+            href="/admin/forgot-password"
+            className="font-work-sans font-bold text-xs text-[#181D27] hover:underline"
+          >
+            Forgot password?
+          </Link>
         </motion.div>
 
         <motion.div variants={itemVariants} className="mt-2">
