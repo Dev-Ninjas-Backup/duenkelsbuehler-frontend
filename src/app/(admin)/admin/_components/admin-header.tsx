@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Bell, LogOut } from "lucide-react";
+import { Bell, LogOut, User, Settings } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
@@ -73,7 +73,22 @@ export function AdminHeader() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 font-work-sans rounded-xl p-2 bg-white border border-gray-100 shadow-lg">
             <DropdownMenuLabel className="font-semibold text-[#181D27] pb-2">My Account</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-gray-100 mb-1" />
+            <DropdownMenuSeparator className="bg-gray-100" />
+            <DropdownMenuItem
+              onClick={() => router.push("/admin/settings")}
+              className="cursor-pointer py-2.5 hover:bg-gray-50 focus:bg-gray-50 rounded-lg transition-colors"
+            >
+              <User className="mr-2 h-4 w-4 text-[#414651]" />
+              <span className="text-sm font-medium text-[#414651]">Profile</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => router.push("/admin/settings")}
+              className="cursor-pointer py-2.5 hover:bg-gray-50 focus:bg-gray-50 rounded-lg transition-colors"
+            >
+              <Settings className="mr-2 h-4 w-4 text-[#414651]" />
+              <span className="text-sm font-medium text-[#414651]">Settings</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator className="bg-gray-100 my-1" />
             <DropdownMenuItem onClick={handleLogout}
               className="cursor-pointer py-2.5 hover:bg-red-50 focus:bg-red-50 rounded-lg transition-colors text-red-500 focus:text-red-600">
               <LogOut className="mr-2 h-4 w-4" />

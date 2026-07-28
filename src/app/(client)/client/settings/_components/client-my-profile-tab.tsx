@@ -12,6 +12,8 @@ const readonlyCls = "w-full h-11 border border-gray-100 rounded-xl px-4 font-wor
 
 import { useLogout } from "@/hooks/auth/use-auth";
 
+import { ChangePasswordCard } from "@/components/shared/change-password-card";
+
 export function ClientMyProfileTab() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: user, isLoading } = useGetMe();
@@ -82,7 +84,7 @@ export function ClientMyProfileTab() {
   return (
     <motion.div key="profile" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -16 }} transition={{ duration: 0.3 }}
-      className="max-w-5xl mx-auto w-full pt-2">
+      className="max-w-5xl mx-auto w-full pt-2 flex flex-col gap-6">
       <div className="bg-white rounded-[24px] border border-gray-100/80 p-6 lg:p-8 flex flex-col lg:flex-row gap-8 lg:gap-10">
 
         {/* Left: Avatar */}
@@ -173,7 +175,10 @@ export function ClientMyProfileTab() {
             />
           </div>
 
-          <div className="flex justify-end pt-5 mt-2 border-t border-gray-100">
+          {/* Compact Change Password Component */}
+          <ChangePasswordCard provider={user?.PROVIDER} />
+
+          <div className="flex justify-end pt-3 mt-1 border-t border-gray-100">
             <p className="font-work-sans text-[13px] text-[#9CA3AF]">
               Member since {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "—"}
             </p>
