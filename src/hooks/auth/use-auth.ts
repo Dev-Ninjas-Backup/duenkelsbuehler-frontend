@@ -179,3 +179,15 @@ export function useUpdateProfilePicture() {
     },
   })
 }
+
+// ─── Change Password ──────────────────────────────────────────────
+export function useChangePassword() {
+  const accessToken = useAuthStore((s) => s.accessToken)
+
+  return useMutation({
+    mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
+      if (!accessToken) throw new Error("No access token found")
+      return await authService.changePassword(data, accessToken)
+    },
+  })
+}

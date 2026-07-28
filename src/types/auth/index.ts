@@ -76,6 +76,7 @@ export interface AuthUser {
   isIdentityVerified: boolean
   verifIdentityVerificationStatus?: string | null
   trustapUserId: string | null
+  PROVIDER?: string | null
   imageUrl?: string | null
   createdAt: string
   updatedAt: string

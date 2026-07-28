@@ -17,6 +17,7 @@ import {
   Globe,
   LogOut,
   CreditCard,
+  Settings,
 } from "lucide-react";
 
 const navItems = [
@@ -124,6 +125,26 @@ export function AdminSidebar({ isOpen, onToggle }: AdminSidebarProps) {
               </nav>
               {/* Bottom Actions */}
               <div className="mt-auto flex flex-col gap-1 pt-6 border-t border-gray-100/50">
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: 0.25 }}
+                >
+                  <Link href="/admin/settings">
+                    <motion.div
+                      whileTap={{ scale: 0.97 }}
+                      className={`flex items-center gap-3 px-5 py-3.5 rounded-full font-work-sans text-sm transition-colors ${
+                        pathname === "/admin/settings"
+                          ? "bg-[#181D27] text-white font-medium"
+                          : "text-[#414651] hover:bg-gray-50"
+                      }`}
+                    >
+                      <Settings className="h-4 w-4 shrink-0" />
+                      Settings
+                    </motion.div>
+                  </Link>
+                </motion.div>
+
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}

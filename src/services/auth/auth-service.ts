@@ -146,4 +146,15 @@ export const authService = {
       },
       body: JSON.stringify({ role }),
     }),
+
+  // POST /auth/change-password
+  changePassword: (data: { currentPassword: string; newPassword: string }, accessToken: string) =>
+    request<MessageResponse>("/auth/change-password", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(data),
+    }),
 }
