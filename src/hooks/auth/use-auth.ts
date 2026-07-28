@@ -109,13 +109,13 @@ export function useForgotPassword() {
   })
 }
 
-export function useResetPassword() {
+export function useResetPassword(redirectPath: string = "/login") {
   const router = useRouter()
 
   return useMutation({
     mutationFn: (data: ResetPasswordFormData) => authService.resetPassword(data),
     onSuccess: () => {
-      router.push("/login")
+      router.push(redirectPath)
     },
   })
 }
@@ -135,14 +135,14 @@ export function useVerifyForgotPasswordOtp() {
   })
 }
 
-export function useResetPasswordWithOtp() {
+export function useResetPasswordWithOtp(redirectPath: string = "/login") {
   const router = useRouter()
 
   return useMutation({
     mutationFn: (data: ResetPasswordWithOtpFormData) =>
       authService.resetPasswordWithOtp(data),
     onSuccess: () => {
-      router.push("/login")
+      router.push(redirectPath)
     },
   })
 }

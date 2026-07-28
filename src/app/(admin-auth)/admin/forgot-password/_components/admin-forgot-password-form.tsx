@@ -8,8 +8,6 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/ui/password-input";
 import { OTPInput } from "@/components/ui/otp-input";
 import {
@@ -42,8 +40,10 @@ const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
 };
+const inputCls =
+  "w-full h-12 border border-gray-200 rounded-xl px-4 font-work-sans text-sm text-[#181D27] placeholder:text-gray-400 focus:outline-none focus:border-[#181D27] bg-white transition-colors";
 
-export function ForgotPasswordForm() {
+export function AdminForgotPasswordForm() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -52,7 +52,7 @@ export function ForgotPasswordForm() {
 
   const { mutate: sendOtp, isPending: isSending, error: sendError } = useSendForgotPasswordOtp();
   const { mutate: verifyOtp, isPending: isVerifying, error: verifyError } = useVerifyForgotPasswordOtp();
-  const { mutate: resetPassword, isPending: isResetting, error: resetError } = useResetPasswordWithOtp();
+  const { mutate: resetPassword, isPending: isResetting, error: resetError } = useResetPasswordWithOtp("/admin/login");
 
   const step1Form = useForm<Step1Data>({ resolver: zodResolver(step1Schema) });
   const step2Form = useForm<Step2Data>({ resolver: zodResolver(step2Schema) });
@@ -84,50 +84,59 @@ export function ForgotPasswordForm() {
   };
 
   const onStep1Submit = (data: Step1Data) => {
-    sendOtp({ email: data.email }, {
-      onSuccess: (res) => {
-        setEmail(data.email);
-        setResendCooldown(60);
-        setOtpExpiry(600);
-        setStep(2);
-        toast.success(res.message || "OTP has been sent to your email.");
-      },
-    });
+    sendOtp(
+      { email: data.email },
+      {
+        onSuccess: (res) => {
+          setEmail(data.email);
+          setResendCooldown(60);
+          setOtpExpiry(600);
+          setStep(2);
+          toast.success(res.message || "OTP has been sent to your email.");
+        },
+      }
+    );
   };
 
   const onStep2Submit = (data: Step2Data) => {
-    verifyOtp({ email, otp: data.otp }, {
-      onSuccess: () => {
-        setOtp(data.otp);
-        setStep(3);
-        toast.success("OTP verified successfully!");
-      },
-    });
+    verifyOtp(
+      { email, otp: data.otp },
+      {
+        onSuccess: () => {
+          setOtp(data.otp);
+          setStep(3);
+          toast.success("OTP verified successfully!");
+        },
+      }
+    );
   };
 
   const onStep3Submit = (data: Step3Data) => {
-    resetPassword({ email, otp, newPassword: data.newPassword }, {
-      onSuccess: () => {
-        toast.success("Password reset successfully. Please log in.");
-      },
-    });
+    resetPassword(
+      { email, otp, newPassword: data.newPassword },
+      {
+        onSuccess: () => {
+          toast.success("Admin password reset successfully. Please log in.");
+        },
+      }
+    );
   };
 
-  const stepTitles = { 1: "Forgot Password", 2: "Verify OTP", 3: "New Password" };
+  const stepTitles = { 1: "Reset Password", 2: "Verify OTP", 3: "New Password" };
   const stepSubtitles = {
-    1: "Enter your email to receive an OTP",
-    2: `Enter the OTP sent to ${email}`,
-    3: "Set your new password",
+    1: "Enter your admin email to receive an OTP code",
+    2: `Enter the 6-digit OTP sent to ${email}`,
+    3: "Set your new admin password",
   };
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="visible" className="w-[400px] max-w-full">
       {/* Header */}
       <motion.div variants={itemVariants} className="mb-8 text-center">
-        <h1 className="font-rozha text-5xl sm:text-6xl font-normal text-[#181D27] mb-3">
+        <h1 className="font-rozha text-4xl sm:text-5xl font-normal text-[#181D27] mb-2">
           {stepTitles[step]}
         </h1>
-        <p className="font-work-sans text-sm text-[#414651]">{stepSubtitles[step]}</p>
+        <p className="font-work-sans text-xs sm:text-sm text-[#414651]">{stepSubtitles[step]}</p>
       </motion.div>
 
       {/* Step 1 — Email */}
@@ -138,15 +147,15 @@ export function ForgotPasswordForm() {
               <p className="font-work-sans text-sm text-red-600">{(sendError as Error).message}</p>
             </div>
           )}
-          <motion.div variants={itemVariants} className="space-y-2">
-            <Label className="font-work-sans font-bold text-sm text-[#181D27]">
-              Email Address <span className="text-red-500">*</span>
-            </Label>
-            <Input
+          <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
+            <label className="font-work-sans text-sm font-bold text-[#181D27]">
+              Admin Email Address <span className="text-red-500">*</span>
+            </label>
+            <input
               {...step1Form.register("email")}
               type="email"
-              placeholder="Enter your email"
-              className="h-12 rounded-xl border-gray-200 font-work-sans"
+              placeholder="Enter your admin email"
+              className={inputCls}
             />
             {step1Form.formState.errors.email && (
               <p className="font-work-sans text-xs text-red-500">● {step1Form.formState.errors.email.message}</p>
@@ -156,14 +165,14 @@ export function ForgotPasswordForm() {
             <Button
               type="submit"
               disabled={isSending}
-              className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base"
+              className="w-full h-14 rounded-full bg-[#181D27] text-white font-work-sans font-semibold text-base hover:bg-[#181D27]/90 transition-colors disabled:opacity-60 cursor-pointer"
             >
               {isSending ? "Sending OTP..." : "Send OTP"}
             </Button>
           </motion.div>
-          <motion.div variants={itemVariants} className="text-center">
-            <Link href="/login" className="font-work-sans text-sm text-[#414651] hover:underline">
-              ← Back to Login
+          <motion.div variants={itemVariants} className="text-center mt-3">
+            <Link href="/admin/login" className="font-work-sans text-sm text-[#414651] hover:underline font-medium">
+              ← Back to Admin Login
             </Link>
           </motion.div>
         </form>
@@ -177,17 +186,17 @@ export function ForgotPasswordForm() {
               <p className="font-work-sans text-sm text-red-600">{(verifyError as Error).message}</p>
             </div>
           )}
-          <motion.div variants={itemVariants} className="space-y-2">
-            <Label className="font-work-sans font-bold text-sm text-[#181D27]">
-              Enter OTP <span className="text-red-500">*</span>
-            </Label>
+          <motion.div variants={itemVariants} className="flex flex-col gap-2">
+            <label className="font-work-sans text-sm font-bold text-[#181D27]">
+              Enter 6-Digit OTP <span className="text-red-500">*</span>
+            </label>
             <OTPInput length={6} onChange={(val) => step2Form.setValue("otp", val)} />
             {step2Form.formState.errors.otp && (
               <p className="font-work-sans text-xs text-red-500">● {step2Form.formState.errors.otp.message}</p>
             )}
 
             {/* Countdown Timer & Resend OTP */}
-            <div className="flex items-center justify-between text-xs font-work-sans text-[#414651] mt-2 px-0.5">
+            <div className="flex items-center justify-between text-xs font-work-sans text-[#414651] mt-1 px-0.5">
               <span>
                 OTP expires in:{" "}
                 <strong className="font-semibold text-[#181D27]">
@@ -210,15 +219,20 @@ export function ForgotPasswordForm() {
               )}
             </div>
           </motion.div>
+
           <Button
             type="submit"
             disabled={isVerifying}
-            className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base"
+            className="w-full h-14 rounded-full bg-[#181D27] text-white font-work-sans font-semibold text-base hover:bg-[#181D27]/90 transition-colors disabled:opacity-60 cursor-pointer"
           >
             {isVerifying ? "Verifying..." : "Verify OTP"}
           </Button>
-          <button type="button" onClick={() => setStep(1)} className="w-full font-work-sans text-sm text-[#414651] hover:underline">
-            ← Back
+          <button
+            type="button"
+            onClick={() => setStep(1)}
+            className="w-full font-work-sans text-sm text-[#414651] hover:underline font-medium cursor-pointer"
+          >
+            ← Back to Email
           </button>
         </form>
       )}
@@ -228,30 +242,30 @@ export function ForgotPasswordForm() {
         <form onSubmit={step3Form.handleSubmit(onStep3Submit)} className="space-y-5">
           {resetError && (
             <div className="p-3 rounded-lg bg-red-50 border border-red-200">
-              <p className="font-work-sans text-sm text-red-600">{resetError.message}</p>
+              <p className="font-work-sans text-sm text-red-600">{(resetError as Error).message}</p>
             </div>
           )}
-          <motion.div variants={itemVariants} className="space-y-2">
-            <Label className="font-work-sans font-bold text-sm text-[#181D27]">
+          <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
+            <label className="font-work-sans text-sm font-bold text-[#181D27]">
               New Password <span className="text-red-500">*</span>
-            </Label>
+            </label>
             <PasswordInput
               {...step3Form.register("newPassword")}
-              placeholder="Enter new password"
-              className="h-12 rounded-xl border-gray-200 font-work-sans"
+              placeholder="Enter new password (min 6 chars)"
+              className={inputCls}
             />
             {step3Form.formState.errors.newPassword && (
               <p className="font-work-sans text-xs text-red-500">● {step3Form.formState.errors.newPassword.message}</p>
             )}
           </motion.div>
-          <motion.div variants={itemVariants} className="space-y-2">
-            <Label className="font-work-sans font-bold text-sm text-[#181D27]">
+          <motion.div variants={itemVariants} className="flex flex-col gap-1.5">
+            <label className="font-work-sans text-sm font-bold text-[#181D27]">
               Confirm Password <span className="text-red-500">*</span>
-            </Label>
+            </label>
             <PasswordInput
               {...step3Form.register("confirmPassword")}
               placeholder="Confirm new password"
-              className="h-12 rounded-xl border-gray-200 font-work-sans"
+              className={inputCls}
             />
             {step3Form.formState.errors.confirmPassword && (
               <p className="font-work-sans text-xs text-red-500">● {step3Form.formState.errors.confirmPassword.message}</p>
@@ -261,7 +275,7 @@ export function ForgotPasswordForm() {
             <Button
               type="submit"
               disabled={isResetting}
-              className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base"
+              className="w-full h-14 rounded-full bg-[#181D27] text-white font-work-sans font-semibold text-base hover:bg-[#181D27]/90 transition-colors disabled:opacity-60 cursor-pointer"
             >
               {isResetting ? "Resetting..." : "Reset Password"}
             </Button>
