@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { 
   Navbar, 
   HeroSection, 
@@ -8,7 +9,19 @@ import {
   StatsSection, 
   PricingSection, 
   FooterCTA 
-} from "./_components"
+} from "./_components";
+
+export const metadata: Metadata = {
+  title: "Secure Escrow Payments & Legally Binding Contracts",
+  description:
+    "AristoPay provides milestone-based Trustap escrow payments and legally binding digital contracts for freelancers, agencies, and clients worldwide.",
+  openGraph: {
+    title: "Secure Escrow Payments & Legally Binding Contracts | AristoPay",
+    description:
+      "Empowering freelancers and clients to execute deals with guaranteed milestone payments and verified identities.",
+    url: "https://aristopay.com",
+  },
+};
 
 export default function HomePage() {
   return (
@@ -25,5 +38,5 @@ export default function HomePage() {
       </main>
       <FooterCTA />
     </div>
-  )
+  );
 }
