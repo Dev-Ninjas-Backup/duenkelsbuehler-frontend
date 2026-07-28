@@ -52,7 +52,7 @@ export function FooterCTA() {
             CREATE FREE ACCOUNT
           </Link>
           <Link
-            href="/pricing"
+            href="/#pricing"
             className="text-white/60 hover:text-white flex items-center gap-2 text-[14px] font-bold uppercase tracking-widest transition-colors font-work-sans"
           >
             VIEW PRICING <ArrowRight className="w-4 h-4" />
@@ -71,11 +71,11 @@ export function FooterCTA() {
           {/* Links */}
           <div className="flex flex-wrap justify-center gap-x-8 md:gap-x-12 gap-y-4 mb-20">
             {[
-              { name: 'How It Works', href: '/how-it-works' },
-              { name: 'Pricing', href: '/pricing' },
+              { name: 'How It Works', href: '/#how-it-works' },
+              { name: 'Pricing', href: '/#pricing' },
               { name: 'Terms', href: '/terms' },
               { name: 'Privacy', href: '/privacy' },
-              { name: 'Support', href: '/support' }
+              { name: 'Support', href: 'mailto:Support@aristopay.co' }
             ].map((link) => (
               <Link
                 key={link.name}

@@ -10,18 +10,15 @@ import { useAuthStore } from "@/stores/auth/use-auth-store";
 
 export function PricingSection() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
-  const [loading, setLoading] = useState(true);
   const { isAuthenticated, role } = useAuthStore();
 
   useEffect(() => {
     subscriptionService.getPlans()
       .then((data) => {
         setPlans(data);
-        setLoading(false);
       })
       .catch((err) => {
         console.error("Failed to fetch plans:", err);
-        setLoading(false);
       });
   }, []);
 
@@ -36,13 +33,13 @@ export function PricingSection() {
   const buttonHref = isAuthenticated ? dashboardHref : "/login";
 
   return (
-    <section className="bg-white px-6 md:px-12 lg:px-24 py-20 lg:py-32">
+    <section id="pricing" className="bg-white px-6 md:px-12 lg:px-24 py-20 lg:py-32">
       <div className="max-w-7xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           className="mb-20"
         >
           <p className="text-[18px] font-bold tracking-tight mb-8 text-black font-work-sans">
@@ -58,14 +55,14 @@ export function PricingSection() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl">
-          {/* Free Plan - Kept as a separate card as requested */}
+          {/* Free Plan Card */}
           <motion.div
-            initial={{ opacity: 0, x: -45 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ type: "spring", stiffness: 70, damping: 14 }}
-            whileHover={{ y: -8, scale: 1.01 }}
-            className="border-[1.5px] border-black rounded-none p-10 lg:p-14 flex flex-col h-full bg-white shadow-md transition-all duration-300 hover:shadow-xl cursor-pointer"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+            whileHover={{ y: -6 }}
+            className="border-[1.5px] border-black rounded-none p-10 lg:p-14 flex flex-col h-full bg-white shadow-md hover:shadow-xl transition-shadow duration-200 cursor-pointer"
           >
             <h3 className="text-[#A3A3A3] font-bold tracking-widest uppercase text-[18px] mb-6 font-work-sans">FREE</h3>
             <div className="flex items-start mb-6">
@@ -86,14 +83,9 @@ export function PricingSection() {
                 '$150 minimum transaction'
               ].map((feature, i) => (
                 <li key={i} className="flex items-start gap-3 group/item">
-                  <motion.span 
-                    initial={{ scale: 0.8 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    className="text-[#00D05A] font-bold mt-0.5 inline-block group-hover/item:scale-125 transition-transform duration-200"
-                  >
+                  <span className="text-[#00D05A] font-bold mt-0.5 inline-block group-hover/item:scale-125 transition-transform duration-200">
                     ✓
-                  </motion.span>
+                  </span>
                   <span className="text-[#414651] text-[16px] font-medium font-work-sans tracking-tight">{feature}</span>
                 </li>
               ))}
@@ -101,31 +93,31 @@ export function PricingSection() {
 
             <Link
               href={buttonHref}
-              className="w-full sm:w-auto inline-flex justify-center px-10 py-4 bg-black text-white font-bold rounded-sm hover:bg-gray-900 transition-all uppercase tracking-wider text-[14px] font-work-sans text-center transform hover:scale-102 duration-200"
+              className="w-full sm:w-auto inline-flex justify-center px-10 py-4 bg-black text-white font-bold rounded-sm hover:bg-gray-900 transition-colors uppercase tracking-wider text-[14px] font-work-sans text-center"
             >
               START FREE
             </Link>
           </motion.div>
 
-          {/* Premium Plan - Dynamic from API */}
+          {/* Premium Plan Card */}
           <motion.div
-            initial={{ opacity: 0, x: 45 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ type: "spring", stiffness: 70, damping: 14, delay: 0.15 }}
-            whileHover={{ y: -8, scale: 1.01 }}
-            className="bg-black rounded-none p-10 lg:p-14 flex flex-col h-full shadow-2xl relative overflow-hidden text-white transition-all duration-300 hover:shadow-[#00D05A]/15 hover:shadow-3xl cursor-pointer"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+            whileHover={{ y: -6 }}
+            className="bg-black rounded-none p-10 lg:p-14 flex flex-col h-full shadow-2xl relative overflow-hidden text-white hover:shadow-[#00D05A]/20 transition-shadow duration-200 cursor-pointer"
           >
-            <div className="absolute top-10 right-10 w-16 h-16 transition-transform duration-300 hover:scale-110 hover:rotate-6">
+            <div className="absolute top-10 right-10 w-16 h-16 transition-transform duration-300 hover:scale-110">
               <Image src="/svg/crown.svg" alt="Crown badge" fill className="object-contain" />
             </div>
             <h3 className="text-white font-bold tracking-widest uppercase text-[18px] mb-6 font-work-sans">
-              {loading ? "LOADING..." : (premiumPlan?.name || "ARISTOACCESS+")}
+              {premiumPlan?.name || "ARISTOACCESS+"}
             </h3>
             <div className="flex items-start mb-6">
               <span className="text-[32px] font-normal text-white mt-3 font-rozha mr-1">$</span>
               <span className="text-[84px] md:text-[110px] font-normal text-white leading-none font-rozha tracking-tighter">
-                {loading ? "..." : (premiumPlan?.amount || "29")}
+                {premiumPlan ? premiumPlan.amount : "29"}
               </span>
             </div>
             <p className="text-[#A3A3A3] text-[18px] mb-10 pb-10 border-b border-gray-800 font-work-sans tracking-tight">
@@ -143,14 +135,9 @@ export function PricingSection() {
                 'Additional contracts at $2 each'
               ].map((feature, i) => (
                 <li key={i} className="flex items-start gap-3 group/item">
-                  <motion.span 
-                    initial={{ scale: 0.8 }}
-                    whileInView={{ scale: 1 }}
-                    viewport={{ once: true }}
-                    className="text-[#00D05A] font-bold mt-0.5 inline-block group-hover/item:scale-125 transition-transform duration-200"
-                  >
+                  <span className="text-[#00D05A] font-bold mt-0.5 inline-block group-hover/item:scale-125 transition-transform duration-200">
                     ✓
-                  </motion.span>
+                  </span>
                   <span className="text-white/90 text-[16px] font-medium font-work-sans tracking-tight">{feature}</span>
                 </li>
               ))}
@@ -158,9 +145,9 @@ export function PricingSection() {
 
             <Link
               href={buttonHref}
-              className="w-full sm:w-auto inline-flex justify-center px-10 py-4 bg-[#00D05A] text-white font-bold rounded-sm hover:bg-[#00b34d] transition-all uppercase tracking-wider text-[14px] text-center transform hover:scale-102 duration-200 shadow-md hover:shadow-[#00D05A]/30"
+              className="w-full sm:w-auto inline-flex justify-center px-10 py-4 bg-[#00D05A] text-white font-bold rounded-sm hover:bg-[#00b34d] transition-colors uppercase tracking-wider text-[14px] text-center shadow-md"
             >
-              {loading ? "PLEASE WAIT" : "GO PREMIUM"}
+              GO PREMIUM
             </Link>
           </motion.div>
         </div>
