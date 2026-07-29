@@ -165,7 +165,7 @@ function getPartyInfo(proposal: any) {
     avatar = `/${avatar}`;
   }
   if (!avatar) {
-    avatar = "/images/user/user_avatar.png";
+    avatar = "";
   }
 
   return {
@@ -191,7 +191,7 @@ function SPCard({ proposal }: { proposal: Proposal }) {
             width={56}
             height={56}
             className="object-cover w-full h-full"
-            onError={() => setImgSrc("/images/user/user_avatar.png")}
+            onError={() => setImgSrc("")}
           />
         ) : (
           <span className="font-rozha text-xl text-white">

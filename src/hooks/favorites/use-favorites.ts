@@ -24,10 +24,10 @@ export function useAddFavorite() {
     mutationFn: (targetUserId: number) => favoritesService.addFavorite(targetUserId, token),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-favorites"] })
-      toast.success("Saved successfully!")
+      toast.success("Saved to favorites!")
     },
     onError: (err: any) => {
-      toast.error(err?.message || "Failed to save")
+      toast.error(err?.message || "Failed to save to favorites")
     },
   })
 }
@@ -39,7 +39,7 @@ export function useAddFavoriteClient() {
     mutationFn: (targetUserId: number) => favoritesService.addFavoriteClient(targetUserId, token),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-favorites"] })
-      toast.success("Client saved successfully!")
+      toast.success("Client saved to favorites!")
     },
     onError: (err: any) => {
       toast.error(err?.message || "Failed to save client")
@@ -54,7 +54,7 @@ export function useAddFavoriteServiceProvider() {
     mutationFn: (targetUserId: number) => favoritesService.addFavoriteServiceProvider(targetUserId, token),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-favorites"] })
-      toast.success("Service Provider saved successfully!")
+      toast.success("Service Provider saved to favorites!")
     },
     onError: (err: any) => {
       toast.error(err?.message || "Failed to save service provider")
@@ -69,10 +69,10 @@ export function useRemoveFavorite() {
     mutationFn: (targetUserId: number) => favoritesService.removeFavorite(targetUserId, token),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-favorites"] })
-      toast.success("Removed from saved!")
+      toast.success("Removed from favorites!")
     },
     onError: (err: any) => {
-      toast.error(err?.message || "Failed to remove from saved")
+      toast.error(err?.message || "Failed to remove from favorites")
     },
   })
 }

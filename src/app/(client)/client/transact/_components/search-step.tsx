@@ -62,7 +62,7 @@ export function SearchStep() {
         id: user.id,
         name: user.name,
         handle: `@${user.name.toLowerCase().replace(/\s+/g, "")}`,
-        avatar: user.imageUrl || "/images/user/user_avatar.png",
+        avatar: user.imageUrl || null,
         verified: user.isIdentityVerified,
       }));
   }, [data, me]);
@@ -105,15 +105,9 @@ export function SearchStep() {
   const handleFavoriteToggle = (spId: number, e: React.MouseEvent) => {
     e.stopPropagation();
     if (favoritedIds.has(spId)) {
-      removeFavorite(spId, {
-        onSuccess: () => toast.success("Removed from favorites"),
-        onError: (err: any) => toast.error(err?.message || "Failed to remove from favorites")
-      });
+      removeFavorite(spId);
     } else {
-      addFavorite(spId, {
-        onSuccess: () => toast.success("Saved to favorites"),
-        onError: (err: any) => toast.error(err?.message || "Failed to save to favorites")
-      });
+      addFavorite(spId);
     }
   };
 
@@ -239,13 +233,17 @@ export function SearchStep() {
 
                 {/* Name + Info */}
                 <div className="flex w-full items-center gap-4 lg:w-auto">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 shrink-0 relative">
-                    <Image
-                      src={sp.avatar}
-                      alt={sp.name}
-                      fill
-                      className="object-cover"
-                    />
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-[#181D27] shrink-0 relative flex items-center justify-center text-white font-rozha text-base">
+                    {sp.avatar ? (
+                      <Image
+                        src={sp.avatar}
+                        alt={sp.name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <span>{sp.name?.charAt(0).toUpperCase() ?? "?"}</span>
+                    )}
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1 mt-0.5 flex-wrap">

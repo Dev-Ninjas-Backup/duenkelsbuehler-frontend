@@ -10,9 +10,9 @@ import { toast } from "sonner";
 import { useMemo } from "react";
 
 const btnDark =
-  "w-full max-w-xs h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors shadow-sm flex items-center justify-center";
+  "w-full max-w-xs h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors shadow-sm flex items-center justify-center cursor-pointer";
 const btnOutline =
-  "w-full max-w-xs h-12 rounded-full border border-[#181D27] text-[#181D27] font-work-sans text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm flex items-center justify-center";
+  "w-full max-w-xs h-12 rounded-full border border-[#181D27] text-[#181D27] font-work-sans text-sm font-semibold hover:bg-gray-50 transition-colors shadow-sm flex items-center justify-center cursor-pointer";
 
 interface ServiceProviderDetail {
   id: number;
@@ -54,15 +54,9 @@ export default function DiscoverProfilePage() {
   const handleToggleFavorite = () => {
     if (!sp) return;
     if (isFavorited) {
-      removeFavorite(sp.id, {
-        onSuccess: () => toast.success("Removed from favorites"),
-        onError: (err: any) => toast.error(err?.message || "Failed to remove from favorites"),
-      });
+      removeFavorite(sp.id);
     } else {
-      addFavorite(sp.id, {
-        onSuccess: () => toast.success("Saved to favorites"),
-        onError: (err: any) => toast.error(err?.message || "Failed to save to favorites"),
-      });
+      addFavorite(sp.id);
     }
   };
 
@@ -81,7 +75,7 @@ export default function DiscoverProfilePage() {
       <div className="absolute top-4 left-4 z-10">
         <button 
           onClick={() => router.push("/client/discover")} 
-          className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors border border-gray-100"
+          className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors border border-gray-100 cursor-pointer"
           aria-label="Go back"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -195,7 +189,7 @@ export default function DiscoverProfilePage() {
               <motion.button
                 whileTap={{ scale: 0.85 }}
                 onClick={handleToggleFavorite}
-                className={`w-9 h-9 rounded-full bg-white border flex items-center justify-center shadow-sm transition-colors ${
+                className={`w-9 h-9 rounded-full bg-white border flex items-center justify-center shadow-sm transition-colors cursor-pointer ${
                   isFavorited 
                     ? "border-[#181D27] text-[#181D27]" 
                     : "border-gray-200 text-gray-400 hover:text-[#181D27]"

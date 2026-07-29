@@ -117,7 +117,7 @@ export default function RatingsPage() {
       >
         <button
           onClick={() => router.push(`/client/discover/${id}`)}
-          className="font-work-sans text-sm text-[#414651] underline underline-offset-2"
+          className="font-work-sans text-sm text-[#414651] underline underline-offset-2 cursor-pointer"
         >
           Back
         </button>

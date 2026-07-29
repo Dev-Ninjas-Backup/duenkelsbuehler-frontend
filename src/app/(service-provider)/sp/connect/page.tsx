@@ -49,15 +49,9 @@ export default function ConnectPage() {
     e.stopPropagation();
     if (isFavPending) return;
     if (favoritedIds.has(clientId)) {
-      removeFavorite(clientId, {
-        onSuccess: () => toast.success("Client removed from saved"),
-        onError: () => toast.error("Failed to remove client"),
-      });
+      removeFavorite(clientId);
     } else {
-      addFavorite(clientId, {
-        onSuccess: () => toast.success("Client saved successfully"),
-        onError: () => toast.error("Failed to save client"),
-      });
+      addFavorite(clientId);
     }
   };
 

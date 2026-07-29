@@ -12,7 +12,7 @@ export interface SP {
   id: number;
   name: string;
   handle: string;
-  avatar: string;
+  avatar: string | null;
   verified: boolean;
 }
 

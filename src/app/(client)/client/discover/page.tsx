@@ -197,12 +197,9 @@ export default function DiscoverPage() {
                       className="object-cover"
                     />
                   ) : (
-                    <Image
-                      src="/images/user/user_avatar.png"
-                      alt={user.name}
-                      fill
-                      className="object-cover"
-                    />
+                    <span className="font-rozha text-xl text-white">
+                      {user.name?.charAt(0).toUpperCase() ?? "?"}
+                    </span>
                   )}
                 </div>
                 <div>
@@ -267,15 +264,9 @@ export default function DiscoverPage() {
                   onClick={(e) => {
                     e.stopPropagation();
                     if (favoritedIds.has(user.id)) {
-                      removeFavorite(user.id, {
-                        onSuccess: () => toast.success("Removed from favorites"),
-                        onError: (err: any) => toast.error(err?.message || "Failed to remove from favorites")
-                      });
+                      removeFavorite(user.id);
                     } else {
-                      addFavorite(user.id, {
-                        onSuccess: () => toast.success("Saved to favorites"),
-                        onError: (err: any) => toast.error(err?.message || "Failed to save to favorites")
-                      });
+                      addFavorite(user.id);
                     }
                   }}
                   className={`w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center transition-colors ${favoritedIds.has(user.id) ? "text-[#181D27]" : "text-gray-400 hover:text-[#181D27]"}`}

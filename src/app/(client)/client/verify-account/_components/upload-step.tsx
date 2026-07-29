@@ -17,18 +17,21 @@ const labelCls = "font-work-sans text-xs font-medium text-[#414651]";
 const verifSchema = z.object({
   firstName: z
     .string()
+    .trim()
     .min(2, "First name must be at least 2 characters")
     .regex(/^[a-zA-Z\s'-]+$/, "First name should contain only letters"),
   lastName: z
     .string()
+    .trim()
     .min(2, "Last name must be at least 2 characters")
     .regex(/^[a-zA-Z\s'-]+$/, "Last name should contain only letters"),
-  email: z.string().email("Enter a valid email address"),
+  email: z.string().trim().email("Enter a valid email address"),
   idNumber: z
     .string()
+    .trim()
     .min(4, "ID number must be at least 4 characters")
     .max(30, "ID number is too long")
-    .regex(/^[a-zA-Z0-9-]+$/, "ID number may contain only letters, numbers A-Z, 0-9 and hyphens"),
+    .regex(/^[a-zA-Z0-9-]+$/, "ID number may contain only letters, numbers A-Z, 0-9 and hyphens (no spaces)"),
   dateOfBirth: z
     .string()
     .min(1, "Date of Birth is required")
@@ -47,11 +50,13 @@ const verifSchema = z.object({
   docType: z.enum(["PASSPORT", "ID_CARD", "DRIVERS_LICENSE", "RESIDENCE_PERMIT"]),
   docNumber: z
     .string()
+    .trim()
     .min(4, "Document number must be at least 4 characters")
     .max(30, "Document number is too long")
-    .regex(/^[a-zA-Z0-9]+$/, "Document number may contain only characters and numbers A-Z, 0-9."),
+    .regex(/^[a-zA-Z0-9]+$/, "Document number may contain only letters and numbers A-Z, 0-9 (no spaces)"),
   country: z
     .string()
+    .trim()
     .length(2, "Country code must be 2 letters (e.g. US, GB, BD, CA)")
     .regex(/^[A-Z]{2}$/, "Country code must contain 2 uppercase letters"),
 });
@@ -70,7 +75,6 @@ export function UploadStep({ onNext }: { onNext: () => void }) {
   const {
     register,
     handleSubmit,
-    setValue,
     reset,
     formState: { errors },
   } = useForm<VerifFormData>({
@@ -87,6 +91,9 @@ export function UploadStep({ onNext }: { onNext: () => void }) {
       country: "",
     },
   });
+
+  const { onChange: onDocNumberChange, ...docNumberRegister } = register("docNumber");
+  const { onChange: onCountryChange, ...countryRegister } = register("country");
 
   useEffect(() => {
     if (me) {
@@ -240,10 +247,10 @@ export function UploadStep({ onNext }: { onNext: () => void }) {
             <div className="flex flex-col gap-1.5">
               <label className={labelCls}>Document Number *</label>
               <input
-                {...register("docNumber")}
+                {...docNumberRegister}
                 onChange={(e) => {
-                  const val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
-                  setValue("docNumber", val, { shouldValidate: true });
+                  e.target.value = e.target.value.toUpperCase();
+                  onDocNumberChange(e);
                 }}
                 placeholder="A1234567"
                 className={inputCls}
@@ -253,10 +260,10 @@ export function UploadStep({ onNext }: { onNext: () => void }) {
             <div className="flex flex-col gap-1.5">
               <label className={labelCls}>Country Code *</label>
               <input
-                {...register("country")}
+                {...countryRegister}
                 onChange={(e) => {
-                  const val = e.target.value.toUpperCase().replace(/[^A-Z]/g, "").slice(0, 2);
-                  setValue("country", val, { shouldValidate: true });
+                  e.target.value = e.target.value.toUpperCase();
+                  onCountryChange(e);
                 }}
                 placeholder="US"
                 maxLength={2}

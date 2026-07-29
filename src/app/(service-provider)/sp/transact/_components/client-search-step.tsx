@@ -37,7 +37,7 @@ export function ClientSearchStep({ onSelect }: Props) {
       id: u.id,
       name: u.name,
       email: u.email,
-      avatar: u.imageUrl || "/images/user/user_avatar.png",
+      avatar: u.imageUrl || null,
       verified: u.isIdentityVerified || false,
       trustapUserId: u.trustapUserId || null,
     }));
@@ -121,15 +121,19 @@ export function ClientSearchStep({ onSelect }: Props) {
                   {(currentPage - 1) * pageSize + i + 1}
                 </span>
                 <div className="flex items-center gap-3">
-                  <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center shrink-0">
-                    <img
-                      src={client.avatar}
-                      alt={client.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/images/user/user_avatar.png";
-                      }}
-                    />
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden bg-[#181D27] flex items-center justify-center shrink-0 text-white font-rozha text-base">
+                    {client.avatar ? (
+                      <img
+                        src={client.avatar}
+                        alt={client.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.display = "none";
+                        }}
+                      />
+                    ) : (
+                      <span>{client.name?.charAt(0).toUpperCase() ?? "?"}</span>
+                    )}
                   </div>
                   <div className="flex flex-col">
                     <div className="flex items-center gap-2 mb-1 mt-0.5 flex-wrap">

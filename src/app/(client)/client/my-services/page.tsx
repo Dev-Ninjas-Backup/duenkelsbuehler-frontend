@@ -106,10 +106,7 @@ export default function ClientMyServicesPage() {
 
               <div className="flex items-center justify-center gap-3">
                 <motion.button whileTap={{ scale: 0.85 }}
-                  onClick={() => removeFavorite(fav.user.id, {
-                    onSuccess: () => toast.success("Removed from favorites"),
-                    onError: (err: any) => toast.error(err?.message || "Failed to remove from favorites")
-                  })}
+                  onClick={() => removeFavorite(fav.user.id)}
                   className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-[#181D27] hover:bg-red-50 hover:text-red-500 transition-colors cursor-pointer"
                   aria-label="Remove from saved">
                   <Bookmark className="h-[14px] w-[14px] fill-[#181D27]" />

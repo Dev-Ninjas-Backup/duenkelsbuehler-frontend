@@ -722,7 +722,7 @@ function UseTemplateModal({ template, onClose, onSend, isPending }: UseTemplateM
       id: u.id,
       name: u.name,
       email: u.email,
-      avatar: u.imageUrl || "/images/user/user_avatar.png",
+      avatar: u.imageUrl || null,
       verified: u.isIdentityVerified || false,
     }));
   }, [searchResults]);
@@ -824,12 +824,17 @@ function UseTemplateModal({ template, onClose, onSend, isPending }: UseTemplateM
             {selectedClient ? (
               <div className="flex items-center justify-between bg-emerald-50/70 border border-emerald-200/50 rounded-xl p-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-gray-100">
-                    <img
-                      src={selectedClient.avatar}
-                      alt={selectedClient.name}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-[#181D27] flex items-center justify-center text-white font-rozha text-xs">
+                    {selectedClient.avatar ? (
+                      <img
+                        src={selectedClient.avatar}
+                        alt={selectedClient.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      />
+                    ) : (
+                      <span>{selectedClient.name?.charAt(0).toUpperCase() ?? "?"}</span>
+                    )}
                   </div>
                   <div className="min-w-0">
                     <p className="font-work-sans text-sm font-semibold text-[#181D27] truncate">
@@ -885,12 +890,17 @@ function UseTemplateModal({ template, onClose, onSend, isPending }: UseTemplateM
                           onClick={() => setSelectedClient(c)}
                           className="flex items-center gap-3 p-2.5 hover:bg-gray-50 cursor-pointer text-left transition-colors"
                         >
-                          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-gray-100">
-                            <img
-                              src={c.avatar}
-                              alt={c.name}
-                              className="w-full h-full object-cover"
-                            />
+                          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-[#181D27] flex items-center justify-center text-white font-rozha text-xs">
+                            {c.avatar ? (
+                              <img
+                                src={c.avatar}
+                                alt={c.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                              />
+                            ) : (
+                              <span>{c.name?.charAt(0).toUpperCase() ?? "?"}</span>
+                            )}
                           </div>
                           <div className="min-w-0 flex-1">
                             <p className="font-work-sans text-xs font-semibold text-[#181D27] truncate">

@@ -280,7 +280,7 @@ export default function MyServicesPage() {
               setModalOpen(true);
             }}
             disabled={isCreating || isUpdating}
-            className="rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold px-8 h-12 shadow-md"
+            className="rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold px-8 h-12 shadow-md cursor-pointer"
           >
             + Add Service
           </Button>
