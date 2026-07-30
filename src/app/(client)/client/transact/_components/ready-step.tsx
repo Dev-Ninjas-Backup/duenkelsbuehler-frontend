@@ -7,9 +7,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AiFillWarning } from "react-icons/ai";
 import { useTransactStore } from "@/stores/transact/use-transact-store";
 import { useSendDirectProposal, useUploadAndSendDocusign, useDocusignSignUrl } from "@/hooks/sp/use-sp";
+import { useModalSound } from "@/hooks/use-modal-sound";
 import { toast } from "sonner";
 
 function KaChingModal({ onClose }: { onClose: () => void }) {
+  useModalSound(true);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -91,7 +93,7 @@ export function ReadyStep() {
 
   useEffect(() => {
     if (!showModal) return;
-    const audio = new Audio("/sounds/modal_open_sound.mp3");
+    const audio = new Audio("/sounds/ka-ching.mp3");
     audio.volume = 0.8;
     audio.play().catch(() => {});
   }, [showModal]);
@@ -182,8 +184,12 @@ export function ReadyStep() {
 
         {/* SP Card */}
         <div className="w-full bg-[#F9F9F9] rounded-2xl px-5 py-4 flex items-center gap-4 mb-4">
-          <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 relative">
-            <Image src={sp.avatar} alt={sp.name} fill className="object-cover" />
+          <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 relative bg-[#181D27] flex items-center justify-center text-white font-rozha text-lg">
+            {sp.avatar ? (
+              <Image src={sp.avatar} alt={sp.name} fill className="object-cover" />
+            ) : (
+              <span>{sp.name?.charAt(0).toUpperCase() ?? "?"}</span>
+            )}
           </div>
           <div>
             <p className="font-rozha text-lg text-[#181D27]">{sp.name}</p>

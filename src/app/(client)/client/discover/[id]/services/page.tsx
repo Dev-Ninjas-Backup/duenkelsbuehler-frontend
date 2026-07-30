@@ -50,7 +50,7 @@ export default function ServicesPage() {
       <div className="absolute top-4 left-4 z-10">
         <button 
           onClick={() => router.push(`/client/discover/${id}`)} 
-          className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors border border-gray-100"
+          className="w-10 h-10 rounded-full bg-white shadow-md flex items-center justify-center text-gray-700 hover:bg-gray-50 transition-colors border border-gray-100 cursor-pointer"
           aria-label="Go back to profile"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -197,7 +197,7 @@ export default function ServicesPage() {
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={() => router.push(`/client/messages?spId=${sp.id}`)}
-              className="flex items-center gap-2 px-8 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors shadow-md"
+              className="flex items-center gap-2 px-8 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors shadow-md cursor-pointer"
             >
               <MessageSquare className="w-4 h-4 shrink-0" />
               Message

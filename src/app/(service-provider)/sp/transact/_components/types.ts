@@ -12,7 +12,7 @@ export interface Client {
   id: number;
   name: string;
   email: string;
-  avatar: string;
+  avatar: string | null;
   verified: boolean;
   trustapUserId?: string | null;
 }
@@ -37,7 +37,7 @@ export interface SPProposalData {
 export interface Contact {
   id: number;
   name: string;
-  avatar: string;
+  avatar: string | null;
   badge?: "gold" | "warning";
   trustapUserId?: string | null;
 }

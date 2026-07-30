@@ -88,8 +88,17 @@ export function SubscriptionManagementTab() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const isLoading = isSubLoading || isPlansLoading;
-  const displayPlans = [FREE_PLAN_ITEM, ...plans];
   const activeSub = subscriptions.find((s) => s.status === "ACTIVE" || s.status === "TRIALING");
+
+  // If user has an active paid plan, place that plan first so it shows first
+  let displayPlans = [FREE_PLAN_ITEM, ...plans];
+  if (activeSub && activeSub.status === "ACTIVE" && activeSub.plan) {
+    const activePlan = plans.find((p) => p.id === activeSub.plan.id);
+    if (activePlan) {
+      const remainingPlans = plans.filter((p) => p.id !== activeSub.plan.id);
+      displayPlans = [activePlan, FREE_PLAN_ITEM, ...remainingPlans];
+    }
+  }
 
   const handleCancel = () => {
     if (!cancelId) return;
@@ -149,40 +158,8 @@ export function SubscriptionManagementTab() {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.25 }}
-      className="max-w-5xl mx-auto w-full flex flex-col items-center"
+      className="max-w-5xl mx-auto w-full flex flex-col items-center pt-2"
     >
-      {/* Current Plan Summary Pill - Only shown when user has an active paid subscription */}
-      {activeSub && activeSub.status === "ACTIVE" && (
-        <div className="mb-4 w-full max-w-md bg-white border border-gray-200 shadow-xs rounded-2xl p-2.5 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#181D27] flex items-center justify-center text-white shrink-0 font-bold text-[10px]">
-              {activeSub.plan.name.slice(0, 4).toUpperCase()}
-            </div>
-            <div className="flex flex-col">
-              <span className="font-work-sans text-[9px] font-semibold text-[#9CA3AF] uppercase tracking-wider">
-                Current Active Plan
-              </span>
-              <span className="font-work-sans text-xs font-bold text-[#181D27]">
-                {activeSub.plan.name} (${activeSub.plan.amount}/{activeSub.plan.interval === "MONTH" ? "month" : "year"})
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCancelId(activeSub.id)}
-              disabled={isCanceling}
-              className="text-[10px] text-red-500 hover:underline font-semibold font-work-sans mr-1 cursor-pointer"
-            >
-              Cancel Subscription
-            </button>
-            <span className="px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider font-work-sans text-[#16A34A] bg-[#16A34A]/10 rounded-full shrink-0">
-              Active
-            </span>
-          </div>
-        </div>
-      )}
-
       {/* Plans Section */}
       {displayPlans.length === 0 ? (
         <div className="w-full max-w-md rounded-2xl border border-gray-200 p-8 flex flex-col items-center justify-center text-center gap-2 bg-white">
@@ -253,11 +230,11 @@ export function SubscriptionManagementTab() {
                           : "bg-[#181D27]/90 text-white border-white/10 shadow-md cursor-pointer"
                     }`}
                   >
-                    {/* Featured / Recommended Badge */}
+                    {/* Featured / Recommended / Active Badge */}
                     {isActive && !isFree && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-[#00D05A] text-white font-work-sans text-[10px] font-bold uppercase tracking-wider shadow-md flex items-center gap-1">
                         <Sparkles className="w-3 h-3" />
-                        <span>Recommended</span>
+                        <span>{isCurrentActivePlan ? "Active Plan" : "Recommended"}</span>
                       </div>
                     )}
 
@@ -266,7 +243,7 @@ export function SubscriptionManagementTab() {
                         {/* Header */}
                         <div className="flex items-start justify-between gap-2 shrink-0">
                           <div>
-                            <p className={`font-work-sans text-[11px] font-semibold uppercase tracking-wider truncate max-w-[190px] ${isFree ? "text-[#9CA3AF]" : "text-[#9CA3AF]"}`}>
+                            <p className="font-work-sans text-[11px] font-semibold uppercase tracking-wider truncate max-w-[190px] text-[#9CA3AF]">
                               {plan.name}
                             </p>
                             <div className="flex items-baseline gap-0.5 mt-0.5">
@@ -294,7 +271,11 @@ export function SubscriptionManagementTab() {
                         {/* Features */}
                         <ul
                           onWheel={(e) => e.stopPropagation()}
-                          className="flex flex-col gap-1.5 flex-1 min-h-0 max-h-[185px] sm:max-h-[210px] overflow-y-auto pr-1 pointer-events-auto"
+                          className={`flex flex-col gap-1.5 flex-1 min-h-0 overflow-y-auto pr-1 pointer-events-auto ${
+                            isCurrentActivePlan && !isFree
+                              ? "max-h-[140px] sm:max-h-[165px]"
+                              : "max-h-[185px] sm:max-h-[210px]"
+                          }`}
                         >
                           {features.map((f, i) => (
                             <li key={i} className={`flex items-start gap-2 font-work-sans text-xs leading-snug ${isFree ? "text-[#535862]" : "text-[#D1D5DB]"}`}>
@@ -305,33 +286,58 @@ export function SubscriptionManagementTab() {
                         </ul>
                       </div>
 
-                      {/* Action Button */}
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (!isCurrentActivePlan && !isFree) {
-                            handleSubscribe(plan.id);
-                          }
-                        }}
-                        disabled={isCheckingOut || isCurrentActivePlan || isFree}
-                        className={`w-full h-10 rounded-full font-work-sans font-semibold text-xs lg:text-sm transition-all duration-200 disabled:opacity-60 shrink-0 cursor-pointer ${
-                          isCurrentActivePlan
-                            ? "bg-gray-700 text-gray-300 border border-gray-600 cursor-not-allowed"
-                            : isFree
-                              ? "bg-gray-100 text-gray-500 border border-gray-200 cursor-not-allowed"
-                              : isActive
-                                ? "bg-[#00D05A] hover:bg-[#00b34d] text-white shadow-lg shadow-[#00D05A]/30"
-                                : "bg-[#181D27] text-white border border-white/20 hover:bg-[#181D27]/80"
-                        }`}
-                      >
-                        {isCheckingOut
-                          ? "Redirecting..."
-                          : isCurrentActivePlan
-                            ? "Current Plan"
-                            : isFree
-                              ? "Free Tier"
-                              : "Subscribe Now"}
-                      </Button>
+                      {/* Action Button Section */}
+                      {isCurrentActivePlan && !isFree ? (
+                        <div className="flex flex-col gap-2 w-full shrink-0">
+                          <div className="w-full h-9 rounded-full bg-[#00D05A]/15 border border-[#00D05A]/40 text-[#00D05A] font-work-sans font-semibold text-xs flex items-center justify-center gap-1.5 shrink-0">
+                            <span className="w-2 h-2 rounded-full bg-[#00D05A] animate-pulse" />
+                            Current Active Plan
+                          </div>
+                          {activeSub?.cancelAtPeriodEnd ? (
+                            <div className="w-full h-9 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-500 font-work-sans font-semibold text-xs flex items-center justify-center shrink-0">
+                              Cancellation Scheduled
+                            </div>
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (activeSub) setCancelId(activeSub.id);
+                              }}
+                              disabled={isCanceling}
+                              className="w-full h-9 rounded-full bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-600 hover:text-white transition-all font-work-sans font-semibold text-xs flex items-center justify-center cursor-pointer shrink-0 disabled:opacity-50"
+                            >
+                              {isCanceling ? "Cancelling..." : "Cancel Subscription"}
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!isCurrentActivePlan && !isFree) {
+                              handleSubscribe(plan.id);
+                            }
+                          }}
+                          disabled={isCheckingOut || isCurrentActivePlan || isFree}
+                          className={`w-full h-10 rounded-full font-work-sans font-semibold text-xs lg:text-sm transition-all duration-200 disabled:opacity-60 shrink-0 cursor-pointer ${
+                            isCurrentActivePlan
+                              ? "bg-gray-700 text-gray-300 border border-gray-600 cursor-not-allowed"
+                              : isFree
+                                ? "bg-gray-100 text-gray-500 border border-gray-200 cursor-not-allowed"
+                                : isActive
+                                  ? "bg-[#00D05A] hover:bg-[#00b34d] text-white shadow-lg shadow-[#00D05A]/30"
+                                  : "bg-[#181D27] text-white border border-white/20 hover:bg-[#181D27]/80"
+                          }`}
+                        >
+                          {isCheckingOut
+                            ? "Redirecting..."
+                            : isCurrentActivePlan
+                              ? "Current Plan"
+                              : isFree
+                                ? "Free Tier"
+                                : "Subscribe Now"}
+                        </Button>
+                      )}
                     </div>
                   </motion.div>
                 );

@@ -156,7 +156,7 @@ export function ForgotPasswordForm() {
             <Button
               type="submit"
               disabled={isSending}
-              className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base"
+              className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base cursor-pointer"
             >
               {isSending ? "Sending OTP..." : "Send OTP"}
             </Button>
@@ -213,11 +213,11 @@ export function ForgotPasswordForm() {
           <Button
             type="submit"
             disabled={isVerifying}
-            className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base"
+            className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base cursor-pointer"
           >
             {isVerifying ? "Verifying..." : "Verify OTP"}
           </Button>
-          <button type="button" onClick={() => setStep(1)} className="w-full font-work-sans text-sm text-[#414651] hover:underline">
+          <button type="button" onClick={() => setStep(1)} className="w-full font-work-sans text-sm text-[#414651] hover:underline cursor-pointer">
             ← Back
           </button>
         </form>
@@ -261,7 +261,7 @@ export function ForgotPasswordForm() {
             <Button
               type="submit"
               disabled={isResetting}
-              className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base"
+              className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base cursor-pointer"
             >
               {isResetting ? "Resetting..." : "Reset Password"}
             </Button>

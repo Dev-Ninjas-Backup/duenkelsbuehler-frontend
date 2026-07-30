@@ -61,7 +61,7 @@ export function LoginForm() {
           { value: "CLIENT", label: "Client" },
         ] as const).map(({ value, label }) => (
           <button key={value} type="button" onClick={() => setValue("role", value)}
-            className={`flex flex-col items-center gap-2 px-4 py-3 rounded-xl border-2 font-work-sans text-sm font-medium transition-all ${
+            className={`flex flex-col items-center gap-2 px-4 py-3 rounded-xl border-2 font-work-sans text-sm font-medium transition-all cursor-pointer ${
               selectedRole === value ? "border-[#181D27] bg-[#181D27]/5" : "border-gray-200 hover:border-gray-300"
             }`}>
             <FaUser className="h-6 w-6 text-[#181D27] shrink-0" />
@@ -74,7 +74,7 @@ export function LoginForm() {
       <motion.div variants={itemVariants} className="space-y-3 mb-6">
         <Button type="button" variant="outline" disabled={isSocialPending}
           onClick={() => loginWithGoogle(selectedRole)}
-          className="w-full h-12 rounded-full font-work-sans text-sm font-medium border-gray-300 hover:bg-gray-50 gap-3 disabled:opacity-60">
+          className="w-full h-12 rounded-full font-work-sans text-sm font-medium border-gray-300 hover:bg-gray-50 gap-3 disabled:opacity-60 cursor-pointer">
           {pendingProvider === "GOOGLE" ? (
             <svg className="animate-spin h-4 w-4 text-gray-500" viewBox="0 0 24 24" fill="none">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -93,7 +93,7 @@ export function LoginForm() {
 
         <Button type="button" disabled={isSocialPending}
           onClick={() => loginWithApple(selectedRole)}
-          className="w-full h-12 rounded-full font-work-sans text-sm font-medium bg-[#181D27] hover:bg-[#181D27]/90 gap-3 disabled:opacity-60">
+          className="w-full h-12 rounded-full font-work-sans text-sm font-medium bg-[#181D27] hover:bg-[#181D27]/90 gap-3 disabled:opacity-60 cursor-pointer">
           {pendingProvider === "APPLE" ? (
             <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -158,7 +158,7 @@ export function LoginForm() {
         {/* Submit */}
         <motion.div variants={itemVariants}>
           <Button type="submit" disabled={isPending}
-            className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base mt-4">
+            className="w-full h-14 rounded-full bg-[#181D27] hover:bg-[#181D27]/90 font-work-sans font-semibold text-base mt-4 cursor-pointer">
             {isPending ? (
               <span className="flex items-center gap-2">
                 <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">

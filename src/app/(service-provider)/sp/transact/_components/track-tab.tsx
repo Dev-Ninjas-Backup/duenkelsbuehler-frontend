@@ -41,7 +41,7 @@ export function TrackTab() {
         {selectedId && (
           <motion.button key="back" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }} onClick={() => setSelectedId(null)}
-            className="flex items-center gap-1.5 font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors mb-5">
+            className="flex items-center gap-1.5 font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors mb-5 cursor-pointer">
             <ChevronLeft size={16} /> Back
           </motion.button>
         )}

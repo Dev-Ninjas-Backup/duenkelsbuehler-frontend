@@ -30,10 +30,7 @@ export default function SavedClientsPage() {
 
   const handleRemove = (userId: number) => {
     if (isRemoving) return;
-    removeFavorite(userId, {
-      onSuccess: () => toast.success("Client removed from saved"),
-      onError: () => toast.error("Failed to remove client"),
-    });
+    removeFavorite(userId);
   };
 
   const clients = favoritesData?.favorites ?? [];

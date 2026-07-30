@@ -33,7 +33,7 @@ export default function ConnectProfilePage({ params }: { params: Promise<{ id: s
         initial={{ opacity: 0, x: -10 }}
         animate={{ opacity: 1, x: 0 }}
         onClick={() => router.back()}
-        className="flex items-center gap-1.5 font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors mt-4 px-6"
+        className="flex items-center gap-1.5 font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors mt-4 px-6 cursor-pointer"
       >
         <ChevronLeft size={16} /> Back
       </motion.button>
@@ -63,7 +63,7 @@ export default function ConnectProfilePage({ params }: { params: Promise<{ id: s
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={() => router.push("/sp/ratings-rewards")}
-            className="w-full py-3.5 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
+            className="w-full py-3.5 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors cursor-pointer"
           >
             Ratings &amp; Badges
           </motion.button>
@@ -71,7 +71,7 @@ export default function ConnectProfilePage({ params }: { params: Promise<{ id: s
             whileTap={{ scale: 0.97 }}
             disabled={!user}
             onClick={() => router.push(`/sp/messages?clientId=${clientId}`)}
-            className="w-full py-3.5 rounded-full border-2 border-[#181D27] text-[#181D27] font-work-sans text-sm font-semibold hover:bg-gray-50 transition-colors disabled:opacity-40"
+            className="w-full py-3.5 rounded-full border-2 border-[#181D27] text-[#181D27] font-work-sans text-sm font-semibold hover:bg-gray-50 transition-colors disabled:opacity-40 cursor-pointer"
           >
             Message
           </motion.button>

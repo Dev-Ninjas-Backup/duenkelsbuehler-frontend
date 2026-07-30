@@ -180,7 +180,7 @@ export function NewTransactionTab({ onDone }: Props) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -10 }}
             onClick={goBack}
-            className="flex items-center gap-1.5 font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors mb-5"
+            className="flex items-center gap-1.5 font-work-sans text-sm text-[#414651] hover:text-[#181D27] transition-colors mb-5 cursor-pointer"
           >
             <ChevronLeft size={16} /> Back
           </motion.button>
@@ -266,7 +266,7 @@ export function NewTransactionTab({ onDone }: Props) {
                       set("contractFile", null);
                       set("docuSign", false);
                     }}
-                    className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center text-white hover:bg-red-600 transition-colors"
+                    className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center text-white hover:bg-red-600 transition-colors cursor-pointer"
                     aria-label="Remove attached file"
                   >
                     <X size={14} />
@@ -291,14 +291,14 @@ export function NewTransactionTab({ onDone }: Props) {
               <div className="flex items-center justify-center gap-6 w-full">
                 <button
                   onClick={() => goTo("contract", -1)}
-                  className="font-work-sans text-sm text-[#535862] hover:text-[#181D27] transition-colors"
+                  className="font-work-sans text-sm text-[#535862] hover:text-[#181D27] transition-colors cursor-pointer"
                 >
                   Back
                 </button>
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={() => goTo("proposal-details", 1)}
-                  className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors"
+                  className="w-36 h-12 rounded-full bg-[#181D27] text-white font-work-sans text-sm font-semibold hover:bg-[#181D27]/90 transition-colors cursor-pointer"
                 >
                   Next
                 </motion.button>

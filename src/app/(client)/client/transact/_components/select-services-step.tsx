@@ -58,8 +58,12 @@ export function SelectServicesStep() {
 
       {/* S.P Header Card */}
       <div className="w-full bg-[#F9F9F9] border border-gray-100 rounded-2xl px-5 py-4 flex items-center gap-4 mb-6 shadow-xs">
-        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 relative bg-gray-200">
-          <Image src={sp.avatar} alt={sp.name} fill className="object-cover" />
+        <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 relative bg-[#181D27] flex items-center justify-center text-white font-rozha text-lg">
+          {sp.avatar ? (
+            <Image src={sp.avatar} alt={sp.name} fill className="object-cover" />
+          ) : (
+            <span>{sp.name?.charAt(0).toUpperCase() ?? "?"}</span>
+          )}
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-1.5 flex-wrap">

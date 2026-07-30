@@ -17,6 +17,7 @@ import {
   useDocusignSignUrl,
 } from "@/hooks/sp/use-sp";
 import { toast } from "sonner";
+import { useModalSound } from "@/hooks/use-modal-sound";
 
 interface Provider {
   id: number;
@@ -112,6 +113,7 @@ function KaChingModal({
   btnLabel: string;
   onAction: () => void;
 }) {
+  useModalSound(true);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -165,7 +167,7 @@ function getPartyInfo(proposal: any) {
     avatar = `/${avatar}`;
   }
   if (!avatar) {
-    avatar = "/images/user/user_avatar.png";
+    avatar = "";
   }
 
   return {
@@ -191,7 +193,7 @@ function SPCard({ proposal }: { proposal: Proposal }) {
             width={56}
             height={56}
             className="object-cover w-full h-full"
-            onError={() => setImgSrc("/images/user/user_avatar.png")}
+            onError={() => setImgSrc("")}
           />
         ) : (
           <span className="font-rozha text-xl text-white">
@@ -270,7 +272,7 @@ export default function ReviewProposalsPage() {
 
   useEffect(() => {
     if (!showKaChing) return;
-    const audio = new Audio("/sounds/modal_open_sound.mp3");
+    const audio = new Audio("/sounds/ka-ching.mp3");
     audio.volume = 0.8;
     audio.play().catch(() => {});
   }, [showKaChing]);

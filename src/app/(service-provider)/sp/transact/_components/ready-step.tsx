@@ -102,13 +102,17 @@ export function ReadyStep({
           Sending To
         </p>
         <div className="flex items-center gap-3">
-          <div className="relative w-11 h-11 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-            <Image
-              src={client.avatar}
-              alt={client.name}
-              fill
-              className="object-cover"
-            />
+          <div className="relative w-11 h-11 rounded-full overflow-hidden bg-[#181D27] flex items-center justify-center shrink-0 text-white font-rozha text-lg">
+            {client.avatar ? (
+              <Image
+                src={client.avatar}
+                alt={client.name}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <span>{client.name?.charAt(0).toUpperCase() ?? "?"}</span>
+            )}
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-1.5">
