@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useMyBadges } from "@/hooks/admin/use-admin";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
+import { playKaChingSound } from "@/hooks/use-modal-sound";
 
 interface EarnedBadge {
   id: number;
@@ -44,12 +45,8 @@ export function BadgeAwardNotifier() {
       const newAward = earnedBadges.find((eb: EarnedBadge) => !seenIds.includes(eb.badgeId));
 
       if (newAward) {
-        // Play notification sound
-        try {
-          const audio = new Audio("/sounds/modal_open_sound.mp3");
-          audio.volume = 0.5;
-          audio.play().catch(() => {});
-        } catch {}
+        // Play ka-ching notification sound
+        playKaChingSound();
 
         setActiveAward(newAward);
         // Save the updated list of seen badge IDs

@@ -7,9 +7,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { AiFillWarning } from "react-icons/ai";
 import { useTransactStore } from "@/stores/transact/use-transact-store";
 import { useSendDirectProposal, useUploadAndSendDocusign, useDocusignSignUrl } from "@/hooks/sp/use-sp";
+import { useModalSound } from "@/hooks/use-modal-sound";
 import { toast } from "sonner";
 
 function KaChingModal({ onClose }: { onClose: () => void }) {
+  useModalSound(true);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
@@ -91,7 +93,7 @@ export function ReadyStep() {
 
   useEffect(() => {
     if (!showModal) return;
-    const audio = new Audio("/sounds/modal_open_sound.mp3");
+    const audio = new Audio("/sounds/ka-ching.mp3");
     audio.volume = 0.8;
     audio.play().catch(() => {});
   }, [showModal]);
