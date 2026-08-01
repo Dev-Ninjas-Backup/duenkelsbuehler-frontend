@@ -134,6 +134,7 @@ export function SignUpForm() {
               )}
               {pendingProvider === "GOOGLE" ? "Signing up..." : "Sign up with Google"}
             </Button>
+            {/* Apple Sign Up - Reserved for Future Use
             <Button type="button" disabled={isSocialPending}
               onClick={() => loginWithApple(step1Form.getValues("role") || "CLIENT")}
               className="w-full h-12 rounded-full font-work-sans text-sm font-medium bg-[#181D27] hover:bg-[#181D27]/90 gap-3 disabled:opacity-60 cursor-pointer">
@@ -149,6 +150,7 @@ export function SignUpForm() {
               )}
               {pendingProvider === "APPLE" ? "Signing up..." : "Sign up with Apple"}
             </Button>
+            */}
             <div className="flex items-center gap-4">
               <div className="flex-1 h-px bg-gray-200" />
               <span className="font-work-sans text-sm text-[#414651]">OR</span>
