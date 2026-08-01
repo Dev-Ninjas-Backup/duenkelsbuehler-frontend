@@ -91,6 +91,7 @@ export function LoginForm() {
           {pendingProvider === "GOOGLE" ? "Signing in..." : "Sign in with Google"}
         </Button>
 
+        {/* Apple Login - Reserved for Future Use
         <Button type="button" disabled={isSocialPending}
           onClick={() => loginWithApple(selectedRole)}
           className="w-full h-12 rounded-full font-work-sans text-sm font-medium bg-[#181D27] hover:bg-[#181D27]/90 gap-3 disabled:opacity-60 cursor-pointer">
@@ -106,6 +107,7 @@ export function LoginForm() {
           )}
           {pendingProvider === "APPLE" ? "Signing in..." : "Sign in with Apple"}
         </Button>
+        */}
       </motion.div>
 
       {/* Divider */}

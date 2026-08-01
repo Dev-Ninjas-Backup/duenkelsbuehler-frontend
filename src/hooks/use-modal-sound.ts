@@ -12,6 +12,10 @@ export function playKaChingSound(soundPath: string = "/sounds/ka-ching.mp3") {
   }
 }
 
+export function playDrumrollSound() {
+  playKaChingSound("/sounds/modal_open_sound.mp3");
+}
+
 export function useModalSound(isOpen: boolean, soundPath: string = "/sounds/ka-ching.mp3") {
   useEffect(() => {
     if (!isOpen) return;

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useMyBadges } from "@/hooks/admin/use-admin";
 import { useAuthStore } from "@/stores/auth/use-auth-store";
-import { playKaChingSound } from "@/hooks/use-modal-sound";
+import { playDrumrollSound } from "@/hooks/use-modal-sound";
 
 interface EarnedBadge {
   id: number;
@@ -45,8 +45,8 @@ export function BadgeAwardNotifier() {
       const newAward = earnedBadges.find((eb: EarnedBadge) => !seenIds.includes(eb.badgeId));
 
       if (newAward) {
-        // Play ka-ching notification sound
-        playKaChingSound();
+        // Play drumroll notification sound for achievement unlocked
+        playDrumrollSound();
 
         setActiveAward(newAward);
         // Save the updated list of seen badge IDs
