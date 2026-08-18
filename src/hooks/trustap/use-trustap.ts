@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuthStore } from "@/stores/auth/use-auth-store"
-import { trustapService, CreateTransactionData } from "@/services/trustap/trustap-service"
+import {
+  trustapService,
+  CreateTransactionData,
+  CalculateFeesData,
+  CreateGuestUserData,
+} from "@/services/trustap/trustap-service"
 
 function useToken() {
   return useAuthStore((s) => s.accessToken) ?? ""
@@ -14,7 +19,24 @@ export function useCreateTransaction() {
       trustapService.createTransaction(data, token),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["my-badges"] })
-    }
+      qc.invalidateQueries({ queryKey: ["all-transactions"] })
+    },
+  })
+}
+
+export function useCalculateFees() {
+  const token = useToken()
+  return useMutation({
+    mutationFn: (data: CalculateFeesData) =>
+      trustapService.calculateFees(data, token),
+  })
+}
+
+export function useCreateGuestUser() {
+  const token = useToken()
+  return useMutation({
+    mutationFn: (data: CreateGuestUserData) =>
+      trustapService.createGuestUser(data, token),
   })
 }
 
@@ -27,35 +49,24 @@ export function useGetTransaction(id: string | null) {
   })
 }
 
-export function useRefundTransaction() {
+export function useSubmitComplaint() {
   const token = useToken()
+  const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, sellerId }: { id: string; sellerId: string }) =>
-      trustapService.refundTransaction(id, sellerId, token),
+    mutationFn: ({ id, reason }: { id: string; reason: string }) =>
+      trustapService.submitComplaint(id, reason, token),
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: ["transaction", variables.id] })
+    },
   })
 }
 
-export function useRefundF2FTransaction() {
-  const token = useToken()
-  return useMutation({
-    mutationFn: (id: string) => trustapService.refundF2FTransaction(id, token),
-  })
-}
-
-export function useAllTransactions(ids: string[]) {
+export function useAllTransactions(limit = 20, offset = 0) {
   const token = useToken()
   return useQuery({
-    queryKey: ["all-transactions", ids],
-    queryFn: () => trustapService.getAllTransactions(ids, token),
-    enabled: ids.length > 0 && !!token,
-  })
-}
-
-export function useBalance() {
-  const token = useToken()
-  return useQuery({
-    queryKey: ["trustap-balance"],
-    queryFn: () => trustapService.getBalance(token),
+    queryKey: ["all-transactions", limit, offset],
+    queryFn: () => trustapService.getAllTransactions(token, limit, offset),
     enabled: !!token,
   })
 }
+

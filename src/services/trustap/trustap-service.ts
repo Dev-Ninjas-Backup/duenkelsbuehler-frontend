@@ -18,56 +18,80 @@ async function request<T>(endpoint: string, token: string, options?: RequestInit
 export interface CreateTransactionData {
   seller_id: string
   buyer_id: string
-  creator_role: "seller" | "buyer"
+  amount: number // in cents
   currency: string
-  description: string
-  price: number
-  charge: number
-  charge_calculator_version: number
-  image_url: string
-  serviceId?: number
-  metadata?: Record<string, any>
+  description?: string
+  fees_buyer?: number
+  fees_seller?: number
+  fees_config?: number
+  amount_extra?: number
+  amount_postage?: number
+  role?: "seller" | "buyer"
+  payment_method?: "bank_transfer" | "card"
+  image_url?: string
+  redirect_uri?: string
+}
+
+export interface CalculateFeesData {
+  amount: number
+  currency: string
+}
+
+export interface FeesResponse {
+  fees_buyer: number
+  fees_seller: number
+  fees_config: number
+  currency: string
+}
+
+export interface CreateGuestUserData {
+  email: string
+  first_name: string
+  last_name: string
+  country_code: string
+  tos_acceptance?: {
+    unix_timestamp: number
+    ip: string
+  }
 }
 
 export interface TransactionResponse {
   id: string
   status: string
   paymentUrl?: string
-  dbTransaction?: {
-    id: number
-    trustapTransactionId: string
-    amount: number
-    currency: string
-    description: string
-    status: string
-    buyer: { id: number; email: string; name: string }
-    seller: { id: number; email: string; name: string }
-  }
+  amount?: number
+  currency?: string
+  description?: string
+  seller_id?: string
+  buyer_id?: string
 }
 
 export const trustapService = {
   createTransaction: (data: CreateTransactionData, token: string) =>
-    request<TransactionResponse>("/trustap/create-transaction", token, {
+    request<TransactionResponse>("/trustap-transactions/create", token, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  calculateFees: (params: CalculateFeesData, token: string) =>
+    request<FeesResponse>(`/trustap-transactions/fees?amount=${params.amount}&currency=${params.currency}`, token),
+
+  createGuestUser: (data: CreateGuestUserData, token: string) =>
+    request<any>("/trustap-transactions/guest-user", token, {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
   getTransaction: (id: string, token: string) =>
-    request<TransactionResponse>(`/trustap/transaction/${id}`, token),
+    request<TransactionResponse>(`/trustap-transactions/${id}`, token),
 
-  refundTransaction: (id: string, sellerId: string, token: string) =>
-    request<unknown>(`/trustap/transaction/refund/${id}?seller_id=${sellerId}`, token, {
-      method: "PATCH",
+  submitComplaint: (id: string, reason: string, token: string) =>
+    request<unknown>(`/trustap-transactions/${id}/complaint`, token, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
     }),
 
-  refundF2FTransaction: (id: string, token: string) =>
-    request<unknown>(`/trustap/transaction/refund-f2f/${id}`, token, {
-      method: "PATCH",
-    }),
-
-  getAllTransactions: (ids: string[], token: string) =>
-    request<unknown[]>(`/trustap/all-transactions?ids=${ids.join(",")}`, token),
-
-  getBalance: (token: string) =>
-    request<unknown>("/trustap/balence", token),
+  getAllTransactions: (token: string, limit = 20, offset = 0) =>
+    request<TransactionResponse[]>(`/trustap-transactions?limit=${limit}&offset=${offset}`, token),
 }
+

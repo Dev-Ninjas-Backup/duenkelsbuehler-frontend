@@ -7,7 +7,10 @@ import { format } from "date-fns";
 import { Calendar, DollarSign, Send, X, AlertCircle, FileText } from "lucide-react";
 import { useMySentProposals, useClientReceivedSPProposals, useClientAcceptSPProposal, useClientDeclineSPProposal, useDocusignRequests, useDocusignSignUrl } from "@/hooks/sp/use-sp";
 import { useMySubscriptions } from "@/hooks/subscription/use-subscription";
+import { useCreateTransaction } from "@/hooks/trustap/use-trustap";
+import { useAuthStore } from "@/stores/auth/use-auth-store";
 import { toast } from "sonner";
+
 
 interface Provider {
   id: number;
@@ -78,6 +81,7 @@ function ProposalDetailsModal({
   onSignContract,
   isSigningLoading,
   onPayViaTrustap,
+  isPaymentLoading,
   hasActiveSubscription,
   onAccept,
   onDecline,
@@ -90,11 +94,13 @@ function ProposalDetailsModal({
   onSignContract: (documentId: string) => void;
   isSigningLoading: boolean;
   onPayViaTrustap: (proposal: ServiceProposal) => void;
+  isPaymentLoading?: boolean;
   hasActiveSubscription: boolean;
   onAccept?: () => void;
   onDecline?: () => void;
   isActionPending?: boolean;
 }) {
+
   const [mounted, setMounted] = useState(false);
   const isClientSender = matchedDoc?.senderRole === "CLIENT";
 
@@ -390,9 +396,17 @@ function ProposalDetailsModal({
             <div className="flex items-center justify-center gap-4 pt-6 border-t border-gray-100 mt-auto">
               <button
                 onClick={() => onPayViaTrustap(proposal)}
-                className="w-48 h-12 rounded-full bg-[#16A34A] text-white font-work-sans text-sm font-semibold hover:bg-[#16A34A]/90 transition-colors flex items-center justify-center gap-2"
+                disabled={isPaymentLoading}
+                className="w-48 h-12 rounded-full bg-[#16A34A] text-white font-work-sans text-sm font-semibold hover:bg-[#16A34A]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Pay Securely
+                {isPaymentLoading ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Connecting...
+                  </>
+                ) : (
+                  "Pay Securely"
+                )}
               </button>
             </div>
           )}
@@ -501,20 +515,38 @@ export default function MyProposalsPage() {
     }
   };
 
-  const handlePayViaTrustap = (proposal: ServiceProposal) => {
-    toast.promise(
-      new Promise((resolve, reject) => {
-        setTimeout(() => {
-          reject(new Error("Trustap configuration is pending. Backend API keys are being set up by the developer."));
-        }, 1500);
-      }),
-      {
-        loading: "Initiating Trustap secure payment session...",
-        success: "Payment completed successfully!",
-        error: (err: any) => err.message,
+  const createTrustapTxMutation = useCreateTransaction();
+  const currentUser = useAuthStore((s) => s.user);
+
+  const handlePayViaTrustap = async (proposal: ServiceProposal) => {
+    try {
+      const sellerId = String(proposal.provider?.id || "seller");
+      const buyerId = String(currentUser?.id || "buyer");
+      const amountInCents = Math.round(Number(proposal.proposedPrice || 0) * 100);
+      const currency = (proposal.currency || "USD").toLowerCase();
+
+      toast.loading("Initiating Trustap secure payment session...", { id: "trustap-pay" });
+
+      const res = await createTrustapTxMutation.mutateAsync({
+        seller_id: sellerId,
+        buyer_id: buyerId,
+        amount: amountInCents,
+        currency: currency,
+        description: `Escrow payment for ${proposal.proposalTitle}`,
+        redirect_uri: `${window.location.origin}/client/my-proposals?payment=success&proposalId=${proposal.id}`,
+      });
+
+      if (res?.paymentUrl) {
+        toast.success("Redirecting to Trustap secure payment gateway...", { id: "trustap-pay" });
+        window.location.href = res.paymentUrl;
+      } else {
+        toast.error("Failed to generate Trustap payment URL", { id: "trustap-pay" });
       }
-    );
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to initiate Trustap payment session", { id: "trustap-pay" });
+    }
   };
+
 
   return (
     <div className="flex flex-col h-full px-4 py-8 lg:px-12 overflow-y-auto">
@@ -784,9 +816,17 @@ export default function MyProposalsPage() {
                         <div className="flex pt-2 border-t border-gray-50 mt-1" onClick={(e) => e.stopPropagation()}>
                           <button
                             onClick={() => handlePayViaTrustap(proposal)}
-                            className="w-full h-9 rounded-full bg-[#16A34A] text-white font-work-sans text-xs font-semibold hover:bg-[#16A34A]/90 transition-colors flex items-center justify-center gap-1.5"
+                            disabled={createTrustapTxMutation.isPending}
+                            className="w-full h-9 rounded-full bg-[#16A34A] text-white font-work-sans text-xs font-semibold hover:bg-[#16A34A]/90 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-60 disabled:cursor-not-allowed"
                           >
-                            Pay Securely
+                            {createTrustapTxMutation.isPending ? (
+                              <>
+                                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                Connecting...
+                              </>
+                            ) : (
+                              "Pay Securely"
+                            )}
                           </button>
                         </div>
                       )}
@@ -810,6 +850,7 @@ export default function MyProposalsPage() {
             onSignContract={handleSignContract}
             isSigningLoading={signUrlMutation.isPending}
             onPayViaTrustap={handlePayViaTrustap}
+            isPaymentLoading={createTrustapTxMutation.isPending}
             hasActiveSubscription={hasActiveSubscription}
             onAccept={() => handleAccept(selectedProposal.id)}
             onDecline={() => handleDecline(selectedProposal.id)}
@@ -817,6 +858,7 @@ export default function MyProposalsPage() {
           />
         )}
       </AnimatePresence>
+
     </div>
   );
 }
