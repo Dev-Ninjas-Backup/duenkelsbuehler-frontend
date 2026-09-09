@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AristoPay — Legal Questionnaire & Policy Technical Audit</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    @page {
+      size: A4;
+      margin: 14mm 14mm 14mm 14mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 9.5pt;
+      line-height: 1.5;
+      color: #1e293b;
+      background-color: #ffffff;
+      margin: 0 auto;
+      padding: 0;
+      max-width: 820px;
+    }
+
+    h1 {
+      font-size: 17pt;
+      font-weight: 800;
+      color: #0f172a;
+      border-bottom: 2.5px solid #00D05A;
+      padding-bottom: 6px;
+      margin-top: 0;
+      margin-bottom: 10px;
+      letter-spacing: -0.025em;
+    }
+
+    h2 {
+      font-size: 12.5pt;
+      font-weight: 700;
+      color: #0f172a;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1.5px solid #e2e8f0;
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+
+    h3 {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #1e293b;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      page-break-after: avoid;
+      break-after: avoid;
+    }
+
+    p {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    ul, ol {
+      margin-top: 4px;
+      margin-bottom: 8px;
+      padding-left: 18px;
+    }
+
+    li {
+      margin-bottom: 3px;
+    }
+
+    li::marker {
+      color: #00D05A;
+    }
+
+    hr {
+      border: 0;
+      height: 1px;
+      background: #e2e8f0;
+      margin: 14px 0;
+    }
+
+    /* Table Styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 16px 0;
+      font-size: 8.5pt;
+      page-break-inside: avoid;
+      break-inside: avoid;
+      box-shadow: 0 0 0 1px #e2e8f0;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 6px 9px;
+      text-align: left;
+      vertical-align: top;
+      border: 1px solid #e2e8f0;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      font-weight: 700;
+      color: #334155;
+      text-transform: uppercase;
+      font-size: 7.8pt;
+      letter-spacing: 0.04em;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #f8fafc;
+    }
+
+    /* Blockquote for message headers */
+    blockquote {
+      margin: 8px 0 12px 0;
+      padding: 8px 14px;
+      background-color: #f0fdf4;
+      border-left: 3px solid #00D05A;
+      border-radius: 0 6px 6px 0;
+      color: #166534;
+      font-size: 9pt;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+
+    blockquote p {
+      margin: 0;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.2pt;
+      background-color: #f1f5f9;
+      padding: 1px 4px;
+      border-radius: 3px;
+      color: #0f172a;
+      border: 1px solid #e2e8f0;
+    }
+
+    strong {
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    /* Print Tweaks */
+    @media print {
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      h2, h3 {
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+      table, blockquote {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>AristoPay — Legal Questionnaire &amp; Policy Technical Audit</h1>
+<p>This document provides a verified, code-level analysis of all questions asked for the <strong>Privacy Policy</strong> and <strong>Terms &amp; Conditions</strong> generation for <strong>AristoPay</strong>, based on a complete scan of the frontend (<code>duenkelsbuehler-frontend</code>) and backend (<code>duenkelsbuehler-backend</code>) codebases.</p>
+<hr>
+<h2>📊 Summary &amp; Comparison Matrix</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Current Draft Status</th>
+<th>Verified Codebase Fact</th>
+<th>Recommended Exact Answer / Option</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1</strong></td>
+<td><strong>Google API Services</strong></td>
+<td>✅ Correct</td>
+<td>Used for Firebase Auth (Google Sign-In) &amp; Google Fonts</td>
+<td><strong>Yes</strong> (Google Sign-In / Firebase Auth &amp; Google Fonts only; No Maps/Drive/Gmail APIs)</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><strong>Personal Data Disclose / Sell / Share</strong></td>
+<td>✅ Correct</td>
+<td>Data is disclosed strictly to 3rd-party service providers (Veriff, Trustap, DocuSign, Stripe, Firebase, SMTP); <strong>Zero</strong> selling or ad tracking</td>
+<td><strong>Disclose only</strong></td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><strong>AI-Based Services</strong></td>
+<td>✅ Correct</td>
+<td>No AI/LLM models or APIs integrated</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td><strong>Data Retention Period</strong></td>
+<td>✅ Correct</td>
+<td>Retained while account active; soft-delete on deactivation; legal/contract/escrow records retained</td>
+<td><strong>As long as the user has an account with us</strong> (or specify retention based on legal/escrow compliance)</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td><strong>Cookies / Web Beacons / Google Maps</strong></td>
+<td>✅ Partially Correct</td>
+<td>Functional/essential cookies &amp; local storage used; Google Maps is NOT used; Web beacons NOT used</td>
+<td><strong>Cookies and/or web beacons</strong></td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td><strong>Google Analytics</strong></td>
+<td>✅ Correct</td>
+<td>No Google Analytics or GTM scripts installed</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td><strong>7</strong></td>
+<td><strong>User Consent Preferences Update</strong></td>
+<td>✅ Correct</td>
+<td>No in-app consent/cookie preference manager implemented</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td><strong>8</strong></td>
+<td><strong>AristoAccess+ Auto-Renewal</strong></td>
+<td>✅ Correct</td>
+<td>Stripe subscription mode with recurring monthly/yearly billing</td>
+<td><strong>Yes, it automatically renews</strong></td>
+</tr>
+<tr>
+<td><strong>9</strong></td>
+<td><strong>Subscription Cancellation Method</strong></td>
+<td>✅ Correct</td>
+<td>Self-service cancellation button in Account Settings -&gt; Subscription Tab</td>
+<td><strong>Logging into their account</strong></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>🔍 Detailed Technical Verification (Code Evidence)</h2>
+<h3>1. Google API Services</h3>
+<ul>
+<li><strong>Code Evidence:</strong><ul>
+<li><strong>Firebase Auth</strong>: <code>src/lib/firebase.ts</code> (Frontend) and <code>src/common/config/firebase/firebase.service.ts</code> &amp; <code>src/main/auth/auth.service.ts</code> (Backend) verify Google ID tokens from <code>https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com</code>.</li>
+<li><strong>Google Fonts</strong>: <code>src/app/layout.tsx</code> imports <code>Work_Sans</code> and <code>Rozha_One</code> from <code>next/font/google</code>.</li>
+<li><strong>Google Maps / Drive / Gmail API</strong>: Not implemented anywhere in the project.</li>
+</ul>
+</li>
+<li><strong>Verdict:</strong> <strong>Yes</strong>, used for authentication (Google Sign-In) and typography.</li>
+</ul>
+<hr>
+<h3>2. Disclose or sell/share users&#39; personal information to third parties?</h3>
+<ul>
+<li><strong>Code Evidence:</strong><ul>
+<li><strong>Veriff (<code>src/main/verif/</code>)</strong>: Identity verification documents, selfie verification sessions, and user IDs.</li>
+<li><strong>Trustap (<code>src/main/trustap-transaction/</code>, <code>src/common/trustap.config.ts</code>)</strong>: Escrow payment processing, user emails, guest user creation, escrow transaction amounts.</li>
+<li><strong>DocuSign (<code>src/main/docusign_2.0/</code>)</strong>: Digital contract generation, signer names, signer emails, and signed contract PDFs.</li>
+<li><strong>Stripe (<code>src/main/subscriptions/</code>)</strong>: Subscription billing for AristoAccess+, customer emails, Stripe customer/subscription IDs.</li>
+<li><strong>Firebase / Google (<code>src/main/auth/</code>)</strong>: User authentication and profile details (name, email, avatar).</li>
+<li><strong>SMTP / Nodemailer (<code>src/common/config/mail/</code>)</strong>: Transactional email delivery for OTP verification, password resets, and invoice receipts.</li>
+<li><strong>Data Selling / Advertising:</strong> <strong>Zero</strong> ad networks, behavioral trackers (Meta Pixel, Google Ads), or data brokers are connected.</li>
+</ul>
+</li>
+<li><strong>Verdict:</strong> Select <strong>Disclose only</strong>. Data is disclosed strictly to authorized third-party service providers/processors to deliver core marketplace, escrow, identity verification, and billing services.</li>
+</ul>
+<hr>
+<h3>3. Does your website or app offer AI-based services?</h3>
+<ul>
+<li><strong>Code Evidence:</strong><ul>
+<li>Search for OpenAI, Gemini, Claude, Anthropic, LangChain, or other AI SDKs returned <strong>0 results</strong>.</li>
+</ul>
+</li>
+<li><strong>Verdict:</strong> <strong>No</strong>.</li>
+</ul>
+<hr>
+<h3>4. How long will you keep the information collected from users?</h3>
+<ul>
+<li><strong>Code Evidence:</strong><ul>
+<li>User accounts and transactions are stored indefinitely in PostgreSQL via Prisma.</li>
+<li>Soft-deletion is used (<code>isActive: false</code>, <code>deletedAt: new Date()</code> in <code>src/main/users/users.service.ts</code>) to maintain legal contract and transaction audit trails.</li>
+<li>There are no automated purge cron jobs for inactive/idle accounts.</li>
+</ul>
+</li>
+<li><strong>Verdict:</strong> <strong>As long as the user has an account with us</strong> (with financial/contractual records retained as required by law for escrow and tax compliance).</li>
+</ul>
+<hr>
+<h3>5. Which of the following does your website or app use or plan to use?</h3>
+<ul>
+<li><strong>Options:</strong> <em>Cookies and/or web beacons</em>, <em>Google Maps APIs</em>, <em>Both</em>, <em>Neither</em></li>
+<li><strong>Code Evidence:</strong><ul>
+<li><strong>Cookies:</strong> Used for UI layout state (e.g. <code>sidebar:state</code> cookie in <code>src/components/ui/sidebar.tsx</code>).</li>
+<li><strong>Local Storage:</strong> Used for authentication session state (<code>auth-storage</code> in <code>src/stores/auth/use-auth-store.ts</code>).</li>
+<li><strong>Google Maps API:</strong> Not present.</li>
+<li><strong>Web Beacons / Pixels:</strong> Not present.</li>
+</ul>
+</li>
+<li><strong>Verdict:</strong> Select <strong>Cookies and/or web beacons</strong> (essential functional cookies and local storage only).</li>
+</ul>
+<hr>
+<h3>6. Do you use Google Analytics?</h3>
+<ul>
+<li><strong>Code Evidence:</strong><ul>
+<li>Complete scan for <code>gtag</code>, <code>GoogleAnalytics</code>, <code>@next/third-parties/google</code>, and <code>GTM</code> confirmed no analytics tracker is implemented.</li>
+</ul>
+</li>
+<li><strong>Verdict:</strong> <strong>No</strong>.</li>
+</ul>
+<hr>
+<h3>7. Can users update their consent preferences through their accounts?</h3>
+<ul>
+<li><strong>Code Evidence:</strong><ul>
+<li>Account settings (<code>/sp/settings</code>, <code>/client/settings</code>) contain Profile, Payment Info, Transaction History, Disputes, and Saved Contracts. No cookie/privacy consent management toggles exist.</li>
+</ul>
+</li>
+<li><strong>Verdict:</strong> <strong>No</strong>.</li>
+</ul>
+<hr>
+<h3>8. Does the subscription to AristoAccess+ automatically renew?</h3>
+<ul>
+<li><strong>Code Evidence:</strong><ul>
+<li><code>src/main/subscriptions/subscriptions.service.ts</code>:<ul>
+<li>Stripe Checkout session is created in <code>mode: &#39;subscription&#39;</code> with recurring billing.</li>
+<li>Stripe automatically charges on renewal and triggers the <code>invoice.payment_succeeded</code> webhook, extending <code>currentPeriodEnd</code>.</li>
+<li>Cancellation sets <code>cancel_at_period_end: true</code>, stopping auto-renewal at the end of the paid cycle.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Verdict:</strong> <strong>Yes, it automatically renews</strong> at the end of each billing cycle (monthly/yearly) unless cancelled.</li>
+</ul>
+<hr>
+<h3>9. How can users cancel their subscription?</h3>
+<ul>
+<li><strong>Options:</strong> <em>Logging into their account</em>, <em>Contacting customer service</em>, <em>Other</em></li>
+<li><strong>Code Evidence:</strong><ul>
+<li>Frontend (<code>src/components/shared/subscription-management-tab.tsx</code>): Users can click &quot;Cancel Subscription&quot; with confirmation modal.</li>
+<li>Backend (<code>PATCH /subscriptions/me/:subscriptionId/cancel</code>): Updates Stripe subscription to <code>cancel_at_period_end: true</code>.</li>
+</ul>
+</li>
+<li><strong>Verdict:</strong> Select <strong>Logging into their account</strong>.</li>
+</ul>
+<hr>
+<h2>✉️ Ready-to-Send Client Message</h2>
+<blockquote>
+<p><strong>Recipient:</strong> Alexis / Legaltranslator<br><strong>Subject:</strong> Technical Confirmation for Privacy Policy and Terms &amp; Conditions</p>
+</blockquote>
+<p>Hi Alexis,</p>
+<p>Thanks for reaching out! We have conducted a complete technical audit of both our frontend and backend systems to give you exact and verified answers for the Privacy Policy and Terms &amp; Conditions.</p>
+<p>Here are the confirmed answers matching our current implementation:</p>
+<hr>
+<h3><strong>Privacy Policy</strong></h3>
+<ol>
+<li><p><strong>Do you use Google API Services?</strong></p>
+<ul>
+<li><strong>Answer:</strong> <strong>Yes.</strong></li>
+<li><em>Details:</em> We use Google Services exclusively for <strong>Firebase Authentication (Google Sign-In / OAuth)</strong> and Google Web Fonts. We do not use Google Maps, Google Drive, or Gmail API.</li>
+</ul>
+</li>
+<li><p><strong>Do you disclose or sell/share users&#39; personal information to third parties?</strong></p>
+<ul>
+<li><strong>Selected Option:</strong> <strong>Disclose only</strong></li>
+<li><em>Details:</em> We <strong>do not sell</strong> any personal information to third parties or data brokers, nor do we share data for cross-context behavioral advertising. We only <strong>disclose</strong> necessary user data to trusted third-party service providers/processors strictly to operate our platform features:<ul>
+<li><strong>Veriff:</strong> Identity verification &amp; KYC compliance</li>
+<li><strong>Trustap:</strong> Milestone-based escrow payments &amp; transaction handling</li>
+<li><strong>DocuSign:</strong> Legally binding contract generation &amp; digital signatures</li>
+<li><strong>Stripe:</strong> Subscription billing for AristoAccess+</li>
+<li><strong>Firebase (Google):</strong> Secure user authentication &amp; social login</li>
+<li><strong>SMTP Email Service:</strong> Transactional notifications (OTP codes, invoice receipts, deal updates)</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>Does your website or app offer AI-based services?</strong></p>
+<ul>
+<li><strong>Answer:</strong> <strong>No.</strong> The platform does not currently incorporate any AI or machine learning services.</li>
+</ul>
+</li>
+<li><p><strong>How long will you keep the information that you&#39;ve collected from your users?</strong></p>
+<ul>
+<li><strong>Selected Option:</strong> <strong>As long as the user has an account with us</strong></li>
+<li><em>Details:</em> User data is retained for the lifetime of the user&#39;s active account. Completed transaction logs, escrow records, and executed DocuSign contracts are retained as required for legal, accounting, and dispute resolution purposes.</li>
+</ul>
+</li>
+<li><p><strong>Which of the following does your website or app use or plan to use?</strong></p>
+<ul>
+<li><strong>Selected Option:</strong> <strong>Cookies and/or web beacons</strong></li>
+<li><em>Details:</em> We use strictly functional/essential cookies and local storage for maintaining user login sessions and UI preferences. We <strong>do not</strong> use Google Maps API or marketing web beacons.</li>
+</ul>
+</li>
+<li><p><strong>Do you use Google Analytics?</strong></p>
+<ul>
+<li><strong>Answer:</strong> <strong>No.</strong> Google Analytics is not integrated into the platform.</li>
+</ul>
+</li>
+<li><p><strong>Can users update their consent preferences through their accounts?</strong></p>
+<ul>
+<li><strong>Answer:</strong> <strong>No.</strong> There is currently no in-app consent/cookie preference management center within user accounts.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3><strong>Terms &amp; Conditions</strong></h3>
+<ol start="8">
+<li><p><strong>Does the subscription to AristoAccess+ automatically renew?</strong></p>
+<ul>
+<li><strong>Answer:</strong> <strong>Yes.</strong> Paid subscriptions to AristoAccess+ automatically renew at the end of each billing cycle (monthly or yearly) via recurring Stripe billing until cancelled by the user.</li>
+</ul>
+</li>
+<li><p><strong>How can users cancel their subscription?</strong></p>
+<ul>
+<li><strong>Selected Option:</strong> <strong>Logging into their account</strong></li>
+<li><em>Details:</em> Users can cancel their subscription at any time directly through their Account Settings under the Subscription tab. Once cancelled, they retain access until the end of their current paid billing period without further renewal.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>Please let us know if you need any additional technical details or clarification!</p>
+<p>Best regards,<br><strong>AristoPay Team</strong></p>
+
+
+</body>
+</html>
