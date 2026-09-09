@@ -30,6 +30,8 @@ export interface CreateTransactionData {
   payment_method?: "bank_transfer" | "card"
   image_url?: string
   redirect_uri?: string
+  dealId?: number
+  proposalId?: number
 }
 
 export interface CalculateFeesData {

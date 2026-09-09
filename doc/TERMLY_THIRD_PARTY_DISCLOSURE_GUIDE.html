@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AristoPay - Termly Third-Party Disclosure Guide (Complete Audit)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+    
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #2563eb;
+      --primary-subtle: #eff6ff;
+      --secondary: #0f172a;
+      --text: #334155;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --bg: #ffffff;
+      --card-bg: #f8fafc;
+      --border: #e2e8f0;
+      --success-bg: #dcfce7;
+      --success-text: #15803d;
+      --success-border: #86efac;
+      --skip-bg: #f1f5f9;
+      --skip-text: #475569;
+      --custom-bg: #f0fdf4;
+      --custom-border: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background-color: #f1f5f9;
+      line-height: 1.6;
+      padding: 30px 15px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--bg);
+      padding: 48px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    }
+
+    .header {
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      background: #dbeafe;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--secondary);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .meta-grid strong {
+      color: var(--text-dark);
+    }
+
+    .summary-box {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #f8fafc;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+
+    .summary-box h3 {
+      color: #60a5fa;
+      margin-bottom: 12px;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .summary-box ul {
+      list-style-position: inside;
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+
+    .section-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: var(--secondary);
+      margin: 36px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 8px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+      page-break-inside: avoid;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .examples {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-top: 2px;
+    }
+
+    .tag-selected {
+      background: var(--success-bg);
+      color: var(--success-text);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--success-border);
+      white-space: nowrap;
+    }
+
+    .tag-skip {
+      background: var(--skip-bg);
+      color: var(--skip-text);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid #cbd5e1;
+      white-space: nowrap;
+    }
+
+    .tag-custom {
+      background: #eff6ff;
+      color: #1d4ed8;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid #bfdbfe;
+      white-space: nowrap;
+    }
+
+    .justification {
+      font-size: 13px;
+      color: #334155;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-left: 3.5px solid var(--primary-light);
+      padding: 12px 14px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .justification ul {
+      margin-left: 18px;
+      margin-top: 4px;
+    }
+
+    .justification li {
+      margin-bottom: 4px;
+    }
+
+    .code-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+      color: #0f172a;
+    }
+
+    .custom-section {
+      border: 2px solid #2563eb;
+      background: #f8faff;
+      border-radius: 12px;
+      padding: 26px;
+      margin: 36px 0;
+      page-break-inside: avoid;
+    }
+
+    .custom-section h2 {
+      color: var(--primary);
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .custom-desc {
+      font-size: 13.5px;
+      color: #475569;
+      margin-bottom: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+      background: #ffffff;
+    }
+
+    th, td {
+      border: 1px solid #cbd5e1;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #f1f5f9;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .compliance-box {
+      background: #fefce8;
+      border: 1px solid #fef08a;
+      border-left: 4px solid #ca8a04;
+      padding: 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #713f12;
+      margin-top: 28px;
+      page-break-inside: avoid;
+    }
+
+    .print-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-weight: 700;
+      font-size: 14px;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+      z-index: 100;
+      transition: all 0.2s ease;
+    }
+
+    .print-btn:hover {
+      background: #1d4ed8;
+      transform: translateY(-2px);
+    }
+
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      .container {
+        box-shadow: none;
+        padding: 0;
+        max-width: 100%;
+      }
+      .print-btn {
+        display: none;
+      }
+      .card {
+        page-break-inside: avoid;
+        margin-bottom: 12px;
+        padding: 14px;
+      }
+      .custom-section {
+        page-break-inside: avoid;
+        padding: 18px;
+      }
+      .table-page {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="print-btn" onclick="window.print()">🖨️ Print / Save as PDF</button>
+
+  <div class="container">
+    <div class="header">
+      <span class="badge">Legal & Technical Audit</span>
+      <h1>Termly Third-Party Disclosure Guide</h1>
+      <p style="font-size: 14px; color: #475569; margin-top: 4px;">Verified Code-Level Answers for Privacy Policy & Terms Generation</p>
+      
+      <div class="meta-grid">
+        <div><strong>Platform:</strong> AristoPay (Duenkelsbuehler)</div>
+        <div><strong>Purpose:</strong> Termly Third-Party Questionnaire</div>
+        <div><strong>Audit Scope:</strong> Frontend & Backend Codebases</div>
+        <div><strong>Date:</strong> September 2026</div>
+      </div>
+    </div>
+
+    <div class="summary-box">
+      <h3>🔒 Core Data Disclosure Principles (Executive Summary)</h3>
+      <ul>
+        <li><strong>Zero Data Selling & Zero Targeted Advertising:</strong> AristoPay does <u>not</u> sell, rent, or trade personal information with data brokers, ad networks, or behavioral retargeting platforms.</li>
+        <li><strong>Strictly Operational Disclosures:</strong> User data is disclosed strictly to trusted third-party service processors required to fulfill core escrow marketplace functionality, digital contract signing, identity verification, and subscription billing.</li>
+      </ul>
+    </div>
+
+    <div class="section-title">📋 Step-by-Step Questionnaire Breakdown (Exact Termly Order)</div>
+
+    <!-- 1 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">1. Advertising, Direct Marketing, & Lead Generation</div>
+          <div class="examples">Examples: Bing Ads, Chitika, Google AdSense</div>
+        </div>
+        <span class="tag-skip">Leave Blank / None (N/A)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>Zero advertising networks, marketing tracking scripts, or lead generation pixels are implemented anywhere in the frontend or backend codebase.</li>
+          <li>User personal information is never exposed to ad exchanges or marketing platforms.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">2. Affiliate Marketing Programs</div>
+          <div class="examples">Examples: Amazon Affiliation, eBay Partner Network, iTunes Affiliation</div>
+        </div>
+        <span class="tag-skip">Leave Blank / None (N/A)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>No affiliate tracking programs, referral cookie trackers, or partner affiliate networks are integrated into the application.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">3. AI Platforms</div>
+          <div class="examples">Examples: OpenAI, Google Cloud AI, Microsoft Azure AI</div>
+        </div>
+        <span class="tag-skip">Leave Blank / None (N/A)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>The platform operates strictly on deterministic business logic and custom APIs.</li>
+          <li>A complete scan for OpenAI, Anthropic, Claude, Gemini, or external LLM/AI SDKs returned 0 results. No user data or documents are sent to AI services.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">4. Allow Users to Connect to Their Third-Party Accounts</div>
+          <div class="examples">Examples: Facebook account, Google account, Instagram account</div>
+        </div>
+        <span class="tag-selected">Select: Google account, Apple account</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>Users can connect and authenticate via their Google or Apple accounts using Firebase Authentication (<span class="code-badge">src/lib/firebase.ts</span> & <span class="code-badge">src/main/auth/auth.service.ts</span>).</li>
+          <li>Only basic identity claims (Name, Email, Google Profile Picture) are retrieved during authentication to create and populate user profiles.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">5. Cloud Computing Services</div>
+          <div class="examples">Examples: Microsoft Azure, Google Cloud Platform, Amazon Web Services (AWS)</div>
+        </div>
+        <span class="tag-selected">Select: Google Cloud Platform (Firebase)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>Firebase services run under Google Cloud Platform infrastructure for token verification and authentication endpoints.</li>
+          <li><em>(Note: If your production PostgreSQL database and backend containers are hosted on AWS or another cloud host, select AWS as well).</em></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">6. Communicate & Chat with Users</div>
+          <div class="examples">Examples: Customerly, Facebook Customer Chat, LiveChat</div>
+        </div>
+        <span class="tag-skip">Leave Blank (Internal Socket.io)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>Real-time client-to-freelancer messaging is powered entirely by the proprietary in-app WebSocket engine (<span class="code-badge">Socket.io</span>) with chat logs stored in the private PostgreSQL database.</li>
+          <li>No third-party chat widgets (e.g. Zendesk, Intercom, LiveChat) have access to user messages. Transactional email communications are handled via SMTP (detailed under Custom Services).</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 7 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">7. Content Optimization</div>
+          <div class="examples">Examples: Google Site Search, TripAdvisor widget, YouTube video embed</div>
+        </div>
+        <span class="tag-selected">Select: Google Fonts</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>The application loads and optimizes typography assets (<span class="code-badge">Work_Sans</span>, <span class="code-badge">Rozha_One</span>) via Google Fonts (<span class="code-badge">src/app/layout.tsx</span>).</li>
+          <li>No external video embeds, site search widgets, or third-party content optimization iframes exist.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 8 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">8. Data Backup & Security</div>
+          <div class="examples">Examples: Dropbox Backup, Google Drive Backup, Vaultpress</div>
+        </div>
+        <span class="tag-skip">Leave Blank / None (N/A)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>Database backups and snapshots are managed directly on the internal server infrastructure level.</li>
+          <li>No consumer cloud storage tools (Dropbox, Google Drive) have access to user data.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 9 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">9. Functionality & Infrastructure Optimization</div>
+          <div class="examples">Examples: Cloud Firestore, Firebase Legacy, Termly.io</div>
+        </div>
+        <span class="tag-selected">Select: Firebase, Termly.io</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li><strong>Firebase:</strong> Used for client-side authentication token generation and secure session dispatching.</li>
+          <li><strong>Termly.io:</strong> Used for hosting, embedding, and maintaining policy terms and cookie consent compliance.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 10 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">10. Invoicing & Billing</div>
+          <div class="examples">Examples: Apple Pay, PayPal, Stripe</div>
+        </div>
+        <span class="tag-selected">Select: Stripe (+ Trustap in Custom)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li><strong>Stripe:</strong> Processes recurring subscription billing for <span class="code-badge">AristoAccess+</span> plans via Stripe Checkout sessions and recurring webhooks (<span class="code-badge">src/main/subscriptions/</span>).</li>
+          <li><strong>Trustap:</strong> Powers milestone-based escrow payments and fund holding (<span class="code-badge">src/main/trustap-transaction/</span>). <em>(Must be added under Custom Services at the bottom).</em></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 11 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">11. Retargeting Platforms</div>
+          <div class="examples">Examples: AdRoll, Facebook Custom Audience, Google Ads Remarketing</div>
+        </div>
+        <span class="tag-skip">Leave Blank / None (N/A)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>No retargeting pixels, Facebook Pixels, or Google Remarketing tags are installed.</li>
+          <li>User browsing activity is never tracked across external sites for marketing purposes.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 12 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">12. Social Media Sharing & Advertising</div>
+          <div class="examples">Examples: Facebook advertising, Google+ social plugins, Reddit plugins</div>
+        </div>
+        <span class="tag-skip">Leave Blank / None (N/A)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>No social media share widgets, embedded like buttons, or social network telemetry scripts are present.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 13 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">13. User Account Registration & Authentication</div>
+          <div class="examples">Examples: Facebook Login, GitHub OAuth, Google Sign-In</div>
+        </div>
+        <span class="tag-selected">Select: Google Sign-In, Apple Sign-In</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>The platform supports Google OAuth and Apple OAuth via Firebase ID Token validation (<span class="code-badge">src/main/auth/auth.controller.ts</span>), alongside standard secure email/password OTP verification.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 14 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">14. User Commenting & Forums</div>
+          <div class="examples">Examples: Disqus, Facebook Comments, Muut</div>
+        </div>
+        <span class="tag-skip">Leave Blank / None (N/A)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>Project reviews, ratings, and feedback are handled by the platform’s internal rating system. No public third-party commenting frameworks are integrated.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 15 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">15. Web & Mobile Analytics</div>
+          <div class="examples">Examples: Crazy Egg, Google Analytics, Heap Analytics</div>
+        </div>
+        <span class="tag-skip">Leave Blank / None (N/A)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>The codebase contains <strong>zero</strong> analytics trackers (no Google Analytics / gtag.js, Mixpanel, Hotjar, or Heap).</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 16 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">16. Website Hosting</div>
+          <div class="examples">Examples: Shopify, Tumblr, WordPress.com</div>
+        </div>
+        <span class="tag-skip">Leave Blank / Custom Host</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>AristoPay is a custom full-stack application built with Next.js (frontend) and NestJS (backend), not hosted on templated CMS platforms like Shopify or WordPress.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 17 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">17. Website Performance Monitoring</div>
+          <div class="examples">Examples: Crashlytics, Firebase Crash Reporting, Sentry</div>
+        </div>
+        <span class="tag-skip">Leave Blank / None (N/A)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>Error monitoring is currently handled via internal server loggers without streaming user diagnostic traces to third-party telemetry services.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 18 -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">18. Website Testing</div>
+          <div class="examples">Examples: Google Play Console, Optimizely, TestFlight</div>
+        </div>
+        <span class="tag-skip">Leave Blank / None (N/A)</span>
+      </div>
+      <div class="justification">
+        <strong>Technical Justification:</strong>
+        <ul>
+          <li>No live A/B experimentation or user recording SDKs are active.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Custom Section -->
+    <div class="custom-section">
+      <h2>🚀 Crucial Custom Services to Add (Under "Other / + Add More")</h2>
+      <p class="custom-desc">
+        Because AristoPay is an Escrow & Legal Contract platform, several core integrations do not appear in generic dropdown menus. <strong>These 4 entries must be added using the <code>+ Add More</code> button at the bottom of the Termly page:</strong>
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 26%;">Purpose Field</th>
+            <th style="width: 22%;">Service Name</th>
+            <th style="width: 52%;">Detailed Reason & Data Disclosed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Identity Verification & KYC</strong></td>
+            <td><strong style="color: #1e3a8a;">Veriff</strong></td>
+            <td>
+              • <strong>Why:</strong> Verifies government-issued ID documents and facial biometric selfies for Service Providers and Clients to satisfy AML/KYC legal standards.<br>
+              • <strong>Data Disclosed:</strong> ID documents, biometric photos, legal name, and verification status (<span class="code-badge">src/main/verif/</span>).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Escrow Payment Processing</strong></td>
+            <td><strong style="color: #1e3a8a;">Trustap</strong></td>
+            <td>
+              • <strong>Why:</strong> Holds milestone funds securely in escrow until deliverables are inspected and approved.<br>
+              • <strong>Data Disclosed:</strong> User email, guest user ID, transaction amounts, currency, and milestone release states (<span class="code-badge">src/main/trustap-transaction/</span>).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Digital Contracts & E-Signatures</strong></td>
+            <td><strong style="color: #1e3a8a;">DocuSign</strong></td>
+            <td>
+              • <strong>Why:</strong> Generates legally binding contracts and collects cryptographic digital signatures between parties.<br>
+              • <strong>Data Disclosed:</strong> Signer full names, email addresses, contract terms, digital signature timestamps, and executed contract PDF archives (<span class="code-badge">src/main/docusign_2.0/</span>).
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Transactional Email Delivery</strong></td>
+            <td><strong style="color: #1e3a8a;">SMTP / Nodemailer</strong></td>
+            <td>
+              • <strong>Why:</strong> Delivers critical system transactional notices (OTP verification codes, password resets, deal status alerts, and payment receipts).<br>
+              • <strong>Data Disclosed:</strong> User email address, first name, and notification message content (<span class="code-badge">src/common/config/mail/</span>).
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Quick-Action Summary Table -->
+    <div class="table-page">
+      <div class="section-title">📋 Quick-Action Summary Table for Termly Setup</div>
+      <p style="font-size: 13.5px; color: var(--text-muted); margin-bottom: 12px;">
+        Use this consolidated master table for quick, direct input while filling out the Termly questionnaire:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 38%;">Termly Purpose Group</th>
+            <th style="width: 22%;">Status / Action</th>
+            <th style="width: 40%;">Value to Enter</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Advertising, Direct Marketing</td>
+            <td><span class="tag-skip">⛔ Skip / Leave Blank</span></td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>Affiliate Marketing</td>
+            <td><span class="tag-skip">⛔ Skip / Leave Blank</span></td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>AI Platforms</td>
+            <td><span class="tag-skip">⛔ Skip / Leave Blank</span></td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>Third-Party Account Connections</td>
+            <td><span class="tag-selected">✅ Select</span></td>
+            <td><strong>Google account</strong>, <strong>Apple account</strong></td>
+          </tr>
+          <tr>
+            <td>Cloud Computing Services</td>
+            <td><span class="tag-selected">✅ Select</span></td>
+            <td><strong>Google Cloud Platform (Firebase)</strong></td>
+          </tr>
+          <tr>
+            <td>Communicate & Chat</td>
+            <td><span class="tag-skip">⛔ Skip (Dropdown)</span></td>
+            <td>Handled via internal Socket.io & SMTP</td>
+          </tr>
+          <tr>
+            <td>Content Optimization</td>
+            <td><span class="tag-selected">✅ Select</span></td>
+            <td><strong>Google Fonts</strong></td>
+          </tr>
+          <tr>
+            <td>Data Backup & Security</td>
+            <td><span class="tag-skip">⛔ Skip / Leave Blank</span></td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>Functionality & Infrastructure</td>
+            <td><span class="tag-selected">✅ Select</span></td>
+            <td><strong>Firebase</strong>, <strong>Termly.io</strong></td>
+          </tr>
+          <tr>
+            <td>Invoicing & Billing</td>
+            <td><span class="tag-selected">✅ Select & Add</span></td>
+            <td><strong>Stripe</strong> <em>(Dropdown)</em> + <strong>Trustap</strong> <em>(Custom)</em></td>
+          </tr>
+          <tr>
+            <td>Retargeting Platforms</td>
+            <td><span class="tag-skip">⛔ Skip / Leave Blank</span></td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>Social Media Sharing</td>
+            <td><span class="tag-skip">⛔ Skip / Leave Blank</span></td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>User Registration & Auth</td>
+            <td><span class="tag-selected">✅ Select</span></td>
+            <td><strong>Google Sign-In</strong>, <strong>Apple Sign-In</strong></td>
+          </tr>
+          <tr>
+            <td>User Commenting & Forums</td>
+            <td><span class="tag-skip">⛔ Skip / Leave Blank</span></td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>Web & Mobile Analytics</td>
+            <td><span class="tag-skip">⛔ Skip / Leave Blank</span></td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>Website Hosting</td>
+            <td><span class="tag-skip">⛔ Skip / Custom</span></td>
+            <td>Custom Next.js / NestJS Cloud VPS</td>
+          </tr>
+          <tr>
+            <td>Website Performance Monitoring</td>
+            <td><span class="tag-skip">⛔ Skip / Leave Blank</span></td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td>Website Testing</td>
+            <td><span class="tag-skip">⛔ Skip / Leave Blank</span></td>
+            <td>None</td>
+          </tr>
+          <tr style="background-color: #f0fdf4;">
+            <td><strong>Custom 1 (+ Add More)</strong></td>
+            <td><span class="tag-custom">➕ Add Custom</span></td>
+            <td><strong>Purpose:</strong> Identity Verification & KYC<br><strong>Service:</strong> <code>Veriff</code></td>
+          </tr>
+          <tr style="background-color: #f0fdf4;">
+            <td><strong>Custom 2 (+ Add More)</strong></td>
+            <td><span class="tag-custom">➕ Add Custom</span></td>
+            <td><strong>Purpose:</strong> Escrow Payment Processing<br><strong>Service:</strong> <code>Trustap</code></td>
+          </tr>
+          <tr style="background-color: #f0fdf4;">
+            <td><strong>Custom 3 (+ Add More)</strong></td>
+            <td><span class="tag-custom">➕ Add Custom</span></td>
+            <td><strong>Purpose:</strong> Digital Contracts & Signatures<br><strong>Service:</strong> <code>DocuSign</code></td>
+          </tr>
+          <tr style="background-color: #f0fdf4;">
+            <td><strong>Custom 4 (+ Add More)</strong></td>
+            <td><span class="tag-custom">➕ Add Custom</span></td>
+            <td><strong>Purpose:</strong> Transactional Email Delivery<br><strong>Service:</strong> <code>SMTP / Nodemailer</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="compliance-box">
+      <strong>⚖️ Formal Compliance Statement for Legal Counsel:</strong><br>
+      "AristoPay collects and discloses personal data solely to authorized service processors to perform its core marketplace and escrow contract duties (Firebase for authentication, Veriff for KYC identity verification, Trustap for escrow fund holding, DocuSign for contract execution, Stripe for subscriptions, and SMTP for security notifications). No personal data is sold, rented, or shared with third-party advertising or analytics networks."
+    </div>
+
+  </div>
+</body>
+</html>
